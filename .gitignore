@@ -1,0 +1,5 @@
+# vendor dir
+/vendor
+
+# composer stuff
+composer.lock

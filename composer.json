@@ -1,0 +1,25 @@
+{
+    "name": "phossa/phossa-di",
+    "version": "1.0.0",
+    "license": "MIT",
+    "type": "library",
+    "description": "The dependency injection package of Phossa framework",
+    "keywords": ["phossa", "framework", "di", "dependency injection", "container"],
+    "homepage": "https://github.com/phossa/phossa-di",
+    "authors": [
+        {
+            "name": "Hong Zhang",
+            "homepage": "https://github.com/phossa"
+        }
+    ],
+    "autoload": {
+        "psr-0": { "Phossa\\Di\\": "src/" }
+    },
+    "require": {
+        "php": ">=5.4.0",
+        "phossa-shared": "~1.*"
+    },
+    "archive": {
+        "exclude": ["!vendor", "tests", "*phpunit.xml",  "composer.lock"]
+    }
+}
