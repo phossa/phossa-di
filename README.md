@@ -13,7 +13,7 @@ PHP. It supports [auto wiring](#auto), [container delegation](#delegate),
 [definition tags](#tag), [service scope](#scope) and more.
 
 It requires PHP 5.4 and supports PHP 7.0+, HHVM. It is compliant with
-[PSR-1][PSR-1], [PSR-2][PSR-2], [PSR-4][PSR-4] and the coming [PSR-5][PSR-5],
+[PSR-1][PSR-1], [PSR-2][PSR-2], [PSR-4][PSR-4] and coming [PSR-5][PSR-5],
 [PSR-11][PSR-11].
 
 [PSR-1]: http://www.php-fig.org/psr/psr-1/ "PSR-1: Basic Coding Standard"
@@ -77,12 +77,14 @@ Getting started
   $container = new Container();
 
   // use the 'MyCache' classname as the service id
-  $cache = $container->get('MyCache');
+  if ($container->has('MyCache')) {
+      $cache = $container->get('MyCache');
+  }
   ```
 
-  With [auto wiring]((#auto)) is turnen on by default, the container will look
+  With [auto wiring]((#auto)) is turned on by default, the container will look
   for the `MyCache` class and resolves its dependency injection automatically
-  when creating the cache instance.
+  when creating the `$cache` instance.
 
 - **Use with definitions**
 
@@ -94,7 +96,7 @@ Getting started
 
   $container = new Container();
 
-  // config the cache with classname and constructor arguments
+  // config the cache service with classname and constructor arguments
   $container->add('cache', 'MyCache', [ '@cacheDriver@' ]);
 
   // config the cache driver with extra init method
@@ -104,7 +106,7 @@ Getting started
   // set a parameter which was used in 'cacheDriver'
   $container->set('cache.root', '/var/local/tmp');
 
-  // get cache object by id 'cache'
+  // get cache service by its id
   $cache = $container->get('cache');
   ```
 
@@ -124,19 +126,19 @@ Getting started
 
 - **Definition files**
 
-  Instead of configuring $container in the code, you may put your service and
-  parameter definitions into one definition file or two files *(seperating
-  parameter definitions from service definitions will give you the benefit
-  of loading different parameters base on different requirement)*.
+  Instead of configuring `$container` in the code, you may put your service and
+  parameter definitions into one definition file or two seperated files
+  *(seperating parameter definitions from service definitions will give you the
+  benefit of loading different parameters base on different requirement etc.)*.
 
-  PHP, JSON, XML format of definitioin formats are supported, and will be
-  automatically detected base on the filename suffix.
+  PHP, JSON, XML definition file formats are supported, and will be detected
+  automatically base on the filename suffixes.
 
   The service definition file `definition.serv.php`
 
   ```php
   <?php
-  /* file name '*.s[.]*.php' indicating a service definition in PHP format */
+  /* file name '*.s*.php' indicating SERVICE definitions in PHP format */
   return [
       'cache' => [
           'class' => [ 'MyCache', [ '@cacheDriver@' ]]
@@ -157,7 +159,7 @@ Getting started
 
   ```php
   <?php
-  /* file name '*.p[.]*.php' indicating a parameter definition in PHP format */
+  /* file name '*.p*.php' indicating PARAMETER definitions in PHP format */
   return [
       'cache.root' => '/var/local/tmp',
       // ...
@@ -165,13 +167,13 @@ Getting started
 
   ```
 
-  Or you may combine these two files into one `definitions.php`,
+  Or you may combine these two files into one `definition.php`,
 
   ```php
   <?php
-  /* file name '*.php' indicating a complete definition in PHP format */
+  /* file name '*.php' indicating definitions in PHP format */
   return [
-      // key 'services' indicating the service definition part
+      // key 'services' indicating the service definitions
       'services' => [
           'cache' => [
               'class' => [ 'MyCache', [ '@cacheDriver@' ]]
@@ -186,11 +188,17 @@ Getting started
           // ...
       ],
 
-      // key 'parameters' indicating the parameter definition part
+      // key 'parameters' indicating the parameter definitions
       'parameters' => [
           'cache.root' => '/var/local/tmp',
           // ...
-      ]
+      ],
+
+      // key 'mappings' indicating the mapping definitions
+      'mappings' => [
+          'CachePoolInterface'  => '\\Phossa\\Cache\\CachePool',
+          // ...
+      ],
   ];
 
   ```
@@ -209,7 +217,7 @@ Getting started
   $container->load('./definition.param.php');
 
   // you may load from one if you want to
-  // $container->load('./definitions.php');
+  // $container->load('./definition.php');
 
   // getting what you've already defined
   $cache = $container->get('cache');
@@ -241,34 +249,35 @@ Public APIs
     configured as a shared service. Set a new scope with `$scope` instead of
     the configured scope.
 
-    **Arguments may contain references like `@service_id@` or `%parameter%`**.
+    *Arguments may contain references like `@service_id@` or `%parameter%`*.
 
   - `one(string $id, array $arguments = []): object`
 
     Get a new instance even if it is configured as a shared service with or
-    without different arguments from the configured ones.
+    without different arguments.
 
   - `run($callable, array $arguments = []): mixed`
 
-    Execute a callable with the provided arguments. The callable can also be
-    a pseudo callable like `['@cacheDriver@', 'setRoot']`.
+    Execute a callable with the provided arguments. Pseudo callable like
+    `['@cacheDriver@', 'setRoot']` is supported.
 
 - Definition related APIs
 
   - `add(string|array $id, string|callable $class, array $arguments = []): this`
 
-    Add a service definition or definitions(array $id) into the container.
-    Callable can be used instead of classname to create an instance.
+    Add a service definition or definitions(array) into the container. Callable
+    can be used instead of classname to create an instance.
 
   - `set(string|array $name, string|callable $value = ''): this`
 
-    Set a parameter or parameters(array $name) into the container. `$value`
-    be a string or a callable (callable will be executed when this parameter
+    Set a parameter or parameters(array) into the container. `$value` can be a
+    string or a (pseduo) callable (callable will be executed when this parameter
     is being used).
 
   - `map(string|array $interface, string $classname): this`
 
-    Map a interface name to a classname or a service id.
+    Map a interface name to a classname or a service id. Maps can be inserted
+    into container if `$interface` is an array.
 
   - `addMethod(string $method, array $arguments = []): this`
 
@@ -282,7 +291,7 @@ Public APIs
     `Container::SCOPE_SHARED` and single scope `Container::SCOPE_SINGLE`.
 
     **NOTE**: if you want to share a dependent instance only under a specific
-    ancester service, you may define the as the ancester service id
+    ancester service, you may define the `$scope` as the ancester service id
 
     ```php
     $container->add('cache', 'MyCache');
@@ -304,32 +313,39 @@ Public APIs
 
   - `auto(bool $status): this`
 
-    Turn on ($status = true) or turn off ($status = false) [auto wiring](#auto).
+    Turn on (true) or turn off (false) [auto wiring](#auto).
 
 - Extension related APIs
 
   - `addExtension(ExtensionInterface $extension): this`
 
-    Dynamically load an user defined (extends ExtensionAbstract) extension into
-    the container.
+    Load an extension (extends Phossa\Di\Extension\ExtensionAbstract) into the
+    container.
 
-  - `load(string|array $fileOrArray, array $tags = []): this`
+  - `load(string|array $fileOrArray, array $matchTags = []): this`
 
     Load a definition array or definition file into the container. Definition
     filename with the format of '*.s*.php' will be considered as a service
-    definition file in PHP format. '*.p*.php' is a parameter file in PHP format,
-    '*.m*.php' is a mapping file. File suffixes '.php|.json|.xml' is known to
-    this library.
+    definition file in PHP format. '*.p*.php' is a parameter file in PHP format.
+    '*.m*.php' is a mapping file.
 
-    `$tags` is used when loading from a defintion file, the loader extension
-    will compare container's tags with `$tags`, if matches found, then the
-    definition file will be loaded. *IF `$tags` is empty, the definition file
-    will ALWAYS be loaded.*
+    File suffixes '.php|.json|.xml' is known to this library.
+
+    `$matchTags` is used when loading from a defintion file, the loader
+    extension will compare container's tags with `$matchTags`, if matches found,
+    then the definition file will be loaded.
+
+    *IF `$matchTags` is empty, the definition file will ALWAYS be loaded.*
 
   - `setTags(array $tags): this`
 
-    Set container tags. Tags can be used to selectly load definition files or
+    Set container's tags. Tags can be used to selectly load definition files or
     definition providers.
+
+  - `hasTags(array $tags): bool`
+
+    Check the existence of tags in the container. One tag match will return
+    `true`.
 
     ```php
     if ($container->hasTags(['PRODUCTION'])) {
@@ -339,6 +355,13 @@ Public APIs
     }
     ```
 
+    Or
+
+    ```php
+    $container->load('./productDefinitions.php', ['PRODUCTION']);
+    $container->load('./developDefinitions.php', ['DEVELOP']);
+    ```
+
   - `setDelegate(DelegatorInterface $delegator, bool $keepAutowiring = false): this`
 
     Set the delegator. Dependency will be looked up in the delegator instead
@@ -346,9 +369,9 @@ Public APIs
     container pool.
 
     Since [auto wiring](#auto) is conflict with the delegation design, this
-    feature will be turned off automatically. But user may choose to keep
-    auto wiring on if the container is the last on in the delegator's container
-    pool.
+    feature will be turned off automatically when setting the delegator. But
+    user may choose to keep auto wiring ON if the container is the last on in
+    the delegator's container pool.
 
     ```php
     use Phossa\Di\Extension\Delegate\Delegator;
@@ -356,7 +379,7 @@ Public APIs
     // create the delegator
     $delegator = new Delegator();
 
-    // other container may register with the delegator
+    // other container register with the delegator
     $delegator->setContainer($otherContainer);
 
     // register self with delegator
@@ -366,11 +389,11 @@ Public APIs
     // ...
     ```
 
-  - `setDecorate(string $name, string|callable $tester, array|callable $decorator): this`
+  - `addDecorate(string $name, string|callable $tester, array|callable $decorator): this`
 
     Set the decorating methods or callables for the matching service object, if
-    `TRUE` returned from `$tester` (callable) or is an instance of the `$tester`
-    (string).
+    `TRUE` returned from callable `$tester` or service object is an instance of
+    the `$tester` (classname).
 
   - `addProvider(string|ProviderInterface $provider): this`
 
@@ -380,7 +403,7 @@ Public APIs
 Version
 ---
 
-1.0.1
+1.0.3
 
 Dependencies
 ---
