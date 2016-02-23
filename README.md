@@ -78,6 +78,11 @@ With [auto wiring]((#auto)) is turnen on by default, the container will look
 for the `Cache` class and resolves its dependency automatically when create
 the cache object.
 
+Features
+---
+
+- <a name="auto"></a>Auto wiring
+
 Version
 ---
 
