@@ -1,0 +1,32 @@
+<?php
+
+use Phosa\Di\Container;
+
+/*
+ * sample service definitions
+ *
+ * parameter '%cache.root%' is defined in 'defintion.parameter.php' file
+ * With this seperation, users may keep their parameters in different files
+ * and load different parameters base on requirements.
+ * 
+ */
+return [
+    'cache' => [
+        'class' => [
+            '\\Phossa\\Cache\\CachePool', // classname
+            ['@cacheDriver@', [ '@tagExt@' ]] // constructor arguments
+        ],
+        'scope' => Container::SCOPE_SHARED // this is defult anyway
+    ],
+    'cacheDriver' => [
+        'class' => [
+            '\\Phossa\Cache\\Driver\\FilesystemDriver', // classname
+            [['dir_root' => '%cache.root%']] // argument is an array
+        ]
+    ],
+    'tagExt' => [
+        'class' => [
+            '\\Phossa\\Cache\\Extension\\TaggableExtension', // classname
+        ]
+    ]
+];

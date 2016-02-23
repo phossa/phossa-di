@@ -25,54 +25,54 @@ Getting started
 
   Install via the `composer` utility.
 
-    ```
-    composer require "phossa/phossa-di=1.*"
-    ```
+  ```
+  composer require "phossa/phossa-di=1.*"
+  ```
 
   or add the following lines to your `composer.json`
 
-    ```json
-    {
-        "require": {
-           "phossa/phossa-di": "^1.0.1"
-        }
-    }
-    ```
+  ```json
+  {
+      "require": {
+        "phossa/phossa-di": "^1.0.1"
+      }
+  }
+  ```
 
 - Simple usage
 
   You might have serveral simple classes like these or third party libraries, and
   want to make avaiable as services.
 
-    ```php
-    class Cache
-    {
-        private $driver;
+  ```php
+  class Cache
+  {
+      private $driver;
 
-        public function __construct(CacheDriver $driver)
-        {
-            $this->driver = $driver;
-        }
+      public function __construct(CacheDriver $driver)
+      {
+          $this->driver = $driver;
+      }
 
-        // ...
-    }
-    ```
+      // ...
+  }
+  ```
 
-    ```php
-    class CacheDriver
-    {
-        // ...
-    }
-    ```
+  ```php
+  class CacheDriver
+  {
+      // ...
+  }
+  ```
 
   You may just do the following,
 
-    ```php
-    use Phossa\Di\Container;
+  ```php
+  use Phossa\Di\Container;
 
-    $container = new Container();
-    $cache = $container->get('Cache');
-    ```
+  $container = new Container();
+  $cache = $container->get('Cache');
+  ```
 
   With [auto wiring]((#auto)) is turnen on by default, the container will look
   for the `Cache` class and resolves its dependency automatically when create

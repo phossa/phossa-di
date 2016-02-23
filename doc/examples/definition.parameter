@@ -1,0 +1,9 @@
+<?php
+
+/*
+ * parameter definitions
+ *
+ */
+return [
+    'cache.root' => '/var/local/tmp'
+];
