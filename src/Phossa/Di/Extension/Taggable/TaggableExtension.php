@@ -73,7 +73,10 @@ class TaggableExtension extends ExtensionAbstract
      */
     public function matchTags(array $tags)/*# : bool */
     {
-        return empty($tags) ? true :
-            !empty(array_intersect($this->tags, $tags));
+        if (empty($tags)) {
+            return true;
+        } else {
+            return count(array_intersect($this->tags, $tags)) ? true : false;
+        }
     }
 }
