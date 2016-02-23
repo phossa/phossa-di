@@ -13,23 +13,20 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di\Exception;
-
-use Phossa\Shared\Exception\NotFoundException as Exception;
+namespace Phossa\Di\Extension\Provider;
 
 /**
- * NotFoundException for Phossa\Di
+ * EagerProviderInterface
  *
+ * Whenever add this provider, call its merge() rightaway
+ *
+ * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @see     ExceptionInterface
- * @see     InteropNotFoundException
- * @see     \Phossa\Shared\Exception\NotFoundException
+ * @see     ProviderInterface
  * @version 1.0.1
- * @since   1.0.0 added
+ * @since   1.0.1 added
  */
-class NotFoundException extends Exception implements
-    ExceptionInterface,
-    InteropNotFoundException
+interface EagerProviderInterface extends ProviderInterface
 {
 }

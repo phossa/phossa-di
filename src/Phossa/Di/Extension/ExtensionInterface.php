@@ -13,23 +13,28 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di\Exception;
+namespace Phossa\Di\Extension;
 
-use Phossa\Shared\Exception\NotFoundException as Exception;
+use Phossa\Di\Exception\LogicException;
 
 /**
- * NotFoundException for Phossa\Di
+ * ExtensionInterface
  *
+ * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @see     ExceptionInterface
- * @see     InteropNotFoundException
- * @see     \Phossa\Shared\Exception\NotFoundException
  * @version 1.0.1
- * @since   1.0.0 added
+ * @since   1.0.1 added
  */
-class NotFoundException extends Exception implements
-    ExceptionInterface,
-    InteropNotFoundException
+interface ExtensionInterface
 {
+    /**
+     * Get extension name
+     *
+     * @return string
+     * @throws LogicException if name not defined
+     * @access public
+     * @api
+     */
+    public function getName()/*# : string */;
 }

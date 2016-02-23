@@ -15,21 +15,18 @@
 
 namespace Phossa\Di\Exception;
 
-use Phossa\Shared\Exception\NotFoundException as Exception;
+use Interop\Container\Exception\ContainerException;
 
 /**
- * NotFoundException for Phossa\Di
+ * Proxy to Interop ContainerException interface
  *
+ * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @see     ExceptionInterface
- * @see     InteropNotFoundException
- * @see     \Phossa\Shared\Exception\NotFoundException
+ * @see     \Interop\Container\Exception\ContainerException
  * @version 1.0.1
- * @since   1.0.0 added
+ * @since   1.0.1 added
  */
-class NotFoundException extends Exception implements
-    ExceptionInterface,
-    InteropNotFoundException
+interface InteropContainerException extends ContainerException
 {
 }

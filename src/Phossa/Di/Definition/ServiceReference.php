@@ -13,23 +13,18 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di\Exception;
-
-use Phossa\Shared\Exception\NotFoundException as Exception;
+namespace Phossa\Di\Definition;
 
 /**
- * NotFoundException for Phossa\Di
+ * ServiceReference
  *
+ * @abstract
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @see     ExceptionInterface
- * @see     InteropNotFoundException
- * @see     \Phossa\Shared\Exception\NotFoundException
+ * @see     ReferenceAbstract
  * @version 1.0.1
- * @since   1.0.0 added
+ * @since   1.0.1 added
  */
-class NotFoundException extends Exception implements
-    ExceptionInterface,
-    InteropNotFoundException
+class ServiceReference extends ReferenceAbstract
 {
 }

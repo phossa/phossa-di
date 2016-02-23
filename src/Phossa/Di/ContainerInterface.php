@@ -1,52 +1,71 @@
 <?php
-/*
+/**
  * Phossa Project
  *
- * @see         http://www.phossa.com/
- * @copyright   Copyright (c) 2015 phossa.com
- * @license     http://mit-license.org/ MIT License
+ * PHP version 5.4
+ *
+ * @category  Library
+ * @package   Phossa\Di
+ * @author    Hong Zhang <phossa@126.com>
+ * @copyright 2015 phossa.com
+ * @license   http://mit-license.org/ MIT License
+ * @link      http://www.phossa.com/
  */
 /*# declare(strict_types=1); */
 
 namespace Phossa\Di;
 
+use Phossa\Di\Exception\LogicException;
+
 /**
  * ContainerInterface
  *
- * Borrowed from fig-standards/proposed/container.md
- * 
+ * Extended phossa-di container interface, Provides one() and run() methods
+ *
  * @interface
- * @package \Phossa\Di
+ * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.0
- * @since   1.0.0 added
+ * @see     InteropContainerInterface
+ * @see     Extension\ExtensibleInterface
+ * @see     Definition\DefinitionAwareInterface
+ * @version 1.0.1
+ * @since   1.0.1 added
  */
-interface ContainerInterface
+interface ContainerInterface extends
+    InteropContainerInterface,
+    Extension\ExtensibleInterface,
+    Definition\DefinitionAwareInterface
 {
     /**
-     * Finds an entry of the container by its identifier and returns it.
+     * Get a new service even if it was defined as shared
      *
-     * @param  string $id Identifier of the entry to look for.
-     * @return mixed Entry.
-     * @throws \Phossa\Di\Exception\NotFoundException
-     *         No entry was found for this identifier.
-     * @throws \Phossa\Di\Exception\ContainerException
-     *         Error while retrieving the entry.
+     * @param  string $id service id
+     * @param  array $arguments (optional) arguments
+     * @return object
+     * @throws LogicException
      * @access public
      * @api
      */
-    public function get(/*# string */ $id);
+    public function one(/*# string */ $id, array $arguments = []);
 
     /**
-     * Returns true if the container can return an entry for the given
-     * identifier. Returns false otherwise.
+     * Execute a callable, expands its arguments
      *
-     * `has($id)` returning true does not mean that `get($id)` will not throw
-     * an exception. It does however mean that `get($id)` will not throw a
-     * `NotFoundException`.
+     * $callable can be a fake callable like the following
      *
-     * @param  string $id Identifier of the entry to look for.
-     * @return bool
+     * `[ '@cache@', 'setLogger' ]`
+     *
+     * or
+     *
+     * `[ new ServiceReference('cache'), 'setLogger' ]`
+     *
+     * @param  callable|array $callable
+     * @param  array $arguments (optional) arguments
+     * @return mixed
+     * @throws LogicException if DI goes wrong
+     * @throws \Exception if execution goes wrong
+     * @access public
+     * @api
      */
-    public function has(/*# string */ $id)/*# : bool */;
+    public function run($callable, array $arguments = []);
 }

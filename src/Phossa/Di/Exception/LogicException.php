@@ -15,21 +15,18 @@
 
 namespace Phossa\Di\Exception;
 
-use Phossa\Shared\Exception\NotFoundException as Exception;
+use Phossa\Shared\Exception\LogicException as Exception;
 
 /**
- * NotFoundException for Phossa\Di
+ * LogicException for Phossa\Di
  *
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     ExceptionInterface
- * @see     InteropNotFoundException
- * @see     \Phossa\Shared\Exception\NotFoundException
+ * @see     \Phossa\Shared\Exception\LogicException
  * @version 1.0.1
- * @since   1.0.0 added
+ * @since   1.0.1 added
  */
-class NotFoundException extends Exception implements
-    ExceptionInterface,
-    InteropNotFoundException
+class LogicException extends Exception implements ExceptionInterface
 {
 }
