@@ -76,7 +76,7 @@ Getting started
 
   $container = new Container();
 
-  // use the 'MyCache' classname as service id
+  // use the 'MyCache' classname as the service id
   $cache = $container->get('MyCache');
   ```
 
@@ -94,13 +94,15 @@ Getting started
 
   $container = new Container();
 
-  // config the cache
+  // config the cache with classname and constructor arguments
   $container->add('cache', 'MyCache', [ '@cacheDriver@' ]);
 
   // config the cache driver with extra init method
   $container->add('cacheDriver', 'MyCacheDriver')
-            ->addMethod('setRoot', [ '%cache.root%' ])
-            ->set('cache.root', '/var/local/tmp');
+            ->addMethod('setRoot', [ '%cache.root%' ]);
+
+  // set a parameter which was used in 'cacheDriver'
+  $container->set('cache.root', '/var/local/tmp');
 
   // get cache object by id 'cache'
   $cache = $container->get('cache');
@@ -110,6 +112,96 @@ Getting started
   parameter can be referenced as '%cache.root%'.
 
 - **Definition files**
+
+  Instead of configuring $container in the code, you may put your service and
+  parameter definitions into one definition file or two files (seperating
+  parameter definitions from service definitions will give you the benefit
+  of loading different parameters base on different requirement).
+
+  PHP, Json, XML format of definitioin formats are supported.
+
+  The service definition file `definition.serv.php`
+
+  ```php
+  <?php
+  /* file name '*.s[.]*.php' indicating a service definition in PHP format */
+  return [
+      'cache' => [
+          'class' => [ 'MyCache', [ '@cacheDriver@' ]]
+      ],
+      'cacheDriver' => [
+          'class'   => [ 'MyCacheDriver' ],
+          'methods' => [
+              [ 'setRoot', [ '%cache.root%' ] ],
+              // ...
+          ]
+      ],
+      // ...
+  ];
+
+  ```
+
+  The parameter definition file `definition.param.php`
+
+  ```php
+  <?php
+  /* file name '*.p[.]*.php' indicating a parameter definition in PHP format */
+  return [
+      'cache.root' => '/var/local/tmp',
+      // ...
+  ];
+
+  ```
+
+  Or you may combine these two files into one `definitions.php`,
+
+  ```php
+  <?php
+  /* file name '*.php' indicating a complete definition in PHP format */
+  return [
+      // key 'services' indicating the service definition part
+      'services' => [
+          'cache' => [
+              'class' => [ 'MyCache', [ '@cacheDriver@' ]]
+          ],
+          'cacheDriver' => [
+              'class'   => [ 'MyCacheDriver' ],
+              'methods' => [
+                  [ 'setRoot', [ '%cache.root%' ] ],
+                  // ...
+              ]
+          ],
+          // ...
+      ],
+
+      // key 'parameters' indicating the parameter definition part
+      'parameters' => [
+          'cache.root' => '/var/local/tmp',
+          // ...
+      ]
+  ];
+
+  ```
+
+  You can load definitions from file file now,
+
+  ```php
+  use Phossa\Di\Container;
+
+  $container = new Container();
+
+  // load service definitions
+  $container->load('./definition.serv.php');
+
+  // load parameter definition
+  $container->load('./definition.param.php');
+
+  // you may load one file if you want to
+  // $container->load('./definitions.php');
+
+  // getting what you've already defined
+  $cache = $container->get('cache');
+  ```
 
 Features
 ---
