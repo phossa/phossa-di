@@ -196,14 +196,14 @@ Getting started
 
       // key 'mappings' indicating the mapping definitions
       'mappings' => [
-          'CachePoolInterface'  => '\\Phossa\\Cache\\CachePool',
+          '\\Phossa\\Cache\\CachePoolInterface'  => '\\Phossa\\Cache\\CachePool',
           // ...
       ],
   ];
 
   ```
 
-  You can load definitions from files now,
+  You may load definitions from files now,
 
   ```php
   use Phossa\Di\Container;
@@ -256,14 +256,14 @@ Public APIs
     Get a new instance even if it is configured as a shared service with or
     without different arguments.
 
-  - `run($callable, array $arguments = []): mixed`
+  - `run(callable|array $callable, array $arguments = []): mixed`
 
     Execute a callable with the provided arguments. Pseudo callable like
     `['@cacheDriver@', 'setRoot']` is supported.
 
 - Definition related APIs
 
-  - `add(string|array $id, string|callable $class, array $arguments = []): this`
+  - `add(string|array $id, string|callable $className, array $arguments = []): this`
 
     Add a service definition or definitions(array) into the container. Callable
     can be used instead of classname to create an instance.
@@ -274,7 +274,7 @@ Public APIs
     string or a (pseduo) callable (callable will be executed when this parameter
     is being used).
 
-  - `map(string|array $interface, string $classname): this`
+  - `map(string|array $interface, string $className): this`
 
     Map a interface name to a classname or a service id. Maps can be inserted
     into container if `$interface` is an array.
@@ -325,15 +325,20 @@ Public APIs
   - `load(string|array $fileOrArray, array $matchTags = []): this`
 
     Load a definition array or definition file into the container. Definition
-    filename with the format of '*.s*.php' will be considered as a service
-    definition file in PHP format. '*.p*.php' is a parameter file in PHP format.
-    '*.m*.php' is a mapping file.
+    filename with the format of '\*.s\*.php' will be considered as a service
+    definition file in PHP format. '\*.p\*.php' is a parameter file in PHP
+    format. '\*.m\*.php' is a mapping file.
 
     File suffixes '.php|.json|.xml' is known to this library.
 
     `$matchTags` is used when loading from a defintion file, the loader
     extension will compare container's tags with `$matchTags`, if matches found,
     then the definition file will be loaded.
+
+    ```php
+    $container->load('./productDefinitions.php', ['PRODUCTION']);
+    $container->load('./developDefinitions.php', ['DEVELOP']);
+    ```
 
     *IF `$matchTags` is empty, the definition file will ALWAYS be loaded.*
 
@@ -355,21 +360,14 @@ Public APIs
     }
     ```
 
-    Or
-
-    ```php
-    $container->load('./productDefinitions.php', ['PRODUCTION']);
-    $container->load('./developDefinitions.php', ['DEVELOP']);
-    ```
-
   - `setDelegate(DelegatorInterface $delegator, bool $keepAutowiring = false): this`
 
-    Set the delegator. Dependency will be looked up in the delegator instead
-    of in the container. The container itself will be injected into delegator's
-    container pool.
+    Set the [delegator](https://github.com/container-interop/fig-standards/blob/master/proposed/container.md#13-additional-feature-delegate-lookup).
+    Dependency will be looked up in the delegator instead of in the container.
+    The container itself will be injected into delegator's container pool.
 
-    Since [auto wiring](#auto) is conflict with the delegation design, this
-    feature will be turned off automatically when setting the delegator. But
+    Since [auto wiring](#auto) is conflict with the delegation design, auto
+    wiring will be turned off automatically when setting the delegator. But
     user may choose to keep auto wiring ON if the container is the last on in
     the delegator's container pool.
 
@@ -382,8 +380,8 @@ Public APIs
     // other container register with the delegator
     $delegator->setContainer($otherContainer);
 
-    // register self with delegator
-    $container->setDelegate($delegator);
+    // register self with delegator and keep autowiring ON
+    $container->setDelegate($delegator, true);
 
     // dependency will be resolved in the order of $otherContainer, $container
     // ...
