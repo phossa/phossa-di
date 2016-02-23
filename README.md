@@ -8,7 +8,7 @@ PHP. It supports [auto wiring](#auto), [container delegation](#delegate),
 [object decorating](#decorate), [definition provider](#provider),
 [definition tags](#tag) and more.
 
-It requires PHP 5.4 and support PHP 7.0, HHVM. It is compliant with
+It requires PHP 5.4 and supports PHP 7.0+, HHVM. It is compliant with
 [PSR-1][PSR-1], [PSR-2][PSR-2], [PSR-4][PSR-4] and the coming [PSR-5][PSR-5],
 [PSR-11][PSR-11].
 
@@ -23,60 +23,60 @@ Getting started
 
 - Installation
 
-Install via the `composer` utility.
+  Install via the `composer` utility.
 
-```
-composer require "phossa/phossa-di=1.*"
-```
+    ```
+    composer require "phossa/phossa-di=1.*"
+    ```
 
-or add the following lines to your `composer.json`
+  or add the following lines to your `composer.json`
 
-```json
-{
-    "require": {
-       "phossa/phossa-di": "^1.0.1"
+    ```json
+    {
+        "require": {
+           "phossa/phossa-di": "^1.0.1"
+        }
     }
-}
-```
+    ```
 
 - Simple usage
 
-You might have serveral simple classes like these or third party libraries, and
-want to make avaiable as services.
+  You might have serveral simple classes like these or third party libraries, and
+  want to make avaiable as services.
 
-```php
-class Cache
-{
-    private $driver;
-
-    public function __construct(CacheDriver $driver)
+    ```php
+    class Cache
     {
-        $this->driver = $driver;
+        private $driver;
+
+        public function __construct(CacheDriver $driver)
+        {
+            $this->driver = $driver;
+        }
+
+        // ...
     }
+    ```
 
-    // ...
-}
-```
+    ```php
+    class CacheDriver
+    {
+        // ...
+    }
+    ```
 
-```php
-class CacheDriver
-{
-    // ...
-}
-```
+  You may just do the following,
 
-You may just do the following,
+    ```php
+    use Phossa\Di\Container;
 
-```php
-use Phossa\Di\Container;
+    $container = new Container();
+    $cache = $container->get('Cache');
+    ```
 
-$container = new Container();
-$cache = $container->get('Cache');
-```
-
-With [auto wiring]((#auto)) is turnen on by default, the container will look
-for the `Cache` class and resolves its dependency automatically when create
-the cache object.
+  With [auto wiring]((#auto)) is turnen on by default, the container will look
+  for the `Cache` class and resolves its dependency automatically when create
+  the cache object.
 
 Features
 ---
