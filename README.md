@@ -10,7 +10,7 @@ Introduction
 Phossa-di is a **FAST** and **FULL-FLEDGED** dependency injection library for
 PHP. It supports [auto wiring](#auto), [container delegation](#delegate),
 [object decorating](#decorate), [definition provider](#provider),
-[definition tags](#tag), [service scope](#scope) and more.
+[definition tagging](#tag), [object scope](#scope) and more.
 
 It requires PHP 5.4 and supports PHP 7.0+, HHVM. It is compliant with
 [PSR-1][PSR-1], [PSR-2][PSR-2], [PSR-4][PSR-4] and coming [PSR-5][PSR-5],
@@ -127,12 +127,12 @@ Getting started
 - **Definition files**
 
   Instead of configuring `$container` in the code, you may put your service and
-  parameter definitions into one definition file or two seperated files
+  parameter definitions into one definition file or several seperated files
   *(seperating parameter definitions from service definitions will give you the
   benefit of loading different parameters base on different requirement etc.)*.
 
-  PHP, JSON, XML definition file formats are supported, and will be detected
-  automatically base on the filename suffixes.
+  PHP, JSON, XML file formats are supported, and will be detected automatically
+  base on the filename suffixes.
 
   The service definition file `definition.serv.php`
 
@@ -167,7 +167,7 @@ Getting started
 
   ```
 
-  Or you may combine these two files into one `definition.php`,
+  Or you may combine these files into one `definition.php`,
 
   ```php
   <?php
@@ -226,7 +226,237 @@ Getting started
 Features
 ---
 
-- <a name="auto"></a>Auto wiring
+- <a name="auto"></a>**Auto wiring**
+
+  *Auto wiring* is the ability of container instantiating objects and resolving
+  its dependencies automatically. The base for auto wiring is the PHP function
+  parameter *type-hinting*.
+
+  By reflecting on the class, constructor and methods, *phossa-di* is able to
+  find the right class for the object (user need to use the classname as the
+  service id) and right class for the dependencies (type-hinted with the right
+  classnames).
+
+  To fully explore the auto wiring feature, users may map interface to classname
+  or service id as the following,
+
+  ```php
+  // map a interface to a classname
+  $container->map(
+      '\\Phossa\\Cache\\CachePoolInterface',
+      '\\Phossa\\Cache\\CachePool'
+  );
+
+  // map a interface to a service id
+  $container->map('\\Phossa\\Cache\\CachePoolInterface', '@cache@');
+  ```
+
+  Or load mapping files,
+
+  ```php
+  $container->load('./defintion.mappings.php');
+  ```
+
+  Auto wiring can be turned on/off. Turn off auto wiring will enable user to
+  check any defintion errors without automatically loading.
+
+  ```php
+  // turn off auto wiring
+  $container->auto(false);
+
+  // turn on auto wiring
+  $container->auto(true);
+  ```
+- <a name="delegate"></a>**Container delegation**
+
+  According to [Interop Container Delegate Lookup](https://github.com/container-interop/fig-standards/blob/master/proposed/container.md), container may register a delegate
+  container (the delegator), and
+
+  - Calls to the `get()` method should only return an entry if the entry is
+    part of the container. If the entry is not part of the container, an
+    exception should be thrown (as requested by the `ContainerInterface`).
+
+  - Calls to the `has()` method should only return true if the entry is part
+    of the container. If the entry is not part of the container, false should
+    be returned.
+
+  - If the fetched entry has dependencies, **instead** of performing the
+    dependency lookup in the container, the lookup is performed on the
+    delegate container (delegator).
+
+  - **Important** By default, the lookup *SHOULD* be performed on the delegate
+    container only, not on the container itself.
+
+  phossa-di fully supports the delegate feature.
+
+  ```php
+  use Phossa\Di\Extension\Delegate\Delegator;
+
+  // create delegator
+  $delegator = new Delegator();
+
+  // insert different containers
+  $delegator->addContainer($otherContainer);
+
+  // $contaner register with the delegator
+  $container->setDelegate($delegator);
+
+  // cacheDriver is now looked up through the $delegator
+  $cache = $container->get('cache');
+  ```
+- <a name="delegate"></a>**Object decorating**
+
+  *Object decorating* is to apply decorating changes (call methods etc.) right
+  after the instantiation of a service object base on certain criteria such as
+  it implements a interface.
+
+  ```php
+  // any object implementing 'LoggerAware' should be decorated
+  $container->addDecorate(
+      'setlogger',  // rule name
+      '\\Psr\\Log\\LoggerAwareInterface', // match this interface
+      ['setLogger', ['@logger@']] // run this method
+  );
+  ```
+
+  *Object decorating* saves user a lot of definition duplications and will
+  apply to future service definitions. Phossa-di also supports using a tester
+  callable and a decorate callable as following,
+
+  ```php
+  $container->addDecorate('setlogger',
+      function($object) {
+          return $object instanceof \Psr\Log\LoggerAwareInterface;
+      },
+      function($object) use($container) {
+        $object->setLogger($container->get('logger'));
+      }
+  );
+  ```
+
+- <a name="tag"></a>**Definition tagging**
+
+  Most developers use different defintions or configurations for development
+  or production environment. This is achieved by put definitions in different
+  files and load these files base on the container tag.
+
+  ```php
+  // SYSTEM_CONST is now 'PRODUCTION'
+  $container->addTag(SYSTEM_CONST);
+
+  // load different defintion base on container tags
+  if ($container->hasTag('PRODUCTION')) {
+      $container->load('./productDefinitions.php');
+  } else {
+      $container->load('./developDefinitions.php');
+  }
+  ```
+
+  Or use `load()` second parameter directly,
+
+  ```php
+  $container->load('./productDefinitions.php', 'PRODUCTION');
+  $container->load('./developDefinitions.php', ['DEVELOP', 'TEST']);
+  ```
+
+- <a name="provider"></a>**Definition provider**
+
+  *Definition provider* is used to wrap logic related definitions into one
+  entity. These definitions will be loaded into container automaitcally if a
+  call to container's `has()` and found the definition in this provider.
+
+  ```php
+  <?php
+
+  use Phossa\Di\Extension\Provider\ProviderAbstract
+
+  // Production related DB definitions here
+  class ProductionDbProvider extends ProviderAbstract
+  {
+      // list of service ids we provide
+      protected $provides = [ 'DbServer' ];
+
+      // the only method we need to implement
+      protected function mergeDefinition()
+      {
+          $container = $this->getContainer();
+          $container->add('DbServer', '\\DbClass', [
+              '192.168.0.12', 'myDbusername', 'thisIsApassword'
+          ]);
+      }
+  }
+
+  ```
+
+  The previous provider should be insert into container before any calls
+  to `has()` or `get()` and after setting the container tags, if tags need
+  to used.
+
+  ```php
+  // SYSTEM_CONST is now 'PRODUCTION'
+  $container->addTag(SYSTEM_CONST);
+
+  // the provider will be loaded only if SYSTEM_CONST is PRODUCTION
+  $container->addProvider(new ProductionDbProvider('PRODUCTION'));
+
+  // another provider will be loaded only if SYSTEM_CONST is TEST
+  $container->addProvider(new TestDbProvider('TEST'));
+
+  // DB related definitions will be loaded here
+  $db = $container->get('DbServer');
+  ```
+
+- <a name="scope"></a>**Object scope**
+
+  By default, service objects in the container is shared inside the container,
+  namely their has the scope of `Container::SCOPE_SHARED`. If users want
+  different object each time calling `get()`, they may either use the method
+  `one()` or define it with the scope `Container::SCOPE_SINGLE`.
+
+  ```php
+  // this will return the shared copy of cache service
+  $cache1 = $container->get('cache');
+
+  // this will always return a new copy of cache service
+  $cache2 = $container->one('cache');
+
+  // FALSE
+  var_dump($cache1 === $cache2);
+
+  // but both share the same cacheDriver since it is default to SCOPE_SHARED
+  var_dump($cache1->getDriver() === $cache2->getDriver()); // true
+  ```
+
+  Or define it as `Container::SCOPE_SINGLE`
+
+  ```php
+  $container->add('cache', '\\Phossa\\Cache\\CachePool')
+            ->addScope(Container::SCOPE_SINGLE);
+
+  // each get() will return a new cache
+  $cache = $container->get('cache');
+  ```
+
+  **NOTE**: if user wants to share a dependent instance only under a specific
+  ancester object tree, user may define the `$scope` equal to the ancester id
+
+  ```php
+  $container->add('cache', 'MyCache');
+  $container->add('cacheDriver', 'MyCacheDriver');
+
+  $cache1 = $container->one('cache');
+  $cache2 = $container->one('cache');
+
+  // $cache1 !== $cache2, but cacheDriver is shared
+  var_dump($cache1 === $cache2); // false
+  var_dump($cache1->getDriver() === $cache2->getDriver()); // true
+
+  // reconfigure cacheDriver scope, it coupled with 'cache' instance now
+  $container->add('cacheDriver', 'MyCacheDriver')->addScope('cache');
+
+  $cache3 = $container->one('cache');
+  var_dump($cache1->getDriver() === $cache3->getDriver()); // false
+  ```
 
 Public APIs
 --
@@ -239,22 +469,21 @@ Public APIs
 
   - `has(string $id): bool`
 
-    Check for service existence in the container.
+    Check for the named service's existence in the container.
 
 - Extended APIs by phossa-di
 
   - `get(string $id, array $arguments = [], string $scope = ''): object`
 
-    Provided with extra arguments to get a different instance even if it was
-    configured as a shared service. Set a new scope with `$scope` instead of
-    the configured scope.
+    If extra arguments are used, new instance will be generated even if it was
+    configured as a shared service.
 
     *Arguments may contain references like `@service_id@` or `%parameter%`*.
 
   - `one(string $id, array $arguments = []): object`
 
     Get a new instance even if it is configured as a shared service with or
-    without different arguments.
+    without new arguments.
 
   - `run(callable|array $callable, array $arguments = []): mixed`
 
@@ -276,8 +505,8 @@ Public APIs
 
   - `map(string|array $interface, string $className): this`
 
-    Map a interface name to a classname or a service id. Maps can be inserted
-    into container if `$interface` is an array.
+    Map a interface name to a classname or a service id. Map array can be
+    inserted into container if `$interface` is an array.
 
   - `addMethod(string $method, array $arguments = []): this`
 
@@ -290,27 +519,6 @@ Public APIs
     `addMethod()`. There are two predefined scope contants, shared scope
     `Container::SCOPE_SHARED` and single scope `Container::SCOPE_SINGLE`.
 
-    **NOTE**: if you want to share a dependent instance only under a specific
-    ancester service, you may define the `$scope` as the ancester service id
-
-    ```php
-    $container->add('cache', 'MyCache');
-    $container->add('cacheDriver', 'MyCacheDriver');
-
-    $cache1 = $container->one('cache');
-    $cache2 = $container->one('cache');
-
-    // $cache1 !== $cache2, but cacheDriver is shared
-    var_dump($cache1 === $cache2); // false
-    var_dump($cache1->getDriver() === $cache2->getDriver()); // true
-
-    // reconfigure cacheDriver scope, it coupled with 'cache' instance now
-    $container->add('cacheDriver', 'MyCacheDriver')->addScope('cache');
-
-    $cache3 = $container->one('cache');
-    var_dump($cache1->getDriver() === $cache3->getDriver()); // false
-    ```
-
   - `auto(bool $status): this`
 
     Turn on (true) or turn off (false) [auto wiring](#auto).
@@ -322,38 +530,33 @@ Public APIs
     Load an extension (extends Phossa\Di\Extension\ExtensionAbstract) into the
     container.
 
-  - `load(string|array $fileOrArray, array $matchTags = []): this`
+  - `load(string|array $fileOrArray, string|array $matchTags = ''): this`
 
     Load a definition array or definition file into the container. Definition
-    filename with the format of '\*.s\*.php' will be considered as a service
-    definition file in PHP format. '\*.p\*.php' is a parameter file in PHP
-    format. '\*.m\*.php' is a mapping file.
+    filename with the format of `*.s*.php` will be considered as a service
+    definition file in PHP format. `*.p*.php` is a parameter file in PHP
+    format. `*.m*.php` is a mapping file.
 
-    File suffixes '.php|.json|.xml' is known to this library.
+    File suffixes '.php|.json|.xml' are known to this library.
 
     `$matchTags` is used when loading from a defintion file, the loader
     extension will compare container's tags with `$matchTags`, if matches found,
     then the definition file will be loaded.
 
-    ```php
-    $container->load('./productDefinitions.php', ['PRODUCTION']);
-    $container->load('./developDefinitions.php', ['DEVELOP']);
-    ```
-
     *IF `$matchTags` is empty, the definition file will ALWAYS be loaded.*
 
-  - `setTags(array $tags): this`
+  - `addTag(string|array $tag): this`
 
     Set container's tags. Tags can be used to selectly load definition files or
     definition providers.
 
-  - `hasTags(array $tags): bool`
+  - `hasTag(string|array $tag): bool`
 
     Check the existence of tags in the container. One tag match will return
     `true`.
 
     ```php
-    if ($container->hasTags(['PRODUCTION'])) {
+    if ($container->hasTag('PRODUCTION')) {
         $container->load('./productDefinitions.php');
     } else {
         $container->load('./developDefinitions.php');
