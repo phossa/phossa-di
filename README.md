@@ -111,6 +111,17 @@ Getting started
   In the definition, another service can be referenced as '@cacheDriver@' and
   parameter can be referenced as '%cache.root%'.
 
+- **Callable instead of class name**
+
+  Callable can be used to instantiate a service.
+
+  ```php
+  // ...
+  $container->add('cacheDriver', function() {
+      return new \cacheDriver();
+  });
+  ```
+
 - **Definition files**
 
   Instead of configuring $container in the code, you may put your service and
@@ -212,23 +223,159 @@ Features
 Public APIs
 --
 
-- PSR-11 compliant APIs
+- [PSR-11][PSR-11] compliant APIs
 
-  - `get(string $id): mixed`
+  - `get(string $id): object`
 
-    getting the named service for the container.
+    Getting the named service from the container.
 
   - `has(string $id): bool`
 
-    check for service existence.
+    Check for service existence in the container.
 
-- extended APIs by phossa-di
+- Extended APIs by phossa-di
 
-  - `get(string $id, array $arguments = [], string $scope = '')`
+  - `get(string $id, array $arguments = [], string $scope = ''): object`
 
-    provided with extra arguments to get a different instance even if it was
+    Provided with extra arguments to get a different instance even if it was
     configured as a shared service. Set a new scope with `$scope` instead of
     the configured scope.
+
+    **Arguments may contain references like `@service_id@` or `%parameter%`**.
+
+  - `one(string $id, array $arguments = []): object`
+
+    Get a new instance even if it is configured as a shared service with or
+    without different arguments from the configured ones.
+
+  - `run($callable, array $arguments = []): mixed`
+
+    Execute a callable with the provided arguments. The callable can also be
+    a pseudo callable like `['@cacheDriver@', 'setRoot']`.
+
+- Definition related APIs
+
+  - `add(string|array $id, string|callable $class, array $arguments = []): this`
+
+    Add a service definition or definitions(array $id) into the container.
+    Callable can be used instead of classname to create an instance.
+
+  - `set(string|array $name, string|callable $value = ''): this`
+
+    Set a parameter or parameters(array $name) into the container. `$value`
+    be a string or a callable (callable will be executed when this parameter
+    is being used).
+
+  - `map(string|array $interface, string $classname): this`
+
+    Map a interface name to a classname or a service id.
+
+  - `addMethod(string $method, array $arguments = []): this`
+
+    Add a method call to the previous added service in the chain of `add()` or
+    `addMethod()`.
+
+  - `addScope(string $scope): this`
+
+    Add a scope to the previous added service in the chain of `add()` or
+    `addMethod()`. There are two predefined scope contants, shared scope
+    `Container::SCOPE_SHARED` and single scope `Container::SCOPE_SINGLE`.
+
+    **NOTE**: if you want to share a dependent instance only under a specific
+    ancester service, you may define the as the ancester service id
+
+    ```php
+    $container->add('cache', 'MyCache');
+    $container->add('cacheDriver', 'MyCacheDriver');
+
+    $cache1 = $container->one('cache');
+    $cache2 = $container->one('cache');
+
+    // $cache1 !== $cache2, but cacheDriver is shared
+    var_dump($cache1 === $cache2); // false
+    var_dump($cache1->getDriver() === $cache2->getDriver()); // true
+
+    // reconfigure cacheDriver scope, it coupled with 'cache' instance now
+    $container->add('cacheDriver', 'MyCacheDriver')->addScope('cache');
+
+    $cache3 = $container->one('cache');
+    var_dump($cache1->getDriver() === $cache3->getDriver()); // false
+    ```
+
+  - `auto(bool $status): this`
+
+    Turn on ($status = true) or turn off ($status = false) [auto wiring](#auto).
+
+- Extension related APIs
+
+  - `addExtension(ExtensionInterface $extension): this`
+
+    Dynamically load an user defined (extends ExtensionAbstract) extension into
+    the container.
+
+  - `load(string|array $fileOrArray, array $tags = []): this`
+
+    Load a definition array or definition file into the container. Definition
+    filename with the format of '*.s*.php' will be considered as a service
+    definition file in PHP format. '*.p*.php' is a parameter file in PHP format,
+    '*.m*.php' is a mapping file. File suffixes '.php|.json|.xml' is known to
+    this library.
+
+    `$tags` is used when loading from a defintion file, the loader extension
+    will compare container's tags with `$tags`, if matches found, then the
+    definition file will be loaded. *IF `$tags` is empty, the definition file
+    will ALWAYS be loaded.*
+
+  - `setTags(array $tags): this`
+
+    Set container tags. Tags can be used to selectly load definition files or
+    definition providers.
+
+    ```php
+    if ($container->hasTags(['PRODUCTION'])) {
+        $container->load('./productDefinitions.php');
+    } else {
+        $container->load('./developDefinitions.php');
+    }
+    ```
+
+  - `setDelegate(DelegatorInterface $delegator, bool $keepAutowiring = false): this`
+
+    Set the delegator. Dependency will be looked up in the delegator instead
+    of in the container. The container itself will be injected into delegator's
+    container pool.
+
+    Since [auto wiring](#auto) is conflict with the delegation design, this
+    feature will be turned off automatically. But user may choose to keep
+    auto wiring on if the container is the last on in the delegator's container
+    pool.
+
+    ```php
+    use Phossa\Di\Extension\Delegate\Delegator;
+
+    // create the delegator
+    $delegator = new Delegator();
+
+    // other container may register with the delegator
+    $delegator->setContainer($otherContainer);
+
+    // register self with delegator
+    $container->setDelegate($delegator);
+
+    // dependency will be resolved in the order of $otherContainer, $container
+    // ...
+    ```
+
+  - `setDecorate(string $name, string|callable $tester, array|callable $decorator): this`
+
+    Set the decorating methods or callables for the matching service object, if
+    `TRUE` returned from `$tester` (callable) or is an instance of the `$tester`
+    (string).
+
+  - `addProvider(string|ProviderInterface $provider): this`
+
+    Add definition provider to the container either by provider classname or
+    the provider object.
 
 Version
 ---
