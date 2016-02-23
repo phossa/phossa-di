@@ -21,7 +21,7 @@ It requires PHP 5.4 and supports PHP 7.0+, HHVM. It is compliant with
 Getting started
 ---
 
-- Installation
+- **Installation**
 
   Install via the `composer` utility.
 
@@ -39,17 +39,17 @@ Getting started
   }
   ```
 
-- Simple usage
+- **Simple usage**
 
-  You might have serveral simple classes like these or third party libraries, and
-  want to make avaiable as services.
+  You might have serveral simple classes like these or third party libraries,
+  and want to make avaiable as services.
 
   ```php
-  class Cache
+  class MyCache
   {
       private $driver;
 
-      public function __construct(CacheDriver $driver)
+      public function __construct(MyCacheDriver $driver)
       {
           $this->driver = $driver;
       }
@@ -59,7 +59,7 @@ Getting started
   ```
 
   ```php
-  class CacheDriver
+  class MyCacheDriver
   {
       // ...
   }
@@ -71,12 +71,41 @@ Getting started
   use Phossa\Di\Container;
 
   $container = new Container();
-  $cache = $container->get('Cache');
+
+  // use the 'MyCache' classname as service id
+  $cache = $container->get('MyCache');
   ```
 
   With [auto wiring]((#auto)) is turnen on by default, the container will look
-  for the `Cache` class and resolves its dependency automatically when create
-  the cache object.
+  for the `MyCache` class and resolves its dependency injection automatically
+  when creating the cache instance.
+
+- **Use with definitions**
+
+  Complex situations may need extra configurations. Definition related methods
+  can be used to configure services.
+
+  ```php
+  use Phossa\Di\Container;
+
+  $container = new Container();
+
+  // config the cache
+  $container->add('cache', 'MyCache', [ '@cacheDriver@' ]);
+
+  // config the cache driver with extra init method
+  $container->add('cacheDriver', 'MyCacheDriver')
+            ->addMethod('setRoot', [ '%cache.root%' ])
+            ->set('cache.root', '/var/local/tmp');
+
+  // get cache object by id 'cache'
+  $cache = $container->get('cache');
+  ```
+
+  In the definition, another service can be referenced as '@cacheDriver@' and
+  parameter can be referenced as '%cache.root%'.
+
+- **Definition files**
 
 Features
 ---

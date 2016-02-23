@@ -135,13 +135,13 @@ trait DefinitionAwareTrait
         /*# string */ $method,
         array $arguments = []
     )/*# : DefinitionAwareInterface */ {
-        if (empty($id = $this->last_added)) {
+        if (empty($this->last_added)) {
             throw new NotFoundException(
                 Message::get(Message::SERVICE_ID_NOT_FOUND, __METHOD__),
                 Message::SERVICE_ID_NOT_FOUND
             );
         } else {
-            $service = &$this->services[$id];
+            $service = &$this->services[$this->last_added];
             if (!isset($service['methods'])) {
                 $service['methods'] = [];
             }
