@@ -156,13 +156,13 @@ trait DefinitionAwareTrait
     public function addScope(
         /*# string */ $scope
     )/*# : DefinitionAwareInterface */ {
-        if (empty($id = $this->last_added)) {
+        if (empty($this->last_added)) {
             throw new NotFoundException(
                 Message::get(Message::SERVICE_ID_NOT_FOUND, __METHOD__),
                 Message::SERVICE_ID_NOT_FOUND
             );
         } else {
-            $this->services[$id]['scope'] = $scope;
+            $this->services[$this->last_added]['scope'] = $scope;
         }
         return $this;
     }
