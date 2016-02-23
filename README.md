@@ -10,7 +10,7 @@ Introduction
 Phossa-di is a **FAST** and **FULL-FLEDGED** dependency injection library for
 PHP. It supports [auto wiring](#auto), [container delegation](#delegate),
 [object decorating](#decorate), [definition provider](#provider),
-[definition tags](#tag) and more.
+[definition tags](#tag), [service scope](#scope) and more.
 
 It requires PHP 5.4 and supports PHP 7.0+, HHVM. It is compliant with
 [PSR-1][PSR-1], [PSR-2][PSR-2], [PSR-4][PSR-4] and the coming [PSR-5][PSR-5],
@@ -114,11 +114,12 @@ Getting started
 - **Definition files**
 
   Instead of configuring $container in the code, you may put your service and
-  parameter definitions into one definition file or two files (seperating
+  parameter definitions into one definition file or two files *(seperating
   parameter definitions from service definitions will give you the benefit
-  of loading different parameters base on different requirement).
+  of loading different parameters base on different requirement)*.
 
-  PHP, Json, XML format of definitioin formats are supported.
+  PHP, JSON, XML format of definitioin formats are supported, and will be
+  automatically detected base on the filename suffix.
 
   The service definition file `definition.serv.php`
 
@@ -130,7 +131,7 @@ Getting started
           'class' => [ 'MyCache', [ '@cacheDriver@' ]]
       ],
       'cacheDriver' => [
-          'class'   => [ 'MyCacheDriver' ],
+          'class'   => 'MyCacheDriver',
           'methods' => [
               [ 'setRoot', [ '%cache.root%' ] ],
               // ...
@@ -165,7 +166,7 @@ Getting started
               'class' => [ 'MyCache', [ '@cacheDriver@' ]]
           ],
           'cacheDriver' => [
-              'class'   => [ 'MyCacheDriver' ],
+              'class'   => 'MyCacheDriver',
               'methods' => [
                   [ 'setRoot', [ '%cache.root%' ] ],
                   // ...
@@ -183,7 +184,7 @@ Getting started
 
   ```
 
-  You can load definitions from file file now,
+  You can load definitions from files now,
 
   ```php
   use Phossa\Di\Container;
@@ -196,7 +197,7 @@ Getting started
   // load parameter definition
   $container->load('./definition.param.php');
 
-  // you may load one file if you want to
+  // you may load from one if you want to
   // $container->load('./definitions.php');
 
   // getting what you've already defined
@@ -207,6 +208,27 @@ Features
 ---
 
 - <a name="auto"></a>Auto wiring
+
+Public APIs
+--
+
+- PSR-11 compliant APIs
+
+  - `get(string $id): mixed`
+
+    getting the named service for the container.
+
+  - `has(string $id): bool`
+
+    check for service existence.
+
+- extended APIs by phossa-di
+
+  - `get(string $id, array $arguments = [], string $scope = '')`
+
+    provided with extra arguments to get a different instance even if it was
+    configured as a shared service. Set a new scope with `$scope` instead of
+    the configured scope.
 
 Version
 ---
