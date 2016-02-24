@@ -18,6 +18,7 @@ namespace Phossa\Di\Definition;
 use Phossa\Di\Message\Message;
 use Phossa\Di\Exception\LogicException;
 use Phossa\Di\Exception\NotFoundException;
+use Phossa\Di\Extension\Delegate\DelegateExtension;
 
 /**
  * ResolvableTrait
@@ -33,8 +34,7 @@ use Phossa\Di\Exception\NotFoundException;
  */
 trait ResolvableTrait
 {
-    use DefinitionAwareTrait,
-        \Phossa\Di\Extension\Delegate\DelegateAwareTrait;
+    use DefinitionAwareTrait;
 
     /**
      * Autowiring ON or OFF
@@ -470,6 +470,48 @@ trait ResolvableTrait
             return new ParameterReference($mat[1]);
         } else {
             return false;
+        }
+    }
+
+    /**
+     * Try get from delegator if DelegateExtension loaded
+     *
+     * @param  string $id
+     * @return object
+     * @throws NotFoundException
+     * @access protected
+     */
+    protected function delegatedGet(/*# string */ $id)
+    {
+        $extName = DelegateExtension::EXTENSION_CLASS;
+        if ($this->hasExtension($extName)) {
+            /* @var $ext DelegateExtension */
+            $ext = $this->getExtension($extName);
+            return $ext->getDelegator()->get($id);
+        } else {
+            /* @var $this ContainerInterface */
+            return $this->get($id);
+        }
+    }
+
+    /**
+     * Try has from delegator if DelegateExtension loaded
+     *
+     * @param  string $id
+     * @return bool
+     * @throws NotFoundException
+     * @access protected
+     */
+    protected function delegatedHas(/*# string */ $id)/*# : bool */
+    {
+        $extName = DelegateExtension::EXTENSION_CLASS;
+        if ($this->hasExtension($extName)) {
+            /* @var $ext DelegateExtension */
+            $ext = $this->getExtension($extName);
+            return $ext->getDelegator()->has($id);
+        } else {
+            /* @var $this ContainerInterface */
+            return $this->has($id);
         }
     }
 }
