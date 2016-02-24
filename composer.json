@@ -1,6 +1,6 @@
 {
     "name": "phossa/phossa-di",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "license": "MIT",
     "type": "library",
     "description": "A fast and full-fledged dependency injection library for PHP. It supports auto wiring, container delegation, object decorating, definition provider, definition tags, service scope and more.",

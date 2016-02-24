@@ -264,7 +264,7 @@ trait DefinitionAwareTrait
      * @throws LogicException if something goes wrong
      * @access protected
      */
-    protected function fixServices(array &$definitions)
+    protected function fixServicesOld(array &$definitions)
     {
         foreach ($definitions as $id => $def) {
             // classname or closure
@@ -289,6 +289,30 @@ trait DefinitionAwareTrait
                     $definitions[$id] = $def;
                 }
             }
+        }
+    }
+
+    /**
+     * Normalize service definitions
+     *
+     * @param  array &$definitions
+     * @return void
+     * @throws LogicException if something goes wrong
+     * @access protected
+     */
+    protected function fixServices(array &$definitions)
+    {
+        foreach ($definitions as $id => $def) {
+            if (is_array($def)) {
+                if (!isset($def['class'])) {
+                    $def = ['class' => $def];
+                } elseif (!is_array($def['class'])) {
+                    $def['class'] = [ $def['class'] ];
+                }
+            } else {
+                $def = ['class' => [ $def ]];
+            }
+            $definitions[$id] = $def;
         }
     }
 }
