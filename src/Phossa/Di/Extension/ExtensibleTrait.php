@@ -40,6 +40,8 @@ use Phossa\Di\Extension\Delegate\DelegatorInterface;
  */
 trait ExtensibleTrait
 {
+    use \Phossa\Di\Definition\DefinitionAwareTrait;
+    
     /**
      * extension registry
      *
