@@ -332,6 +332,12 @@ trait ResolvableTrait
             // instantiation with arguments
             } else {
                 $class = $class[0];
+
+                // alias
+                if (false !== ($ref = $this->isServiceReference($class))) {
+                    return $this->get($ref->getName());
+                }
+
                 $invoke = false;
                 $reflector = new \ReflectionClass($class);
                 $constructor = $reflector->getConstructor();
@@ -514,4 +520,10 @@ trait ResolvableTrait
             return $this->has($id);
         }
     }
+
+    /*
+     * should from Container
+     */
+    abstract public function get($id);
+    abstract public function has($id);
 }

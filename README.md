@@ -511,6 +511,9 @@ Public APIs
     can be used instead of classname to create an instance. `$arguments` is
     for the constructor.
 
+    Aliasing can be achieved by define `$className` as a service reference,
+    namely `@serviceId@`.
+
   - `set(string|array $name, string $value = ''): this`
 
     Set a parameter or parameters(array) into the container.

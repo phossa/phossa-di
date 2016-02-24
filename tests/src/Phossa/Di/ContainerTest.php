@@ -351,6 +351,21 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+
+    /**
+     * Test service alias
+     *
+     * @covers Phossa\Di\Container::get
+     */
+    public function testGet50()
+    {
+        $container = new Container();
+        // alias
+        $container->add('wow', '@MyCache@');
+
+        $container->get('wow');
+    }
+
     /**
      * Readme example 2, test definitions
      *
