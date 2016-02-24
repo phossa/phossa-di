@@ -96,21 +96,16 @@ trait DefinitionAwareTrait
         $class = '',
         array $arguments = []
     )/*# : DefinitionAwareInterface */ {
+        $this->last_added = '';
         if (is_array($id)) {
             $this->fixServices($id);
             $this->services = array_replace($this->services, $id);
-            $this->last_added = '';
-            return $this;
-        } elseif ('' === $class) {
-            $class = $id;
+        } else {
+            $this->services[$id] = empty($arguments) ?
+                ['class' => [ $class ?: $id ]] :
+                ['class' => [ $class ?: $id, $arguments ]];
+            $this->last_added = $id;
         }
-
-        $this->services[$id] = empty($arguments) ?
-            ['class' => [ $class ]] :
-            ['class' => [ $class, $arguments ]];
-
-        $this->last_added = $id;
-
         return $this;
     }
 
@@ -173,36 +168,30 @@ trait DefinitionAwareTrait
      * Get one paramter
      *
      * @param  string $name parameter name
-     * @return string|callable|array
+     * @return string|array
      * @throws NotFoundException if not found
      * @access protected
      */
     protected function getParameter(/*# string */ $name)
     {
-        $result = false;
-        if (false === strpos($name, '.')) {
-            if (isset($this->parameters[$name])) {
-                $result = $this->parameters[$name];
+        $parts = explode('.', $name);
+        $found = $this->parameters;
+        while (null !== ($part = array_shift($parts))) {
+            if (!isset($found[$part])) {
+                $found = false;
+                break;
             }
-        } else {
-            $parts  = explode('.', $name);
-            $result = $this->parameters;
-            while (null !== ($part = array_shift($parts))) {
-                if (!isset($result[$part])) {
-                    $result = false;
-                    break;
-                }
-                $result = $result[$part];
-            }
+            $found = $found[$part];
         }
 
-        if (false === $result) {
+        if (false === $found) {
             throw new NotFoundException(
                 Message::get(Message::PARAMETER_NOT_FOUND, $name),
                 Message::PARAMETER_NOT_FOUND
             );
         }
-        return $result;
+
+        return $found;
     }
 
     /**
@@ -231,26 +220,19 @@ trait DefinitionAwareTrait
     protected function fixParameters(array &$data)
     {
         foreach ($data as $name => $value) {
-            if (false === strpos($name, '.')) {
-                if (is_array($value)) {
-                    $this->fixParameters($data[$name]);
-                }
-            } else {
-                unset($data[$name]);
-                $parts  = explode('.', $name);
-                $result = &$data;
-                while (null !== ($part = array_shift($parts))) {
-                    if (count($parts)) {
-                        if (!isset($result[$part])) {
-                            $result[$part] = [];
-                        }
-                        $result = &$result[$part];
-                    } else {
-                        $result[$part] = $value;
-                        if (is_array($value)) {
-                            $this->fixParameters($result[$part]);
-                        }
+            if (is_array($value)) {
+                $this->fixParameters($value);
+            }
+            $parts  = explode('.', $name);
+            $result = &$data;
+            while (null !== ($part = array_shift($parts))) {
+                if (count($parts)) {
+                    if (!isset($result[$part])) {
+                        $result[$part] = [];
                     }
+                    $result = &$result[$part];
+                } else {
+                    $result[$part] = $value;
                 }
             }
         }
@@ -261,43 +243,6 @@ trait DefinitionAwareTrait
      *
      * @param  array &$definitions
      * @return void
-     * @throws LogicException if something goes wrong
-     * @access protected
-     */
-    protected function fixServicesOld(array &$definitions)
-    {
-        foreach ($definitions as $id => $def) {
-            // classname or closure
-            if (is_string($def) || is_callable($def)) {
-                $definitions[$id] = [ 'class' => [ $def ]];
-                continue;
-            }
-
-            // error
-            if (!is_array($def) || !isset($def['class']) && !isset($def[0])) {
-                throw new LogicException(
-                    Message::get(Message::DEFINITION_FORMAT_ERR, $id),
-                    Message::DEFINITION_FORMAT_ERR
-                );
-
-            // fix no 'class'
-            } else {
-                if (isset($def[0])) {
-                    $definitions[$id] = [ 'class' => $def ];
-                } elseif (is_string($def['class'])) {
-                    $def['class'] = [ $def['class'] ];
-                    $definitions[$id] = $def;
-                }
-            }
-        }
-    }
-
-    /**
-     * Normalize service definitions
-     *
-     * @param  array &$definitions
-     * @return void
-     * @throws LogicException if something goes wrong
      * @access protected
      */
     protected function fixServices(array &$definitions)
