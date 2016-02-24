@@ -34,7 +34,6 @@ use Phossa\Di\Exception\NotFoundException;
 trait ResolvableTrait
 {
     use DefinitionAwareTrait,
-        \Phossa\Di\Extension\ExtensibleTrait,
         \Phossa\Di\Extension\Delegate\DelegateAwareTrait;
 
     /**
@@ -333,32 +332,31 @@ trait ResolvableTrait
             // instantiation with arguments
             } else {
                 $class = $class[0];
-                $reflector   = new \ReflectionClass($class);
+                $invoke = false;
+                $reflector = new \ReflectionClass($class);
                 $constructor = $reflector->getConstructor();
 
                 // not constructor defined
                 if (is_null($constructor)) {
                     $instance = new $class();
-
-                    // __invoke() defined
-                    if (count($args) && method_exists($class, '__invoke')) {
-                        $this->executeCallable([$instance, '__invoke'], $args);
-                    }
-
+                    $invoke =  true;
                 // singleton
                 } elseif (!$constructor->isPublic() &&
                     method_exists($class, 'getInstance')) {
                     $instance = $class::getInstance();
-
-                    // __invoke() defined
-                    if (count($args) && method_exists($class, '__invoke')) {
-                        $this->executeCallable([$instance, '__invoke'], $args);
-                    }
+                    $invoke =  true;
 
                 // normal class with constructor
                 } else {
                     $args = $this->resolveArguments($constructor, $args);
                     $instance = $reflector->newInstanceArgs($args);
+                }
+
+                // __invoke() defined
+                if ($invoke) {
+                    if (count($args) && method_exists($class, '__invoke')) {
+                        $this->executeCallable([$instance, '__invoke'], $args);
+                    }
                 }
             }
         } catch (\Exception $e) {

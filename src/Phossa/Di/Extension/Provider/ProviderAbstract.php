@@ -143,7 +143,10 @@ abstract class ProviderAbstract implements ProviderInterface
     {
         /* @var $container Container */
         $container = $this->getContainer();
-        return $container->getExtension(TaggableExtension::EXTENSION_CLASS)
-                         ->matchTags($this->tags);
+
+        /* @var $ext TaggableExtension */
+        $ext = $container->getExtension(TaggableExtension::EXTENSION_CLASS);
+
+        return $ext->matchTags($this->tags);
     }
 }

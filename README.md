@@ -542,26 +542,26 @@ Public APIs
 
   - `addExtension(ExtensionAbstract $extension): this`
 
-    Load an extension into the container.
+    Explicitly load an extension into the container.
 
   - `load(string|array $fileOrArray): this`
 
-    Load a definition array or definition file into the container. Definition
-    filename with the format of `*.s*.php` will be considered as a service
-    definition file in PHP format. `*.p*.php` is a parameter file in PHP
-    format. `*.m*.php` is a mapping file.
+    **LoaderExtension**  load a definition array or definition file into the
+    container. Definition filename with the format of `*.s*.php` will be
+    considered as a service definition file in PHP format. `*.p*.php` is a
+    parameter file in PHP format. `*.m*.php` is a mapping file.
 
     File suffixes '.php|.json|.xml' are known to this library.
 
   - `addTag(string|array $tag): this`
 
-    Set container's tags. Tags can be used to selectly load definition files or
-    definition providers.
+    **TaggableExtension**  set container tags. Tags can be used to selectly
+    load definition files or definition providers.
 
   - `hasTag(string|array $tag): bool`
 
-    Check the existence of tags in the container. One tag match will return
-    `true`, otherwise return `false`
+    **TaggableExtension** check the existence of tags in the container. One tag
+    match will return `true`, otherwise return `false`
 
     ```php
     if ($container->hasTag('PRODUCTION')) {
@@ -573,7 +573,7 @@ Public APIs
 
   - `setDelegate(DelegatorInterface $delegator, bool $keepAutowiring = false): this`
 
-    Set the [delegator](https://github.com/container-interop/fig-standards/blob/master/proposed/container.md#13-additional-feature-delegate-lookup).
+    **DelegateExtension**  set the [delegator](https://github.com/container-interop/fig-standards/blob/master/proposed/container.md#13-additional-feature-delegate-lookup).
     Dependency will be looked up in the delegator instead of in the container.
     The container itself will be injected into delegator's container pool.
 
@@ -600,12 +600,12 @@ Public APIs
 
   - `addDecorate(string $name, string|callable $tester, array|callable $decorator): this`
 
-    Adding object decorating rules to the container.
+    **DecorateExtension** adding object decorating rules to the container.
 
   - `addProvider(string|ProviderInterface $provider): this`
 
-    Add definition provider to the container either by provider classname or
-    a provider object.
+    **ProviderExtension** add definition provider to the container either by
+    provider classname or a provider object.
 
 Version
 ---
