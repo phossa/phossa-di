@@ -106,6 +106,11 @@ class Message extends MessageAbstract
      */
     const SERVICE_CIRCULAR      = 1602190644;
 
+    /**
+     * Method call "%s" not found
+     */
+    const METHOD_NOT_FOUND      = 1602190645;
+
     /**#@-*/
 
     /**
@@ -127,5 +132,6 @@ class Message extends MessageAbstract
         self::EXT_PROVIDER_DUPPED   => 'Try adding same provider "%s" again',
         self::PARAMETER_TYPE_WRONG  => 'Expect parameter type "%s" got "%s"',
         self::SERVICE_CIRCULAR      => 'Circular loop found for service "%s"',
+        self::METHOD_NOT_FOUND      => 'Method call "%s" not found',
     ];
 }

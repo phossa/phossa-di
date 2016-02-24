@@ -34,7 +34,7 @@ use Phossa\Di\Extension\Delegate\DelegateExtension;
  */
 trait ResolvableTrait
 {
-    use DefinitionAwareTrait;
+    use DefinitionAwareTrait, \Phossa\Di\Extension\ExtensibleTrait;
 
     /**
      * Autowiring ON or OFF
