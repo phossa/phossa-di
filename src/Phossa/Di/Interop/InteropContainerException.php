@@ -13,7 +13,7 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di\Exception;
+namespace Phossa\Di\Interop;
 
 use Interop\Container\Exception\ContainerException;
 

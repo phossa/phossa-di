@@ -16,9 +16,9 @@
 namespace Phossa\Di\Extension\Provider;
 
 use Phossa\Di\Message\Message;
-use Phossa\Di\ContainerAwareInterface;
 use Phossa\Di\Exception\LogicException;
 use Phossa\Di\Extension\ExtensionAbstract;
+use Phossa\Di\Container\ContainerAwareInterface;
 
 /**
  * ProviderExtension
@@ -32,7 +32,7 @@ use Phossa\Di\Extension\ExtensionAbstract;
 class ProviderExtension extends ExtensionAbstract implements
     ContainerAwareInterface
 {
-    use \Phossa\Di\ContainerAwareTrait;
+    use \Phossa\Di\Container\ContainerAwareTrait;
 
     /**
      * Extension class, has to be redefined in child classes

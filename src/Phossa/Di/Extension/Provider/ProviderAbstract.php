@@ -32,7 +32,7 @@ use Phossa\Di\Exception\NotFoundException;
  */
 abstract class ProviderAbstract implements ProviderInterface
 {
-    use \Phossa\Di\ContainerAwareTrait;
+    use Container\ContainerAwareTrait;
 
     /**
      * class name

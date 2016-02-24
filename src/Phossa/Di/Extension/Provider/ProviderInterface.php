@@ -15,9 +15,9 @@
 
 namespace Phossa\Di\Extension\Provider;
 
-use Phossa\Di\ContainerAwareInterface;
 use Phossa\Di\Exception\LogicException;
-use Phossa\Di\InteropContainerInterface;
+use Phossa\Di\Interop\InteropContainerInterface;
+use Phossa\Di\Container\ContainerAwareInterface;
 
 /**
  * ProviderInterface

@@ -18,12 +18,13 @@ namespace Phossa\Di;
 use Phossa\Di\Message\Message;
 use Phossa\Shared\Pattern\StaticAbstract;
 use Phossa\Di\Exception\BadMethodCallException;
+use Phossa\Di\Interop\InteropContainerInterface;
 
 /**
  * StaticContainer
  *
  * Static wrapper for container
- * 
+ *
  * @static
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>

@@ -16,9 +16,9 @@
 namespace Phossa\Di\Extension;
 
 use Phossa\Di\Message\Message;
-use Phossa\Di\ContainerAwareInterface;
 use Phossa\Di\Exception\LogicException;
 use Phossa\Di\Extension\Loader\LoaderExtension;
+use Phossa\Di\Container\ContainerAwareInterface;
 use Phossa\Di\Extension\Provider\ProviderAbstract;
 use Phossa\Di\Extension\Taggable\TaggableExtension;
 use Phossa\Di\Extension\Provider\ProviderExtension;
@@ -40,7 +40,7 @@ use Phossa\Di\Extension\Delegate\DelegatorInterface;
  */
 trait ExtensibleTrait
 {
-    use \Phossa\Di\Reference\AutowiringTrait;
+    use \Phossa\Di\Autowire\AutowiringTrait;
 
     /**
      * extension registry

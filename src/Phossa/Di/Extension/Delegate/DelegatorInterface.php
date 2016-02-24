@@ -15,7 +15,7 @@
 
 namespace Phossa\Di\Extension\Delegate;
 
-use Phossa\Di\InteropContainerInterface;
+use Phossa\Di\Interop\InteropContainerInterface;
 
 /**
  * DelegatorInterface

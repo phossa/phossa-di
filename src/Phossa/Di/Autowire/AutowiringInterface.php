@@ -13,22 +13,26 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di;
-
-use Interop\Container\ContainerInterface as CTInterface;
+namespace Phossa\Di\Autowire;
 
 /**
- * InteropContainerInterface
- *
- * Proxy to Interop or PSR ContainerInterface
+ * AutowiringInterface
  *
  * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @see     ContainerInterface
  * @version 1.0.1
  * @since   1.0.1 added
  */
-interface InteropContainerInterface extends CTInterface
+interface AutowiringInterface
 {
+    /**
+     * Set autowiring ON
+     *
+     * @param  bool $status true or false
+     * @return AutowiringInterface this
+     * @access public
+     * @api
+     */
+    public function auto(/*# bool */ $status)/*# : AutowiringInterface */;
 }

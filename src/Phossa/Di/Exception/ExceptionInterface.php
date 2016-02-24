@@ -15,6 +15,7 @@
 
 namespace Phossa\Di\Exception;
 
+use Phossa\Di\Interop\InteropContainerException;
 use Phossa\Shared\Exception\ExceptionInterface as PhossaException;
 
 /**

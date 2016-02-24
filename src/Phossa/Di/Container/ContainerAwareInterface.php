@@ -13,15 +13,16 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di;
+namespace Phossa\Di\Container;
 
+use Phossa\Di\ContainerInterface;
 use Phossa\Di\Exception\NotFoundException;
 
 /**
  * ContainerAwareInterface
  *
  * Inject container into implementing class
- * 
+ *
  * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>

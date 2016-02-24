@@ -13,9 +13,10 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di;
+namespace Phossa\Di\Container;
 
 use Phossa\Di\Message\Message;
+use Phossa\Di\ContainerInterface;
 use Phossa\Di\Exception\NotFoundException;
 
 /**

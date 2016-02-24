@@ -16,8 +16,8 @@
 namespace Phossa\Di\Extension\Delegate;
 
 use Phossa\Di\Message\Message;
-use Phossa\Di\InteropContainerInterface;
 use Phossa\Di\Exception\NotFoundException;
+use Phossa\Di\Interop\InteropContainerInterface;
 
 /**
  * Implementation of DelegatorInterface

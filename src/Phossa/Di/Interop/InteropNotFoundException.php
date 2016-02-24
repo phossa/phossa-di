@@ -13,26 +13,20 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di\Reference;
+namespace Phossa\Di\Interop;
+
+use Interop\Container\Exception\NotFoundException as NFException;
 
 /**
- * AutowiringInterface
+ * Proxy to Interop NotFoundException interface
  *
  * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
+ * @see     \Interop\Container\Exception\NotFoundException
  * @version 1.0.1
  * @since   1.0.1 added
  */
-interface AutowiringInterface
+interface InteropNotFoundException extends NFException
 {
-    /**
-     * Set autowiring ON
-     *
-     * @param  bool $status true or false
-     * @return AutowiringInterface this
-     * @access public
-     * @api
-     */
-    public function auto(/*# bool */ $status)/*# : AutowiringInterface */;
 }

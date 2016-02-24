@@ -21,7 +21,7 @@ use Phossa\Di\Exception\LogicException;
 /**
  * CircularTrait
  *
- * Check service circular loop
+ * Check service circular loops
  *
  * @trait
  * @package Phossa\Di
@@ -31,6 +31,14 @@ use Phossa\Di\Exception\LogicException;
  */
 trait CircularTrait
 {
+    /**
+     * circular detection for get()
+     *
+     * @var    array
+     * @access protected
+     */
+    protected $circular = [];
+
     /**
      * Check circular for get()
      *

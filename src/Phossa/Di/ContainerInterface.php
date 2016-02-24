@@ -25,17 +25,14 @@ use Phossa\Di\Exception\LogicException;
  * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @see     InteropContainerInterface
+ * @see     Autowire\AutowiringInterface
  * @see     Extension\ExtensibleInterface
+ * @see     Interop\InteropContainerInterface
  * @see     Definition\DefinitionAwareInterface
  * @version 1.0.1
  * @since   1.0.1 added
  */
-interface ContainerInterface extends
-    InteropContainerInterface,
-    Reference\AutowiringInterface,
-    Extension\ExtensibleInterface,
-    Definition\DefinitionAwareInterface
+interface ContainerInterface extends Interop\InteropContainerInterface, Autowire\AutowiringInterface, Extension\ExtensibleInterface, Definition\DefinitionAwareInterface
 {
     /**
      * Get a new service even if it was defined as shared

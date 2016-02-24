@@ -40,14 +40,6 @@ class Container implements ContainerInterface
     protected $pool  = [];
 
     /**
-     * circular detection for get()
-     *
-     * @var    array
-     * @access protected
-     */
-    protected $circular = [];
-
-    /**
      * Constructor
      *
      * Inject definitions and providers

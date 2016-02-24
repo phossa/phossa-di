@@ -15,6 +15,7 @@
 
 namespace Phossa\Di\Exception;
 
+use Phossa\Di\Interop\InteropNotFoundException;
 use Phossa\Shared\Exception\NotFoundException as Exception;
 
 /**

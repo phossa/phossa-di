@@ -13,7 +13,7 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di\Reference;
+namespace Phossa\Di\Autowire;
 
 /**
  * AutowiringTrait
@@ -30,7 +30,7 @@ namespace Phossa\Di\Reference;
 trait AutowiringTrait
 {
     use \Phossa\Di\Definition\DefinitionAwareTrait;
-    
+
     /**
      * Autowiring ON or OFF
      *

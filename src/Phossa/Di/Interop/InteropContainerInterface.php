@@ -13,20 +13,22 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di\Exception;
+namespace Phossa\Di\Interop;
 
-use Interop\Container\Exception\NotFoundException as NFException;
+use Interop\Container\ContainerInterface as CTInterface;
 
 /**
- * Proxy to Interop NotFoundException interface
+ * InteropContainerInterface
+ *
+ * Proxy to Interop or PSR ContainerInterface
  *
  * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @see     \Interop\Container\Exception\NotFoundException
+ * @see     ContainerInterface
  * @version 1.0.1
  * @since   1.0.1 added
  */
-interface InteropNotFoundException extends NFException
+interface InteropContainerInterface extends CTInterface
 {
 }
