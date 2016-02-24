@@ -32,11 +32,6 @@ class Message extends MessageAbstract
      */
 
     /**
-     * Extension name not defined for "%s"
-     */
-    const EXTENION_INVALID_NAME = 1602190629;
-
-    /**
      * Container not found for "%s"
      */
     const CONTAINER_NOT_FOUND   = 1602190630;
@@ -117,7 +112,6 @@ class Message extends MessageAbstract
      * {@inheritdoc}
      */
     protected static $messages = [
-        self::EXTENION_INVALID_NAME => 'Extension name not defined for "%s"',
         self::CONTAINER_NOT_FOUND   => 'Container not found for "%s"',
         self::SERVICE_ID_NOT_FOUND  => 'Service id "%s" not found',
         self::EXT_PROVIDER_ERROR    => 'provides[] not defined in "%s"',

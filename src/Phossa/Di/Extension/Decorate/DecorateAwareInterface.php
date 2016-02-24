@@ -58,9 +58,13 @@ interface DecorateAwareInterface
      * @param  string $name rule name
      * @param  string|callable $tester interface/classname or callable
      * @param  array|callable methods/arguments array or callable
-     * @return void
+     * @return DecorateAwareInterface this
      * @access public
      * @api
      */
-    public function setDecorate(/*# string */ $name, $tester, $decorator);
+    public function setDecorate(
+        /*# string */ $name,
+        $tester,
+        $decorator
+    )/*# : DecorateAwareInterface */;
 }

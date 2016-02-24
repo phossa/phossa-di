@@ -15,6 +15,8 @@
 
 namespace Phossa\Di\Extension\Taggable;
 
+use Phossa\Di\Exception\InvalidArgumentException;
+
 /**
  * TaggableInterface
  *
@@ -29,12 +31,23 @@ namespace Phossa\Di\Extension\Taggable;
 interface TaggableInterface
 {
     /**
-     * Set container tags
+     * Add container tags
      *
-     * @param  string[] $tags
-     * @return void
+     * @param  string|string[] $tags
+     * @return TaggableInterface this
+     * @throws InvalidArgumentException
      * @access public
      * @api
      */
-    public function setTags(array $tags);
+    public function addTag($tags)/*# : TaggableInterface */;
+
+    /**
+     * Check container tags
+     *
+     * @param  string|string[] $tags
+     * @return bool
+     * @access public
+     * @api
+     */
+    public function hasTag($tags)/*# : bool */;
 }

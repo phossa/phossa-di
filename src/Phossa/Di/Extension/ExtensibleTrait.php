@@ -43,7 +43,7 @@ trait ExtensibleTrait
     /**
      * extension registry
      *
-     * @var    ExtensionInterface[]
+     * @var    ExtensionAbstract[]
      * @access protected
      */
     protected $extensions = [];
@@ -60,7 +60,7 @@ trait ExtensibleTrait
      * {@inheritDoc}
      */
     public function addExtension(
-        ExtensionInterface $extension
+        ExtensionAbstract $extension
     )/*# : ExtensibleInterface */ {
         $this->extensions[$extension->getName()] = $extension;
 
@@ -73,16 +73,16 @@ trait ExtensibleTrait
     /**
      * {@inheritDoc}
      */
-    public function load($fileOrArray)
+    public function load($fileOrArray)/*# : LoadableInterface */
     {
         $loaded = false;
 
         // load from file
         if (is_string($fileOrArray)) {
-            $data = $this->getExtension(LoaderExtension::EXTENSION_NAME)
-                         ->loadFile($fileOrArray);
-            $this->load($data);
-            return;
+            /* @var $ext LoaderExtension */
+            $ext = $this->getExtension(LoaderExtension::EXTENSION_CLASS);
+            $data = $ext->loadFile($fileOrArray);
+            return $this->load($data);
 
         // load from array
         } elseif (is_array($fileOrArray)) {
@@ -112,14 +112,32 @@ trait ExtensibleTrait
                 Message::DEFINITION_FORMAT_ERR
             );
         }
+
+        return $this;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function setTags(array $tags)
+    public function addTag($tags)/*# : TaggableInterface */
     {
-        $this->getExtension(TaggableExtension::EXTENSION_NAME)->setTags($tags);
+        /* @var $ext TaggableExtension */
+        $ext = $this->getExtension(TaggableExtension::EXTENSION_CLASS);
+        $ext->setTags(is_array($tags) ? $tags : [ $tags ]);
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function hasTag($tags)/*# : bool */
+    {
+        // no tags found
+        if (empty($tags)) return false;
+
+        /* @var $ext TaggableExtension */
+        $ext = $this->getExtension(TaggableExtension::EXTENSION_CLASS);
+        return $ext->matchTags(is_array($tags) ? $tags : [ $tags ]);
     }
 
     /**
@@ -128,9 +146,11 @@ trait ExtensibleTrait
     public function setDelegate(
         DelegatorInterface $delegator,
         /*# bool */ $keepAutowiring = false
-    ) {
-        $this->getExtension(DelegateExtension::EXTENSION_NAME)
-             ->setDelegator($delegator, $this->auto($keepAutowiring));
+    )/*# : DelegateAwareInterface */ {
+        /* @var $ext DelegateExtension */
+        $ext = $this->getExtension(DelegateExtension::EXTENSION_CLASS);
+        $ext->setDelegator($delegator, $this->auto($keepAutowiring));
+        return $this;
     }
 
     /**
@@ -138,42 +158,48 @@ trait ExtensibleTrait
      */
     public function setDecorate(/*# string */ $name, $tester, $decorator)
     {
-        $this->getExtension(DecorateExtension::EXTENSION_NAME)
-             ->setDecorate($name, $tester, $decorator);
+        /* @var $ext DecorateExtension */
+        $ext = $this->getExtension(DecorateExtension::EXTENSION_CLASS);
+        $ext->setDecorate($name, $tester, $decorator);
+        return $this;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function addProvider($provider)
+    public function addProvider($provider)/*# : ProviderAwareInterface */
     {
         /* @var $ext ProviderExtension */
-        $ext = $this->getExtension(ProviderExtension::EXTENSION_NAME);
-        if ($provider instanceof ProviderAbstract) {
-            $ext->addProvider($provider);
-        } elseif (is_string($provider) && class_exists($provider)) {
-            $ext->addProvider(new $provider);
+        $ext = $this->getExtension(ProviderExtension::EXTENSION_CLASS);
+
+        if (is_a($provider, ProviderAbstract::PROVIDER_CLASS, true)) {
+            if (!is_object($provider)) {
+                $ext->addProvider(new $provider);
+            } else {
+                $ext->addProvider($provider);
+            }
         } else {
             throw new LogicException(
                 Message::get(Message::EXT_PROVIDER_ERROR, $provider),
                 Message::EXT_PROVIDER_ERROR
             );
         }
+
+        return $this;
     }
 
     /**
      * Get the named extension, create one if injected yet
      *
      * @param  string $extensionName
-     * @return ExtensionInterface
+     * @return ExtensionAbstract
      * @access public
      */
     public function getExtension(
         /*# string */ $extensionName
-    )/*# : ExtensionInterface */ {
+    )/*# : ExtensionAbstract */ {
         if (!$this->hasExtension($extensionName)) {
-            $extClass = ExtensionMap::$mapping[$extensionName];
-            $this->addExtension(new $extClass);
+            $this->addExtension(new $extensionName);
         }
         return $this->extensions[$extensionName];
     }
@@ -199,9 +225,11 @@ trait ExtensibleTrait
      */
     protected function hasInProvider(/*# string */ $id)/*# : bool */
     {
-        $extName = ProviderExtension::EXTENSION_NAME;
+        $extName = ProviderExtension::EXTENSION_CLASS;
         if ($this->hasExtension($extName)) {
-            return $this->getExtension($extName)->providerHas($id);
+            /* @var $ext ProviderExtension */
+            $ext = $this->getExtension($extName);
+            return $ext->providerHas($id);
         }
         return false;
     }
@@ -216,9 +244,11 @@ trait ExtensibleTrait
      */
     protected function decorateService($service)
     {
-        $extName = DecorateExtension::EXTENSION_NAME;
+        $extName = DecorateExtension::EXTENSION_CLASS;
         if ($this->hasExtension($extName)) {
-            $this->getExtension($extName)->decorateService($service);
+            /* @var $ext DecorateExtension */
+            $ext = $this->getExtension($extName);
+            $ext->decorateService($service);
         }
     }
 }

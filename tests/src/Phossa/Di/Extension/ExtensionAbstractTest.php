@@ -19,9 +19,7 @@ class ExtensionAbstractTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        include_once __DIR__ . '/NewExtension1.php';
-        include_once __DIR__ . '/NewExtension2.php';
-        include_once __DIR__ . '/NewExtension3.php';
+        include_once __DIR__ . '/NewExtension.php';
     }
 
     /**
@@ -36,29 +34,10 @@ class ExtensionAbstractTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers Phossa\Di\Extension\ExtensionAbstract::getName
      * @expectedException Phossa\Di\Exception\LogicException
-     * @expectedExceptionCode Phossa\Di\Message\Message::EXTENION_INVALID_NAME
-     */
-    public function testGetName1()
-    {
-        (new NewExtension1())->getName();
-    }
-
-    /**
-     * @covers Phossa\Di\Extension\ExtensionAbstract::getName
-     * @expectedException Phossa\Di\Exception\LogicException
      * @expectedExceptionCode Phossa\Di\Message\Message::EXTENION_INVALID_CLASS
      */
-    public function testGetName2()
+    public function testGetName()
     {
-        (new NewExtension2())->getName();
+        (new NewExtension())->getName();
     }
-
-    /**
-     * @covers Phossa\Di\Extension\ExtensionAbstract::getName
-     */
-    public function testGetName3()
-    {
-        $this->assertEquals('newextension3', (new NewExtension3())->getName());
-    }
-
 }

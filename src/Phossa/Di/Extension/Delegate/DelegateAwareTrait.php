@@ -38,7 +38,7 @@ trait DelegateAwareTrait
      */
     protected function delegatedGet(/*# string */ $id)
     {
-        $extName = DelegateExtension::EXTENSION_NAME;
+        $extName = DelegateExtension::EXTENSION_CLASS;
         if ($this->hasExtension($extName)) {
             return $this->getExtension($extName)
                         ->getDelegator()
@@ -59,7 +59,7 @@ trait DelegateAwareTrait
      */
     protected function delegatedHas(/*# string */ $id)/*# : bool */
     {
-        $extName = DelegateExtension::EXTENSION_NAME;
+        $extName = DelegateExtension::EXTENSION_CLASS;
         if ($this->hasExtension($extName)) {
             return $this->getExtension($extName)
                         ->getDelegator()

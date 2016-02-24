@@ -35,11 +35,6 @@ class ProviderExtension extends ExtensionAbstract implements
     use \Phossa\Di\ContainerAwareTrait;
 
     /**
-     * extension name
-     */
-    const EXTENSION_NAME    = 'provider';
-
-    /**
      * Extension class, has to be redefined in child classes
      *
      * @const

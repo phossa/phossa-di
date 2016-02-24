@@ -111,7 +111,7 @@ class ProviderExtensionTest extends \PHPUnit_Framework_TestCase
 
         $this->object->setContainer($c);
 
-        $c->setTags(['TEST']);
+        $c->addTag(['TEST']);
         $this->object->addProvider($p);
         $this->assertTrue(in_array($p, $this->getPrivateProperty('providers')));
     }
@@ -147,7 +147,7 @@ class ProviderExtensionTest extends \PHPUnit_Framework_TestCase
 
         $this->object->setContainer($c);
 
-        $c->setTags(['TEST']);
+        $c->addTag(['TEST']);
         $this->object->addProvider($p);
         $this->assertTrue(in_array($p, $this->getPrivateProperty('providers')));
 

@@ -153,7 +153,7 @@ trait DefinitionAwareTrait
     /**
      * {@inheritDoc}
      */
-    public function addScope(
+    public function setScope(
         /*# string */ $scope
     )/*# : DefinitionAwareInterface */ {
         if (empty($this->last_added)) {

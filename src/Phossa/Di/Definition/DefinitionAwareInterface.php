@@ -46,7 +46,7 @@ interface DefinitionAwareInterface extends ResolvableInterface
      * Set parameter definition
      *
      * @param  string|array $name parameter name or parameter array
-     * @param  mixed $value parameter value
+     * @param  mixed $value parameter value or a (pseudo) callable
      * @return DefinitionAwareInterface this
      * @throws InvalidArgumentException
      * @access public
@@ -114,7 +114,7 @@ interface DefinitionAwareInterface extends ResolvableInterface
      * @access public
      * @api
      */
-    public function addScope(
+    public function setScope(
         /*# string */ $scope
     )/*# : DefinitionAwareInterface */;
 }

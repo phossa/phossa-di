@@ -145,6 +145,27 @@ trait ResolvableTrait
     }
 
     /**
+     * Execute callable with arguments
+     *
+     * @param  mixed $callable callable or pseudo callable
+     * @param  array $arguments
+     * @return void
+     * @throws LogicException if something goes wrong
+     * @access protected
+     */
+    protected function executeCallable($callable, array $arguments)
+    {
+        // resolve fake callable
+        $call = $this->resolveCallable($callable);
+
+        // execute the callable
+        return call_user_func_array(
+            $call,
+            $this->resolveCallableArguments($call, $arguments)
+        );
+    }
+
+    /**
      * Replace all the references in the arguments
      *
      * @param  array &$arguments
@@ -156,12 +177,14 @@ trait ResolvableTrait
     {
         try {
             foreach ($arguments as $idx => $arg) {
-                if (false !== ($ref = $this->isServiceReference($arg))) {
+                if (is_array($arg)) {
+                    $this->dereferenceArguments($arguments[$idx]);
+                } elseif (false !== ($ref = $this->isServiceReference($arg))) {
                     $arguments[$idx] = $this->delegatedGet($ref->getName());
                 } elseif (false !== ($ref = $this->isParameterReference($arg))) {
                     $val = $this->getParameter($ref->getName());
                     if (is_object($val) && $val instanceof \Closure) {
-                        $val = $this->run($val);
+                        $val = $this->executeCallable($val);
                     }
                     $arguments[$idx] = $val;
                 }
@@ -294,11 +317,11 @@ trait ResolvableTrait
         try {
             // closure
             if (is_object($class) && $class instanceof \Closure) {
-                $instance = $this->run($class, $arguments);
+                $instance = $this->executeCallable($class, $arguments);
 
             // closure with possible default arguments
             } elseif (is_callable($class[0])) {
-                $instance = $this->run($class[0], $args);
+                $instance = $this->executeCallable($class[0], $args);
 
             // instantiation with arguments
             } else {
@@ -312,7 +335,7 @@ trait ResolvableTrait
 
                     // __invoke() defined
                     if (count($args) && method_exists($class, '__invoke')) {
-                        $this->run([$instance, '__invoke'], $args);
+                        $this->executeCallable([$instance, '__invoke'], $args);
                     }
 
                 // singleton
@@ -322,7 +345,7 @@ trait ResolvableTrait
 
                     // __invoke() defined
                     if (count($args) && method_exists($class, '__invoke')) {
-                        $this->run([$instance, '__invoke'], $args);
+                        $this->executeCallable([$instance, '__invoke'], $args);
                     }
 
                 // normal class with constructor
@@ -382,7 +405,7 @@ trait ResolvableTrait
                     );
                 }
 
-                $this->run(
+                $this->executeCallable(
                     [ $instance, $method[0] ],
                     isset($method[1]) ? $method[1] : []
                 );
@@ -393,7 +416,7 @@ trait ResolvableTrait
     }
 
     /**
-     * Is argument a service reference ? '@serviceName@'
+     * Is argument a service reference ? '@serviceId@'
      *
      * @param  mixed $argument the argument to check
      * @return ServiceReference|false
@@ -410,6 +433,18 @@ trait ResolvableTrait
         } else {
             return false;
         }
+    }
+
+    /**
+     * Generate '@serviceId@'
+     *
+     * @param  string $id service id
+     * @return string
+     * @access protected
+     */
+    protected function getReferenceId(/*# string */ $id)/*# : string */
+    {
+        return '@' . $id . '@';
     }
 
     /**

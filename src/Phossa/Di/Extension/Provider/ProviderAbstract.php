@@ -35,6 +35,13 @@ abstract class ProviderAbstract implements ProviderInterface
     use \Phossa\Di\ContainerAwareTrait;
 
     /**
+     * class name
+     *
+     * @const
+     */
+    const PROVIDER_CLASS = __CLASS__;
+
+    /**
      * Services we provide, CHILD CLASS HAS TO POPULATE THIS ARRAY,
      *
      * @var    string[]
@@ -136,7 +143,7 @@ abstract class ProviderAbstract implements ProviderInterface
     {
         /* @var $container Container */
         $container = $this->getContainer();
-        return $container->getExtension(TaggableExtension::EXTENSION_NAME)
+        return $container->getExtension(TaggableExtension::EXTENSION_CLASS)
                          ->matchTags($this->tags);
     }
 }

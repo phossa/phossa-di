@@ -42,12 +42,12 @@ interface ExtensibleInterface extends
     /**
      * Add extension to the container
      *
-     * @param  ExtensionInterface $extension
+     * @param  ExtensionAbstract $extension
      * @return ExtensibleInterface this
      * @access public
      * @api
      */
     public function addExtension(
-        ExtensionInterface $extension
+        ExtensionAbstract $extension
     )/*# : ExtensibleInterface */;
 }

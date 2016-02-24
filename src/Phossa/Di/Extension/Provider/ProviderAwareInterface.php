@@ -34,10 +34,10 @@ interface ProviderAwareInterface
      * Add providers to container
      *
      * @param  string|ProviderInterface $provider
-     * @return void
+     * @return ProviderAwareInterface this
      * @throws LogicException if not a valide provider
      * @access public
      * @api
      */
-    public function addProvider($provider);
+    public function addProvider($provider)/*# : ProviderAwareInterface */;
 }

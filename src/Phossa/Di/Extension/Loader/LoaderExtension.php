@@ -32,11 +32,6 @@ use Phossa\Di\Exception\NotFoundException;
 class LoaderExtension extends ExtensionAbstract
 {
     /**
-     * extension name
-     */
-    const EXTENSION_NAME    = 'loader';
-
-    /**
      * Extension class, has to be redefined in child classes
      *
      * @const

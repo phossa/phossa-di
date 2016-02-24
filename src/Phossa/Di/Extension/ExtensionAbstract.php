@@ -26,19 +26,11 @@ use Phossa\Di\Exception\LogicException;
  * @abstract
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @see     ExtensionInterface
  * @version 1.0.1
  * @since   1.0.1 added
  */
-abstract class ExtensionAbstract implements ExtensionInterface
+abstract class ExtensionAbstract
 {
-    /**
-     * Extension name, has to be redefined in child classes
-     *
-     * @const
-     */
-    const EXTENSION_NAME    = 'extension';
-
     /**
      * Extension class, has to be redefined in child classes
      *
@@ -51,14 +43,6 @@ abstract class ExtensionAbstract implements ExtensionInterface
      */
     public function getName()/*# : string */
     {
-        // has to be redefined in child class
-        if ('extension' === static::EXTENSION_NAME) {
-            throw new LogicException(
-                Message::get(Message::EXTENION_INVALID_NAME, get_class($this)),
-                Message::EXTENION_INVALID_NAME
-            );
-        }
-
         // has to be redefined in child class also
         if (get_called_class() !== static::EXTENSION_CLASS) {
             throw new LogicException(
@@ -67,6 +51,6 @@ abstract class ExtensionAbstract implements ExtensionInterface
             );
         }
 
-        return static::EXTENSION_NAME;
+        return static::EXTENSION_CLASS;
     }
 }

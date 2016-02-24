@@ -37,12 +37,12 @@ interface DelegateAwareInterface
      *
      * @param  DelegatorInterface $delegator
      * @param  bool keepAutowiring keep autowiring of current container
-     * @return void
+     * @return DelegateAwareInterface this
      * @access public
      * @api
      */
     public function setDelegate(
         DelegatorInterface $delegator,
         /*# bool */ $keepAutowiring = false
-    );
+    )/*# : DelegateAwareInterface */;
 }

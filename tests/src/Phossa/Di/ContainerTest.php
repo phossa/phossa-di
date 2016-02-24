@@ -291,7 +291,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testGet2()
     {
         // set single scope for class DD
-        $this->object->add('DD', 'DD')->addScope(Container::SCOPE_SINGLE);
+        $this->object->add('DD', 'DD')->setScope(Container::SCOPE_SINGLE);
 
         $a = $this->object->get('AA');
         $this->assertFalse($a->getB()->getD() === $a->getC()->getD());
@@ -319,7 +319,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         include_once __DIR__ . '/testData4.php';
 
         // mark DD scope follows QQ
-        $this->object->add('DD')->addScope('QQ');
+        $this->object->add('DD')->setScope('@QQ@');
 
         // DD is shared under same QQ
         $q1 = $this->object->one('QQ');
@@ -357,18 +357,18 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Phossa\Di\Container::setTags
+     * @covers Phossa\Di\Container::addTag
      */
-    public function testSetTags()
+    public function testAddTag()
     {
         $tags = ['WOW'];
         $ext = $this->invokeMethod(
             'getExtension',
-            [ TaggableExtension::EXTENSION_NAME ]
+            [ TaggableExtension::EXTENSION_CLASS ]
         );
 
         $this->assertFalse($ext->matchTags($tags));
-        $this->object->setTags($tags);
+        $this->object->addTag($tags);
         $this->assertTrue($ext->matchTags($tags));
     }
 
@@ -489,18 +489,18 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Phossa\Di\Container::addScope
+     * @covers Phossa\Di\Container::setScope
      */
-    public function testAddScope()
+    public function testSetScope()
     {
         $this->object->add('AA')
-             ->addScope('WOW');
+             ->setScope('@WOW@');
 
         $aa1 = $this->object->get('AA');
         $aa2 = $this->object->get('AA', [], 'AntherScope');
         $this->assertFalse($aa1 === $aa2);
 
-        $aa3 = $this->object->get('AA', [], 'WOW');
+        $aa3 = $this->object->get('AA', [], '@WOW@');
         $this->assertTrue($aa1 === $aa3);
     }
 }

@@ -50,30 +50,21 @@ class Container implements ContainerInterface
     /**
      * Constructor
      *
-     * Inject definitions or custom extensions
+     * Inject definitions and providers
      *
      * @param  array|string $definitions array or filename
      * @param  array $providers provider objects or classnames
-     * @param  Extension\ExtensionInterface[] $extensions
      * @throws LogicException if something goes wrong
      * @access public
      */
-    public function __construct(
-        $definitions = '',
-        array $providers = [],
-        array $extensions = []
-    ) {
-        // load extensions
-        foreach ($extensions as $extension) {
-            $this->addExtension($extension);
-        }
-
+    public function __construct($definitions = '', array $providers = [])
+    {
         // load definitions
         if (!empty($definitions)) {
             $this->load($definitions);
         }
 
-        // add service providers
+        // add definition providers
         if (count($providers)) {
             foreach($providers as $provider) {
                 $this->addProvider($provider);
@@ -86,23 +77,10 @@ class Container implements ContainerInterface
      */
     public function get($id)
     {
-        static $count = 0;
-
-        // found service
         if ($this->has($id)) {
-            /*
-             * parameter 2 is the optional arguments array
-             */
-            $args  = func_num_args() > 1 ? func_get_arg(1) : [];
+            list($args, $scope) = $this->fixGetArguments($id, func_get_args());
 
-            /*
-             * parameter 3 is the optional dynamic scope
-             */
-            $scope = func_num_args() > 2 ?
-                (string) func_get_arg(2) :
-                $this->getScope($id);
-
-            // new id
+            // generate a local new id
             $newId = $scope . ':::' . $id;
 
             // try getting from the pool
@@ -110,21 +88,8 @@ class Container implements ContainerInterface
                 return $this->pool[$newId];
             }
 
-            // circular detection
-            if (isset($this->circular[$id])) {
-                throw new LogicException(
-                    Message::get(Message::SERVICE_CIRCULAR, $id),
-                    Message::SERVICE_CIRCULAR
-                );
-            } else {
-                // set circular mark
-                $this->circular[$id] = ++$count;
-
-                // unique scope, mark this object is shared under parent object
-                if (isset($this->circular[$scope])) {
-                    $scope += '::' . $count;
-                }
-            }
+            // check circular
+            $this->checkCircular($id, $scope);
 
             // create the service
             $service = $this->createService($id, $args);
@@ -133,7 +98,7 @@ class Container implements ContainerInterface
             $this->decorateService($service);
 
             // remove circular mark
-            unset($this->circular[$id]);
+            $this->removeCircular($id);
 
             // store it except for the single scope
             if (self::SCOPE_SINGLE !== $scope) {
@@ -155,28 +120,16 @@ class Container implements ContainerInterface
      */
     public function has($id)
     {
-        // $id MUST BE string
-        if (!is_string($id)) {
+        if (is_string($id) &&
+            (isset($this->services[$id])  ||
+                $this->hasInProvider($id) ||
+                $this->autoWiringId($id)
+            )
+        ) {
+            return true;
+        } else {
             return false;
         }
-
-        // found in service definitions
-        if (isset($this->services[$id])) {
-            return true;
-        }
-
-        // found in one of the service providers
-        if ($this->hasInProvider($id)) {
-            return true;
-        }
-
-        // autowiring
-        if ($this->autoWiringId($id)) {
-            return true;
-        }
-
-        // not found
-        return false;
     }
 
     /**
@@ -184,7 +137,6 @@ class Container implements ContainerInterface
      */
     public function one(/*# string */ $id, array $arguments = [])
     {
-        // force get a new instance
         return $this->get($id, $arguments, self::SCOPE_SINGLE);
     }
 
@@ -193,13 +145,72 @@ class Container implements ContainerInterface
      */
     public function run($callable, array $arguments = [])
     {
-        // resolve fake callable
-        $call = $this->resolveCallable($callable);
+        return $this->executeCallable($callable, $arguments);
+    }
 
-        // execute the callable
-        return call_user_func_array(
-            $call,
-            $this->resolveCallableArguments($call, $arguments)
-        );
+    /**
+     * Parse/fix extra arguments for get()
+     *
+     * @param  string $id service id
+     * @param  array $arguments get()'s argument array
+     * @return array [$arguments, $scope]
+     * @access protected
+     */
+    protected function fixGetArguments(
+        /*# string */ $id,
+        array $arguments
+    )/*# : array */ {
+        // parameter 2 is the optional arguments
+        $args = isset($arguments[1]) ? (array) $arguments[1] : [];
+
+        // parameter 3 is the optional scope
+        $scope = isset($arguments[2]) ? (string) $arguments[2] :
+                $this->getScope($id);
+
+        return [ $args, $scope ];
+    }
+
+    /**
+     * Check circular for get()
+     *
+     * @param  string $id service id
+     * @param  string &$scope scope
+     * @return void
+     * @throws LogicException if circular found
+     * @access protected
+     */
+    protected function checkCircular(/*# string */ $id, /*# string */ &$scope)
+    {
+        static $count = 0;
+
+        // reference id "@$id@"
+        $refId = $this->getReferenceId($id);
+
+        // circular detection
+        if (isset($this->circular[$refId])) {
+            throw new LogicException(
+                Message::get(Message::SERVICE_CIRCULAR, $id),
+                Message::SERVICE_CIRCULAR
+            );
+        } else {
+            $this->circular[$refId] = ++$count;
+
+            // mark this object is shared under parent object
+            if (isset($this->circular[$scope])) {
+                $scope += '::' . $count;
+            }
+        }
+    }
+
+    /**
+     * Remove circular mark for get()
+     *
+     * @param  string $id service id
+     * @return void
+     * @access protected
+     */
+    protected function removeCircular(/*# string */ $id)
+    {
+        unset($this->circular[$this->getReferenceId($id)]);
     }
 }

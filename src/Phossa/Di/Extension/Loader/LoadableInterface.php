@@ -35,11 +35,11 @@ interface LoadableInterface
      * Load definitions from a file
      *
      * @param  string|array $fileOrArray definition file or array
-     * @return void
+     * @return LoadableInterface this
      * @throws NotFoundException if file not found
      * @throws LogicException if something goes wrong
      * @access public
      * @api
      */
-    public function load($fileOrArray);
+    public function load($fileOrArray)/*# : LoadableInterface */;
 }

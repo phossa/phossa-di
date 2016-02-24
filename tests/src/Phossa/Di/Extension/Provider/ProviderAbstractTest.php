@@ -98,7 +98,7 @@ class ProviderAbstractTest extends \PHPUnit_Framework_TestCase
         }
 
         // reset container tags
-        $c->setTags(['TEST']);
+        $c->addTag(['TEST']);
 
         // now get() is good
         $this->assertTrue($this->object_one->get('bingo') instanceof \bingoXX);
@@ -134,7 +134,7 @@ class ProviderAbstractTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->object_one->has('bingo'));
 
         // reset container tags
-        $c->setTags(['TEST']);
+        $c->addTag(['TEST']);
 
         // has 'bingo' in provider one because tags match
         $this->assertTrue($this->object_one->has('bingo'));
@@ -186,12 +186,12 @@ class ProviderAbstractTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->object_two->isProviding());
 
         // container with miss match tags
-        $this->object_one->getContainer()->setTags(['WOW']);
+        $this->object_one->getContainer()->addTag(['WOW']);
         $this->assertFalse($this->object_one->isProviding());
         $this->assertTrue($this->object_two->isProviding());
 
         // container with matched tags
-        $this->object_one->getContainer()->setTags(['TEST']);
+        $this->object_one->getContainer()->addTag(['TEST']);
         $this->assertTrue($this->object_one->isProviding());
         $this->assertTrue($this->object_two->isProviding());
     }

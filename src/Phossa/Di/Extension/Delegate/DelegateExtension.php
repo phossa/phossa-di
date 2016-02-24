@@ -30,11 +30,6 @@ use Phossa\Di\Extension\ExtensionAbstract;
 class DelegateExtension extends ExtensionAbstract
 {
     /**
-     * extension name
-     */
-    const EXTENSION_NAME    = 'delegate';
-
-    /**
      * Extension class, has to be redefined in child classes
      *
      * @const
