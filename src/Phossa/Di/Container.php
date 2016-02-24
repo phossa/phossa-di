@@ -29,7 +29,9 @@ use Phossa\Di\Exception\NotFoundException;
  */
 class Container implements ContainerInterface
 {
-    use Definition\ResolvableTrait;
+    use Container\CircularTrait,
+        Container\ContainerTrait,
+        Extension\ExtensibleTrait;
 
     /**
      * services pool
@@ -78,7 +80,14 @@ class Container implements ContainerInterface
     public function get($id)
     {
         if ($this->has($id)) {
-            list($args, $scope) = $this->fixGetArguments($id, func_get_args());
+            $arguments = func_get_args();
+
+            // parameter 2 is the optional arguments
+            $args = isset($arguments[1]) ? (array) $arguments[1] : [];
+
+            // parameter 3 is the optional scope
+            $scope = isset($arguments[2]) ? (string) $arguments[2] :
+                    $this->getScope($id);
 
             // generate a local new id
             $newId = $scope . ':::' . $id;
@@ -146,71 +155,5 @@ class Container implements ContainerInterface
     public function run($callable, array $arguments = [])
     {
         return $this->executeCallable($callable, $arguments);
-    }
-
-    /**
-     * Parse/fix extra arguments for get()
-     *
-     * @param  string $id service id
-     * @param  array $arguments get()'s argument array
-     * @return array [$arguments, $scope]
-     * @access protected
-     */
-    protected function fixGetArguments(
-        /*# string */ $id,
-        array $arguments
-    )/*# : array */ {
-        // parameter 2 is the optional arguments
-        $args = isset($arguments[1]) ? (array) $arguments[1] : [];
-
-        // parameter 3 is the optional scope
-        $scope = isset($arguments[2]) ? (string) $arguments[2] :
-                $this->getScope($id);
-
-        return [ $args, $scope ];
-    }
-
-    /**
-     * Check circular for get()
-     *
-     * @param  string $id service id
-     * @param  string &$scope scope
-     * @return void
-     * @throws LogicException if circular found
-     * @access protected
-     */
-    protected function checkCircular(/*# string */ $id, /*# string */ &$scope)
-    {
-        static $count = 0;
-
-        // reference id "@$id@"
-        $refId = $this->getReferenceId($id);
-
-        // circular detection
-        if (isset($this->circular[$refId])) {
-            throw new LogicException(
-                Message::get(Message::SERVICE_CIRCULAR, $id),
-                Message::SERVICE_CIRCULAR
-            );
-        } else {
-            $this->circular[$refId] = ++$count;
-
-            // mark this object is shared under parent object
-            if (isset($this->circular[$scope])) {
-                $scope += '::' . $count;
-            }
-        }
-    }
-
-    /**
-     * Remove circular mark for get()
-     *
-     * @param  string $id service id
-     * @return void
-     * @access protected
-     */
-    protected function removeCircular(/*# string */ $id)
-    {
-        unset($this->circular[$this->getReferenceId($id)]);
     }
 }

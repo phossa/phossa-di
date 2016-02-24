@@ -13,7 +13,7 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di\Definition;
+namespace OLDPhossa\Di\Definition;
 
 use Phossa\Di\Message\Message;
 use Phossa\Di\Exception\LogicException;

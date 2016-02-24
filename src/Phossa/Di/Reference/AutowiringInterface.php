@@ -13,10 +13,10 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di\Definition;
+namespace Phossa\Di\Reference;
 
 /**
- * ResolvableInterface
+ * AutowiringInterface
  *
  * @interface
  * @package Phossa\Di
@@ -24,15 +24,15 @@ namespace Phossa\Di\Definition;
  * @version 1.0.1
  * @since   1.0.1 added
  */
-interface ResolvableInterface
+interface AutowiringInterface
 {
     /**
      * Set autowiring ON
      *
      * @param  bool $status true or false
-     * @return ResolvableInterface this
+     * @return AutowiringInterface this
      * @access public
      * @api
      */
-    public function auto(/*# bool */ $status)/*# : ResolvableInterface */;
+    public function auto(/*# bool */ $status)/*# : AutowiringInterface */;
 }

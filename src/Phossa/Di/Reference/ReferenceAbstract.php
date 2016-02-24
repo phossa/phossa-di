@@ -13,7 +13,7 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di\Definition;
+namespace Phossa\Di\Reference;
 
 /**
  * ReferenceAbstract

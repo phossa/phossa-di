@@ -30,7 +30,7 @@ use Phossa\Di\Exception\InvalidArgumentException;
  * @version 1.0.1
  * @since   1.0.1 added
  */
-interface DefinitionAwareInterface extends ResolvableInterface
+interface DefinitionAwareInterface
 {
     /**
      * object shared
