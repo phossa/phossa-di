@@ -100,7 +100,8 @@ class LoaderPhp implements LoaderInterface
      */
     public static function loadFromFile(/*# string */ $file)/*# : array */
     {
-        if (!is_array($definitions = @include $file)) {
+        if (!file_exists($file) ||
+            !is_array($definitions = include $file)) {
             throw new LogicException(
                 Message::get(Message::DEFINITION_NOT_FOUND, $file),
                 Message::DEFINITION_NOT_FOUND

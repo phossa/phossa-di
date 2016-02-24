@@ -23,6 +23,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     {
         include_once __DIR__ . '/testData1.php';
         include_once __DIR__ . '/testData2.php';
+        include_once __DIR__ . '/testData5.php';
+        include_once __DIR__ . '/testData6.php';
         $this->object = new Container;
     }
 
@@ -332,6 +334,199 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Readme example 1
+     *
+     * @covers Phossa\Di\Container::get
+     */
+    public function testGet5()
+    {
+        $container = new Container();
+
+        // use the 'MyCache' classname as the service id
+        if ($container->has('MyCache')) {
+            $cache = $container->get('MyCache');
+            $this->assertTrue($cache instanceof \MyCache);
+        } else {
+            $this->assertFalse(true);
+        }
+    }
+
+    /**
+     * Readme example 2, test definitions
+     *
+     * @covers Phossa\Di\Container::get
+     */
+    public function testGet6()
+    {
+        // turn off autowiring
+        $container = (new Container())->auto(false);
+
+        // config the cache service with classname and constructor arguments
+        $container->add('cache', 'MyCache', [ '@cacheDriver@' ]);
+
+        // add initialization methods after instantiation
+        $container->add('cacheDriver', 'MyCacheDriver')
+                  ->addMethod('setRoot', [ '%cache.root%' ]);
+
+        // set a parameter which was used in 'cacheDriver'
+        $container->set('cache.root', '/var/local/tmp');
+
+        // get cache service by its id
+        $cache = $container->get('cache');
+
+        $this->assertTrue('/var/local/tmp' === $cache->getDriver()->getRoot());
+    }
+
+    /**
+     * Readme example 3, add a callable
+     *
+     * @covers Phossa\Di\Container::get
+     */
+    public function testGet7()
+    {
+        // turn off autowiring
+        $container = (new Container())->auto(false);
+
+        // config the cache service with classname and constructor arguments
+        $container->add('cache', 'MyCache', [ '@cacheDriver@' ]);
+
+        // add initialization methods after instantiation
+        $container->add('cacheDriver', function() {
+                return new \MyCacheDriver();
+                })->addMethod('setRoot', [ '%cache.root%' ]);
+
+        // set a parameter which was used in 'cacheDriver'
+        $container->set('cache.root', '/var/local/tmp');
+
+        // get cache service by its id
+        $cache = $container->get('cache');
+
+        $this->assertTrue('/var/local/tmp' === $cache->getDriver()->getRoot());
+    }
+
+    /**
+     * Readme example 4.1, load from two files
+     *
+     * @covers Phossa\Di\Container::get
+     */
+    public function testGet8()
+    {
+        // turn off autowiring
+        $container = (new Container())->auto(false);
+        $this->object = $container;
+
+        // load service definitions
+        $container->load(__DIR__ . '/definition.serv.php');
+
+        // load parameter definition
+        $container->load(__DIR__ . '/definition.param.php');
+
+        // getting what you've already defined
+        $cache = $container->get('cache');
+
+        $this->assertTrue('/var/local/tmp' === $cache->getDriver()->getRoot());
+    }
+
+    /**
+     * Readme example 4.2, load from one file
+     *
+     * @covers Phossa\Di\Container::get
+     */
+    public function testGet9()
+    {
+        // turn off autowiring
+        $container = (new Container())->auto(false);
+        $this->object = $container;
+
+        // load definitions
+        $container->load(__DIR__ . '/definition.php');
+
+        // getting what you've already defined
+        $cache = $container->get('cache');
+
+        $this->assertTrue('/var/local/tmp' === $cache->getDriver()->getRoot());
+    }
+
+    /**
+     * Readme example 5.1, test map to classname
+     *
+     * @covers Phossa\Di\Container::get
+     */
+    public function testGet10()
+    {
+        // turn off autowiring
+        $container = new Container();
+
+        // map a interface to a classname
+        $container->map(
+            'Phossa\\Cache\\CachePoolInterface',
+            'Phossa\\Cache\\CachePool'
+        );
+
+        $container->get('\\Phossa\\Cache\\TestMap');
+    }
+
+    /**
+     * Readme example 5.2, test map to service id
+     *
+     * @covers Phossa\Di\Container::get
+     */
+    public function testGet11()
+    {
+        // turn off autowiring
+        $container = new Container();
+
+        $container->add('cache', 'Phossa\\Cache\\CachePool');
+
+        // map a interface to a classname
+        $container->map(
+            'Phossa\\Cache\\CachePoolInterface',
+            '@cache@'
+        );
+
+        $container->get('\\Phossa\\Cache\\TestMap');
+    }
+
+    /**
+     * Readme example 5.3, test map to parameter
+     *
+     * @covers Phossa\Di\Container::get
+     */
+    public function testGet12()
+    {
+        // turn off autowiring
+        $container = new Container();
+
+        $container->set('cache.class', 'Phossa\\Cache\\CachePool');
+
+        // map a interface to a classname
+        $container->map(
+            'Phossa\\Cache\\CachePoolInterface',
+            '%cache.class%'
+        );
+
+        $container->get('\\Phossa\\Cache\\TestMap');
+    }
+
+    /**
+     * Readme example 5.4, load map from file
+     *
+     * @covers Phossa\Di\Container::get
+     */
+    public function testGet13()
+    {
+        // turn off autowiring
+        $container = new Container();
+
+        $container->set('cache.class', 'Phossa\\Cache\\CachePool');
+
+        // map a interface to a classname
+        $container->load(__DIR__.'/definition.map.php');
+
+        $container->get('\\Phossa\\Cache\\TestMap');
+    }
+
+    /**
      * @covers Phossa\Di\Container::one
      */
     public function testOne()
@@ -373,9 +568,25 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers Phossa\Di\Container::hasTag
+     */
+    public function testHasTag()
+    {
+        $tag = 'WOW';
+        $this->assertFalse($this->object->hasTag($tag));
+        $this->object->addTag($tag);
+        $this->assertTrue($this->object->hasTag($tag));
+
+        // emptyt tag return false
+        $this->assertFalse($this->object->hasTag(''));
+        $this->assertFalse($this->object->hasTag([]));
+    }
+
+    /**
+     * normal test
      * @covers Phossa\Di\Container::setDelegate
      */
-    public function testSetDelegate()
+    public function testSetDelegate1()
     {
         $delegator = new \Phossa\Di\Extension\Delegate\Delegator();
         $this->object->setDelegate($delegator);
@@ -383,9 +594,33 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * test auto() off for the last container
+     *
+     * @covers Phossa\Di\Container::setDelegate
+     */
+    public function testSetDelegate2()
+    {
+        $delegator = new \Phossa\Di\Extension\Delegate\Delegator();
+        $container1 = new Container();
+        $container2 = new Container();
+
+        $container1->setDelegate($delegator);
+        $container2->setDelegate($delegator, true);
+
+        // autowiring is on
+        $delegator->get('DD');
+
+        // DD is in $container2
+        $this->assertFalse($container1->has('DD'));
+        $this->assertTrue($container2->has('DD'));
+    }
+
+    /**
+     * normal setDecorate
+     *
      * @covers Phossa\Di\Container::setDecorate
      */
-    public function testSetDecorate()
+    public function testSetDecorate1()
     {
         $aa1 = $this->object->get('AA');
         $this->assertNull($aa1->getD());
@@ -399,9 +634,34 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * setDecorate using tester callable etc.
+     *
+     * @covers Phossa\Di\Container::setDecorate
+     */
+    public function testSetDecorate2()
+    {
+        $aa1 = $this->object->get('AA');
+        $this->assertNull($aa1->getD());
+
+        // set container with decorating rules
+        $container = $this->object;
+        $this->object->setDecorate('setD', function($obj) {
+            return $obj instanceof \AA;
+        }, function ($obj) use ($container) {
+            $obj->setD($container->get('DD'));
+        });
+
+        // get new decorated aa
+        $aa2 = $this->object->one('AA');
+        $this->assertTrue($aa2->getD() instanceof \DD);
+    }
+
+    /**
+     * add provider instance
+     *
      * @covers Phossa\Di\Container::addProvider
      */
-    public function testAddProvider()
+    public function testAddProvider1()
     {
         // load prividers
         include_once __DIR__ . '/Extension/Provider/TestProvider.php';
@@ -411,14 +671,34 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
         // provider
         $p = new \Phossa\Di\Extension\Provider\TestProvider();
-
         $this->object->addProvider($p);
 
         // now found XX
         $this->assertTrue($this->object->has('XX'));
-
-        $this->object->get('XX');
         $this->assertTrue($this->object->get('XX') instanceof \bingoXX);
+    }
+
+    /**
+     * add provider instance
+     *
+     * @covers Phossa\Di\Container::addProvider
+     */
+    public function testAddProvider2()
+    {
+        // load prividers
+        include_once __DIR__ . '/Extension/Provider/TestTagProvider.php';
+
+        // not 'bingo' found
+        $this->assertFalse($this->object->has('bingo'));
+
+        $this->object->addTag('TEST');
+
+        // provider with tag 'TEST'
+        $this->object->addProvider('Phossa\\Di\\Extension\\Provider\\TestTagProvider');
+
+        // now found 'bingo'
+        $this->assertTrue($this->object->has('bingo'));
+        $this->assertTrue($this->object->get('bingo') instanceof \bingoXX);
     }
 
     /**

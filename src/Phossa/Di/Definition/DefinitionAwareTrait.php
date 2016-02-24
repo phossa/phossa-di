@@ -274,10 +274,7 @@ trait DefinitionAwareTrait
             }
 
             // error
-            if (!is_array($def) ||
-                !isset($def['class']) &&
-                !isset($def[0])
-            ) {
+            if (!is_array($def) || !isset($def['class']) && !isset($def[0])) {
                 throw new LogicException(
                     Message::get(Message::DEFINITION_FORMAT_ERR, $id),
                     Message::DEFINITION_FORMAT_ERR
@@ -285,8 +282,11 @@ trait DefinitionAwareTrait
 
             // fix no 'class'
             } else {
-                if (!isset($def['class']) && isset($def[0])) {
+                if (isset($def[0])) {
                     $definitions[$id] = [ 'class' => $def ];
+                } elseif (is_string($def['class'])) {
+                    $def['class'] = [ $def['class'] ];
+                    $definitions[$id] = $def;
                 }
             }
         }

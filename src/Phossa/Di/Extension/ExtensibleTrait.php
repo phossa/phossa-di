@@ -173,10 +173,10 @@ trait ExtensibleTrait
         $ext = $this->getExtension(ProviderExtension::EXTENSION_CLASS);
 
         if (is_a($provider, ProviderAbstract::PROVIDER_CLASS, true)) {
-            if (!is_object($provider)) {
-                $ext->addProvider(new $provider);
-            } else {
+            if (is_object($provider)) {
                 $ext->addProvider($provider);
+            } else {
+                $ext->addProvider(new $provider);
             }
         } else {
             throw new LogicException(

@@ -7,10 +7,11 @@
 Introduction
 ---
 
-**Phossa-di** is a *FAST* and *FULL-FLEDGED* dependency injection library for
-PHP. It supports [auto wiring](#auto), [container delegation](#delegate),
-[object decorating](#decorate), [definition provider](#provider),
-[definition tagging](#tag), [object scope](#scope) and more.
+**Phossa-di** is a *FAST*, *FEATURE-RICH* and *FULL-FLEDGED* dependency
+injection library forPHP. It supports [auto wiring](#auto),
+[container delegation](#delegate), [object decorating](#decorate),
+[definition provider](#provider), [definition tagging](#tag),
+[object scope](#scope) and more.
 
 It requires PHP 5.4 and supports PHP 7.0+, HHVM. It is compliant with
 [PSR-1][PSR-1], [PSR-2][PSR-2], [PSR-4][PSR-4] and coming [PSR-5][PSR-5],
@@ -94,7 +95,8 @@ Getting started
   ```php
   use Phossa\Di\Container;
 
-  $container = new Container();
+  // turn off auto wiring
+  $container = (new Container())->auto(false);
 
   // config the cache service with classname and constructor arguments
   $container->add('cache', 'MyCache', [ '@cacheDriver@' ]);
@@ -120,7 +122,7 @@ Getting started
   ```php
   // ...
   $container->add('cacheDriver', function() {
-      return new \cacheDriver();
+      return new \MyCacheDriver();
   });
   ```
 
@@ -139,6 +141,7 @@ Getting started
   ```php
   <?php
   /* file name '*.s*.php' indicating SERVICE definitions in PHP format */
+  use Phossa\Di\Container;
   return [
       'cache' => [
           'class' => [ 'MyCache', [ '@cacheDriver@' ]],
@@ -173,6 +176,7 @@ Getting started
   ```php
   <?php
   /* file name '*.php' indicating definitions in PHP format */
+  use Phossa\Di\Container;
   return [
       // key 'services' indicating the service definitions
       'services' => [
@@ -198,7 +202,7 @@ Getting started
 
       // key 'mappings' indicating the mapping definitions
       'mappings' => [
-          '\\Phossa\\Cache\\CachePoolInterface'  => '\\Phossa\\Cache\\CachePool',
+          'Phossa\\Cache\\CachePoolInterface'  => 'Phossa\\Cache\\CachePool',
           // ...
       ],
   ];
@@ -245,21 +249,21 @@ Features
   ```php
   // map a interface to a classname
   $container->map(
-      '\\Phossa\\Cache\\CachePoolInterface',
-      '\\Phossa\\Cache\\CachePool'
+      'Phossa\\Cache\\CachePoolInterface', // MUST NO leading backslash
+      'Phossa\\Cache\\CachePool' // leading backslash is optional
   );
 
-  // map a interface to a service id
-  $container->map('\\Phossa\\Cache\\CachePoolInterface', '@cache@');
+  // map a interface to a service id, MUST NO leading backslash
+  $container->map('Phossa\\Cache\\CachePoolInterface', '@cache@');
 
-  // map a interface to a parameter
-  //$container->map('\\Phossa\\Cache\\CachePoolInterface', '%cache.class%');
+  // map a interface to a parameter, no leading backslash
+  //$container->map('Phossa\\Cache\\CachePoolInterface', '%cache.class%');
   ```
 
   Or load mapping files,
 
   ```php
-  $container->load('./defintion.mappings.php');
+  $container->load('./defintion.map.php');
   ```
 
   Auto wiring can be turned on/off. Turn off auto wiring will enable user to
@@ -482,12 +486,10 @@ Public APIs
     `$providers` can be array of `ProviderAbstract` objects or provider
     classnames.
 
-    `$extensions` should only be used if user has its own extension defined.
-
   - `get(string $id, array $arguments = [], string $scope = ''): object`
 
-    If extra arguments are used, new instance will be generated even if it was
-    configured as a shared service.
+    If extra arguments are provided, new instance will be generated even if
+    it was configured with a `Container::SCOPE_SHARED` scope.
 
     *Arguments may contain references like `@service_id@` or `%parameter%`*.
 
@@ -499,14 +501,15 @@ Public APIs
   - `run(callable|array $callable, array $arguments = []): mixed`
 
     Execute a callable with the provided arguments. Pseudo callable like
-    `['@cacheDriver@', 'setRoot']` is supported.
+    `['@cacheDriver@', '%cache.setroot.method%']` is supported.
 
 - Definition related APIs
 
   - `add(string|array $id, string|callable $className, array $arguments = []): this`
 
     Add a service definition or definitions(array) into the container. Callable
-    can be used instead of classname to create an instance.
+    can be used instead of classname to create an instance. `$arguments` is
+    for the constructor.
 
   - `set(string|array $name, string $value = ''): this`
 
@@ -514,8 +517,11 @@ Public APIs
 
   - `map(string|array $interface, string $className): this`
 
-    Map a interface name to a classname or a service id. Map array can be
-    inserted into container if `$interface` is an array.
+    Map a interface name or a classname to a classname, a service id or a
+    predefiend parameter. Map array can be inserted into container if
+    `$interface` is an array.
+
+    **Note** No leading backslash for the `$interface`
 
   - `addMethod(string $method, array $arguments = []): this`
 

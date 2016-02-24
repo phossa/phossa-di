@@ -275,10 +275,11 @@ trait ResolvableTrait
                     // try mappings
                     if (isset($this->mappings[$name])) {
                         $name = $this->mappings[$name];
-                        if (false != ($ref = $this->isServiceReference($name)) ||
-                            false != ($ref = $this->isParameterReference($name))
-                        ) {
+                        if (($ref = $this->isServiceReference($name)))
+                        {
                             $name = $ref->getName();
+                        } elseif (($ref = $this->isParameterReference($name))) {
+                            $name = $this->getParameter($ref->getName());
                         }
                     }
 
