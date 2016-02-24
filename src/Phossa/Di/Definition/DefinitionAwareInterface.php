@@ -46,13 +46,16 @@ interface DefinitionAwareInterface extends ResolvableInterface
      * Set parameter definition
      *
      * @param  string|array $name parameter name or parameter array
-     * @param  mixed $value parameter value or a (pseudo) callable
+     * @param  string $value parameter value
      * @return DefinitionAwareInterface this
      * @throws InvalidArgumentException
      * @access public
      * @api
      */
-    public function set($name, $value = '')/*# : DefinitionAwareInterface */;
+    public function set(
+        $name,
+        /*# string */ $value = ''
+    )/*# : DefinitionAwareInterface */;
 
     /**
      * Add service definition

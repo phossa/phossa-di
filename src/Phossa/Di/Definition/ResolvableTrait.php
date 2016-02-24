@@ -85,19 +85,24 @@ trait ResolvableTrait
      */
     protected function resolveCallable($callable)
     {
-        // resolve callable
+        // resolve pseudo callable
         if (is_array($callable)) {
+            // resolve method if it is a parameter
+            if (false !== ($ref = $this->isParameterReference($callable[1]))) {
+                $callable[1] = $ref->getName();
+            }
+
+            // resolve object if it is a reference string
+            if (is_string($callable[0]) &&
+                ($res = $this->isServiceReference($callable[0]))) {
+                $callable[0] = $this->delegatedGet($res->getName());
+            }
+
+            // resolve object if it is a reference object
             if (is_object($callable[0]) &&
                 $callable[0] instanceof ReferenceAbstract
             ) {
                 $callable[0] = $this->delegatedGet($callable[0]->getName());
-                return $callable;
-            }
-
-            if (is_string($callable[0]) &&
-                ($res = $this->isServiceReference($callable[0]))) {
-                $callable[0] = $this->delegatedGet($res->getName());
-                return $callable;
             }
         }
 
@@ -183,9 +188,12 @@ trait ResolvableTrait
                     $arguments[$idx] = $this->delegatedGet($ref->getName());
                 } elseif (false !== ($ref = $this->isParameterReference($arg))) {
                     $val = $this->getParameter($ref->getName());
+                    /*
+                    // circular is possible here
                     if (is_object($val) && $val instanceof \Closure) {
                         $val = $this->executeCallable($val);
                     }
+                     */
                     $arguments[$idx] = $val;
                 }
             }
@@ -267,8 +275,8 @@ trait ResolvableTrait
                     // try mappings
                     if (isset($this->mappings[$name])) {
                         $name = $this->mappings[$name];
-                        if (false !==
-                            ($ref = $this->isServiceReference($name))
+                        if (false != ($ref = $this->isServiceReference($name)) ||
+                            false != ($ref = $this->isParameterReference($name))
                         ) {
                             $name = $ref->getName();
                         }
@@ -308,16 +316,14 @@ trait ResolvableTrait
         $class = $this->services[$id]['class'];
 
         // fix arguments
-        if (is_array($class)) {
-            $args = empty($arguments) ?
-                    (isset($class[1]) ? $class[1] : []) :
-                    $arguments;
-        }
+        $args = empty($arguments) ?
+                (is_array($class) && isset($class[1]) ? $class[1] : []) :
+                $arguments;
 
         try {
             // closure
             if (is_object($class) && $class instanceof \Closure) {
-                $instance = $this->executeCallable($class, $arguments);
+                $instance = $this->executeCallable($class, $args);
 
             // closure with possible default arguments
             } elseif (is_callable($class[0])) {
@@ -393,8 +399,8 @@ trait ResolvableTrait
             foreach ($methods as $method) {
                 if (!is_array($method) ||
                     !isset($method[0]) ||
-                    !is_string($method[0]) ||
-                    !method_exists($instance, $method[0])) {
+                    !is_string($method[0])
+                ) {
                     throw new LogicException(
                         Message::get(
                             Message::SERVICE_METHOD_ERROR,
@@ -405,6 +411,7 @@ trait ResolvableTrait
                     );
                 }
 
+                // execute with arguments
                 $this->executeCallable(
                     [ $instance, $method[0] ],
                     isset($method[1]) ? $method[1] : []

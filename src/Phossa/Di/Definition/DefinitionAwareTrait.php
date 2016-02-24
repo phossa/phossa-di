@@ -68,8 +68,10 @@ trait DefinitionAwareTrait
     /**
      * {@inheritDoc}
      */
-    public function set($name, $value = '')/*# : DefinitionAwareInterface */
-    {
+    public function set(
+        $name,
+        /*# string */ $value = ''
+    )/*# : DefinitionAwareInterface */ {
         if (is_array($name)) {
             $this->fixParameters($name);
             $this->parameters = array_replace_recursive(

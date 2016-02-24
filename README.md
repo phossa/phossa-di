@@ -99,7 +99,7 @@ Getting started
   // config the cache service with classname and constructor arguments
   $container->add('cache', 'MyCache', [ '@cacheDriver@' ]);
 
-  // config the cache driver with extra init method
+  // add initialization methods after instantiation
   $container->add('cacheDriver', 'MyCacheDriver')
             ->addMethod('setRoot', [ '%cache.root%' ]);
 
@@ -141,7 +141,8 @@ Getting started
   /* file name '*.s*.php' indicating SERVICE definitions in PHP format */
   return [
       'cache' => [
-          'class' => [ 'MyCache', [ '@cacheDriver@' ]]
+          'class' => [ 'MyCache', [ '@cacheDriver@' ]],
+          'scope' => Container::SCOPE_SHARED // default anyway
       ],
       'cacheDriver' => [
           'class'   => 'MyCacheDriver',
@@ -176,7 +177,8 @@ Getting started
       // key 'services' indicating the service definitions
       'services' => [
           'cache' => [
-              'class' => [ 'MyCache', [ '@cacheDriver@' ]]
+              'class' => [ 'MyCache', [ '@cacheDriver@' ]],
+              'scope' => Container::SCOPE_SHARED // default anyway
           ],
           'cacheDriver' => [
               'class'   => 'MyCacheDriver',
@@ -249,6 +251,9 @@ Features
 
   // map a interface to a service id
   $container->map('\\Phossa\\Cache\\CachePoolInterface', '@cache@');
+
+  // map a interface to a parameter
+  //$container->map('\\Phossa\\Cache\\CachePoolInterface', '%cache.class%');
   ```
 
   Or load mapping files,
@@ -503,11 +508,9 @@ Public APIs
     Add a service definition or definitions(array) into the container. Callable
     can be used instead of classname to create an instance.
 
-  - `set(string|array $name, string|callable $value = ''): this`
+  - `set(string|array $name, string $value = ''): this`
 
-    Set a parameter or parameters(array) into the container. `$value` can be a
-    string or a (pseduo) callable (callable will be executed when this parameter
-    is being used).
+    Set a parameter or parameters(array) into the container.
 
   - `map(string|array $interface, string $className): this`
 

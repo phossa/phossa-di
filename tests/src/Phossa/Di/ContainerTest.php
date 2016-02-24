@@ -439,9 +439,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testSet()
     {
         // right
-        $this->object->set('dot.dot', '@CC@');
+        $this->object->set('dot.dot', 'CC');
         $params = $this->getPrivateProperty('parameters');
-        $this->assertTrue('@CC@' === $params['dot']['dot']);
+        $this->assertTrue('CC' === $params['dot']['dot']);
     }
 
     /**
