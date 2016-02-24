@@ -148,7 +148,7 @@ trait ResolvableTrait
     /**
      * Execute callable with arguments
      *
-     * @param  mixed $callable callable or pseudo callable
+     * @param  callable|array $callable callable or pseudo callable
      * @param  array $arguments
      * @return mixed
      * @throws LogicException if something goes wrong
@@ -409,7 +409,7 @@ trait ResolvableTrait
                 // execute with arguments
                 $this->executeCallable(
                     [ $instance, $method[0] ],
-                    isset($method[1]) ? $method[1] : []
+                    isset($method[1]) ? (array) $method[1] : []
                 );
             }
         } catch (\Exception $e) {
