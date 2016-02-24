@@ -19,6 +19,7 @@ use Phossa\Di\Message\Message;
 use Phossa\Di\Exception\LogicException;
 use Phossa\Di\Reference\ServiceReference;
 use Phossa\Di\Exception\NotFoundException;
+use Phossa\Di\Reference\ReferenceAbstract;
 use Phossa\Di\Reference\ParameterReference;
 use Phossa\Di\Extension\Delegate\DelegateExtension;
 
@@ -33,6 +34,8 @@ use Phossa\Di\Extension\Delegate\DelegateExtension;
  */
 trait ContainerTrait
 {
+    use CircularTrait, \Phossa\Di\Extension\ExtensibleTrait;
+
     /**
      * Resolve a fake callable to a real one
      *
@@ -126,7 +129,7 @@ trait ContainerTrait
         try {
             // string
             if (is_string($args)) {
-                $todo[0] = &$args;
+                $todo = [ &$args ];
                 $this->dereferenceArguments($todo);
             } else {
                 foreach ($args as $idx => $arg) {

@@ -40,8 +40,7 @@ use Phossa\Di\Extension\Delegate\DelegatorInterface;
  */
 trait ExtensibleTrait
 {
-    use \Phossa\Di\Definition\DefinitionAwareTrait,
-        \Phossa\Di\Reference\AutowiringTrait;
+    use \Phossa\Di\Reference\AutowiringTrait;
 
     /**
      * extension registry

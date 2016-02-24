@@ -33,6 +33,7 @@ use Phossa\Di\Exception\LogicException;
  */
 interface ContainerInterface extends
     InteropContainerInterface,
+    Reference\AutowiringInterface,
     Extension\ExtensibleInterface,
     Definition\DefinitionAwareInterface
 {

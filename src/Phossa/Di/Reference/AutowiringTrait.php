@@ -29,6 +29,8 @@ namespace Phossa\Di\Reference;
  */
 trait AutowiringTrait
 {
+    use \Phossa\Di\Definition\DefinitionAwareTrait;
+    
     /**
      * Autowiring ON or OFF
      *

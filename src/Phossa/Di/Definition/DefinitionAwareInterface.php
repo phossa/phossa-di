@@ -26,7 +26,6 @@ use Phossa\Di\Exception\InvalidArgumentException;
  * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @see     ResolvableInterface
  * @version 1.0.1
  * @since   1.0.1 added
  */
