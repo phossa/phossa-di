@@ -81,9 +81,6 @@ class DecorateExtension extends ExtensionAbstract implements
      */
     public function setDecorate(/*# string */ $name, $tester, $decorator)
     {
-        /*
-         * tester signature: function($service): bool {}
-         */
         if (!is_callable($tester)) {
             $tester = function ($service) use ($tester) {
                 return $service instanceof $tester;

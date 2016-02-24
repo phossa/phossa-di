@@ -76,7 +76,7 @@ trait ResolvableTrait
      * fake callable like `[ '@cache@', 'setLogger' ]` or
      * `[ new ServiceReference('cache'), 'setLogger' ]`
      *
-     * @param  array|callable $callable
+     * @param  callable|array $callable
      * @return callable
      * @throws LogicException
      * @throws NotFoundException
@@ -130,17 +130,14 @@ trait ResolvableTrait
         callable $callable,
         array $arguments
     )/*# : array */ {
-        // reflect method
         if (is_object($callable)) {
             $reflector = new \ReflectionClass($callable);
             $method = $reflector->getMethod('__invoke');
 
-        // [ object/class, method ]
         } elseif (is_array($callable)) {
             $reflector = new \ReflectionClass($callable[0]);
             $method = $reflector->getMethod($callable[1]);
 
-        // function
         } else {
             $method = new \ReflectionFunction($callable);
         }
@@ -153,7 +150,7 @@ trait ResolvableTrait
      *
      * @param  mixed $callable callable or pseudo callable
      * @param  array $arguments
-     * @return void
+     * @return mixed
      * @throws LogicException if something goes wrong
      * @access protected
      */
@@ -186,14 +183,7 @@ trait ResolvableTrait
                 } elseif (false !== ($ref = $this->isServiceReference($arg))) {
                     $arguments[$idx] = $this->delegatedGet($ref->getName());
                 } elseif (false !== ($ref = $this->isParameterReference($arg))) {
-                    $val = $this->getParameter($ref->getName());
-                    /*
-                    // circular is possible here
-                    if (is_object($val) && $val instanceof \Closure) {
-                        $val = $this->executeCallable($val);
-                    }
-                     */
-                    $arguments[$idx] = $val;
+                    $arguments[$idx] = $this->getParameter($ref->getName());
                 }
             }
         } catch (\Exception $e) {

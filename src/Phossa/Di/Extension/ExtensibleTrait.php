@@ -41,7 +41,7 @@ use Phossa\Di\Extension\Delegate\DelegatorInterface;
 trait ExtensibleTrait
 {
     use \Phossa\Di\Definition\DefinitionAwareTrait;
-    
+
     /**
      * extension registry
      *
@@ -253,4 +253,9 @@ trait ExtensibleTrait
             $ext->decorateService($service);
         }
     }
+
+    /*
+     * required by this trait
+     */
+    abstract public function auto(/*# bool */ $status);
 }
