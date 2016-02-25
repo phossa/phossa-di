@@ -24,7 +24,7 @@ use Interop\Container\Exception\NotFoundException as NFException;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     \Interop\Container\Exception\NotFoundException
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 interface InteropNotFoundException extends NFException

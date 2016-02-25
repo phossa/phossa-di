@@ -24,7 +24,7 @@ namespace Phossa\Di\Extension\Decorate;
  * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 interface DecorateAwareInterface
@@ -35,36 +35,34 @@ interface DecorateAwareInterface
      * $tester: string (interface or classname) or callable
      * $decorator: ['method', [ args...]] or callable
      *
-     * e.g.
-     * <code>
-     *    $this->setDecorate(
-     *      'logger',
-     *      '\\Phossa\\Logger\\LoggerAwareInterface', // interface
-     *      [ 'setLogger', ['@logger@'] ] // method & arguments
-     *    );
+     * ```php
+     * // any object implementing 'LoggerAwareInterface' should be decorated
+     * $container->addDecorate(
+     *     'setlogger',  // rule name
+     *     'Psr\\Log\\LoggerAwareInterface', // NO leading backslash
+     *     ['setLogger', ['@logger@']] // run this method
+     * );
+     * ```
      *
-     *    $container = $this;
-     *    $this->setDecorate(
-     *        'container',
-     *        function($service) {
-     *            return $service instanceof ContainerAwareInterface;
-     *        },
-     *        function($service) use ($container) {
-     *            $service->setContainer($container);
-     *        }
-     *    );
-     * </code>
+     * Or
      *
-     * @param  string $name rule name
+     * ```php
+     * $container->addDecorate('setlogger',
+     *     function($object) {
+     *         return $object instanceof \Psr\Log\LoggerAwareInterface;
+     *     },
+     *     function($object) use($container) {
+     *         $object->setLogger($container->get('logger'));
+     *     }
+     * );
+     * ```
+     *
+     * @param  string $name decorate rule name
      * @param  string|callable $tester interface/classname or callable
-     * @param  array|callable methods/arguments array or callable
-     * @return DecorateAwareInterface this
+     * @param  array|callable [ method, arguments ] or callable
+     * @return static
      * @access public
      * @api
      */
-    public function setDecorate(
-        /*# string */ $name,
-        $tester,
-        $decorator
-    )/*# : DecorateAwareInterface */;
+    public function addDecorate(/*# string */ $name, $tester, $decorator);
 }

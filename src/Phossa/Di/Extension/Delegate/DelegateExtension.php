@@ -24,17 +24,15 @@ use Phossa\Di\Extension\ExtensionAbstract;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     ExtensionAbstract
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 class DelegateExtension extends ExtensionAbstract
 {
     /**
-     * Extension class, has to be redefined in child classes
-     *
-     * @const
+     * @inheritDoc
      */
-    const EXTENSION_CLASS   = __CLASS__;
+    const EXTENSION_CLASS = __CLASS__;
 
     /**
      * delegator
@@ -57,7 +55,7 @@ class DelegateExtension extends ExtensionAbstract
         ContainerInterface $container
     ) {
         $this->delegator = $delegator;
-        $delegator->setContainer($container);
+        $delegator->addContainer($container);
     }
 
     /**

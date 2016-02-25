@@ -15,11 +15,12 @@
 
 namespace Phossa\Di\Extension\Provider;
 
-use Phossa\Di\Container;
 use Phossa\Di\Message\Message;
 use Phossa\Di\Exception\LogicException;
-use Phossa\Di\Extension\Taggable\TaggableExtension;
 use Phossa\Di\Exception\NotFoundException;
+use Phossa\Di\Interop\InteropContainerInterface;
+use Phossa\Di\Container\ContainerAwareInterface;
+use Phossa\Di\Extension\Taggable\TaggableExtension;
 
 /**
  * ProviderAbstract
@@ -27,17 +28,17 @@ use Phossa\Di\Exception\NotFoundException;
  * @abstract
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
-abstract class ProviderAbstract implements ProviderInterface
+abstract class ProviderAbstract implements ContainerAwareInterface, InteropContainerInterface
 {
-    use Container\ContainerAwareTrait;
+    use \Phossa\Di\Container\ContainerAwareTrait;
 
     /**
      * class name
      *
-     * @const
+     * @var    string[]
      */
     const PROVIDER_CLASS = __CLASS__;
 
@@ -50,7 +51,7 @@ abstract class ProviderAbstract implements ProviderInterface
     protected $provides;
 
     /**
-     * Tags, empty means match all tags
+     * Tags of the provider
      *
      * @var    string[]
      * @access protected
@@ -58,7 +59,7 @@ abstract class ProviderAbstract implements ProviderInterface
     protected $tags = [];
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function get($id)
     {
@@ -73,7 +74,7 @@ abstract class ProviderAbstract implements ProviderInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function has($id)
     {
@@ -88,7 +89,12 @@ abstract class ProviderAbstract implements ProviderInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Merge this provider's service definition into container
+     *
+     * @return void
+     * @throws LogicException if merging goes wrong
+     * @access public
+     * @internal
      */
     public function merge()
     {
@@ -102,7 +108,11 @@ abstract class ProviderAbstract implements ProviderInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Is this provider currently providing definitions ?
+     *
+     * @return bool
+     * @access public
+     * @internal
      */
     public function isProviding()/*# : bool */
     {

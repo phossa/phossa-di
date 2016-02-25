@@ -24,7 +24,7 @@ use Phossa\Shared\Exception\LogicException as Exception;
  * @author  Hong Zhang <phossa@126.com>
  * @see     ExceptionInterface
  * @see     \Phossa\Shared\Exception\LogicException
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 class LogicException extends Exception implements ExceptionInterface

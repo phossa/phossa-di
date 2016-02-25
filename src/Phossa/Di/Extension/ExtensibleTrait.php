@@ -35,7 +35,7 @@ use Phossa\Di\Extension\Delegate\DelegatorInterface;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     ExtensibleInterface
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 trait ExtensibleTrait
@@ -43,7 +43,7 @@ trait ExtensibleTrait
     use \Phossa\Di\Autowire\AutowiringTrait;
 
     /**
-     * extension registry
+     * cached extensions
      *
      * @var    ExtensionAbstract[]
      * @access protected
@@ -51,19 +51,10 @@ trait ExtensibleTrait
     protected $extensions = [];
 
     /**
-     * Cached provider after calling $container->has()
-     *
-     * @var    ProviderAbstract
-     * @access protected
+     * @inheritDoc
      */
-    protected $provider;
-
-    /**
-     * {@inheritDoc}
-     */
-    public function addExtension(
-        ExtensionAbstract $extension
-    )/*# : ExtensibleInterface */ {
+    public function addExtension(ExtensionAbstract $extension)
+    {
         $this->extensions[$extension->getName()] = $extension;
 
         if ($extension instanceof ContainerAwareInterface) {
@@ -73,34 +64,31 @@ trait ExtensibleTrait
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    public function load($fileOrArray)/*# : LoadableInterface */
+    public function load($fileOrArray)
     {
         $loaded = false;
 
         // load from file
         if (is_string($fileOrArray)) {
             /* @var $ext LoaderExtension */
-            $ext = $this->getExtension(LoaderExtension::EXTENSION_CLASS);
-            $data = $ext->loadFile($fileOrArray);
+            $ext  = $this->getExtension(LoaderExtension::EXTENSION_CLASS);
+            $data = (array) $ext->loadFile($fileOrArray);
             return $this->load($data);
 
         // load from array
         } elseif (is_array($fileOrArray)) {
-            if (isset($fileOrArray['services'])) {
-                $this->add($fileOrArray['services']);
-                $loaded = true;
-            }
-
-            if (isset($fileOrArray['parameters'])) {
-                $this->set($fileOrArray['parameters']);
-                $loaded = true;
-            }
-
-            if (isset($fileOrArray['mappings'])) {
-                $this->map($fileOrArray['mappings']);
-                $loaded = true;
+            $toload = [
+                'services'      => 'add',
+                'parameters'    => 'set',
+                'mappings'      => 'map'
+            ];
+            foreach($toload as $key => $action) {
+                if (isset($fileOrArray[$key])) {
+                    $this->$action($fileOrArray[$key]);
+                    $loaded = true;
+                }
             }
         }
 
@@ -119,18 +107,18 @@ trait ExtensibleTrait
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    public function addTag($tags)/*# : TaggableInterface */
+    public function addTag($tags)
     {
         /* @var $ext TaggableExtension */
         $ext = $this->getExtension(TaggableExtension::EXTENSION_CLASS);
-        $ext->setTags(is_array($tags) ? $tags : [ $tags ]);
+        $ext->setTags(is_array($tags) ? $tags : [ (string) $tags ]);
         return $this;
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function hasTag($tags)/*# : bool */
     {
@@ -139,16 +127,16 @@ trait ExtensibleTrait
 
         /* @var $ext TaggableExtension */
         $ext = $this->getExtension(TaggableExtension::EXTENSION_CLASS);
-        return $ext->matchTags(is_array($tags) ? $tags : [ $tags ]);
+        return $ext->matchTags(is_array($tags) ? $tags : [ (string) $tags ]);
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function setDelegate(
         DelegatorInterface $delegator,
         /*# bool */ $keepAutowiring = false
-    )/*# : DelegateAwareInterface */ {
+    ) {
         /* @var $ext DelegateExtension */
         $ext = $this->getExtension(DelegateExtension::EXTENSION_CLASS);
         $ext->setDelegator($delegator, $this->auto($keepAutowiring));
@@ -156,9 +144,9 @@ trait ExtensibleTrait
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    public function setDecorate(/*# string */ $name, $tester, $decorator)
+    public function addDecorate(/*# string */ $name, $tester, $decorator)
     {
         /* @var $ext DecorateExtension */
         $ext = $this->getExtension(DecorateExtension::EXTENSION_CLASS);
@@ -167,9 +155,9 @@ trait ExtensibleTrait
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    public function addProvider($provider)/*# : ProviderAwareInterface */
+    public function addProvider($provider)
     {
         /* @var $ext ProviderExtension */
         $ext = $this->getExtension(ProviderExtension::EXTENSION_CLASS);
@@ -196,6 +184,7 @@ trait ExtensibleTrait
      * @param  string $extensionName
      * @return ExtensionAbstract
      * @access public
+     * @internal
      */
     public function getExtension(
         /*# string */ $extensionName
@@ -219,7 +208,7 @@ trait ExtensibleTrait
     }
 
     /**
-     * Try find $id in providers, if matched, cache the provider
+     * Try find $id in providers
      *
      * @param  string $id
      * @return bool

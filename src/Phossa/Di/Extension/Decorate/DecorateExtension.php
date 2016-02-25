@@ -25,20 +25,17 @@ use Phossa\Di\Container\ContainerAwareInterface;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     ExtensionAbstract
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
-class DecorateExtension extends ExtensionAbstract implements
-    ContainerAwareInterface
+class DecorateExtension extends ExtensionAbstract implements ContainerAwareInterface
 {
     use \Phossa\Di\Container\ContainerAwareTrait;
 
     /**
-     * Extension class, has to be redefined in child classes
-     *
-     * @const
+     * @inheritDoc
      */
-    const EXTENSION_CLASS   = __CLASS__;
+    const EXTENSION_CLASS = __CLASS__;
 
     /**
      * Decorate rules
@@ -49,13 +46,13 @@ class DecorateExtension extends ExtensionAbstract implements
     protected $rules = [];
 
     /**
-     * Decorate a service
+     * Decorate a service object
      *
      * @param  object $service
      * @return void
      * @throws LogicException if something goes wrong
      * @access public
-     * @api
+     * @internal
      */
     public function decorateService($service)
     {
@@ -71,16 +68,17 @@ class DecorateExtension extends ExtensionAbstract implements
     /**
      * Set docorate rules
      *
-     * @param  string $name rule name
+     * @param  string $name decorate rule name
      * @param  string|callable callable or interface/class name
-     * @param  array|callable another callable or method definition
+     * @param  array|callable callable or [ method, arguments ]
      * @return void
      * @throws LogicException if something goes wrong
      * @access public
-     * @api
+     * @internal
      */
     public function setDecorate(/*# string */ $name, $tester, $decorator)
     {
+        // tester
         if (!is_callable($tester)) {
             $tester = function ($service) use ($tester) {
                 return $service instanceof $tester;
@@ -90,11 +88,13 @@ class DecorateExtension extends ExtensionAbstract implements
         // decorator
         if (!is_callable($decorator)) {
             $method    = $decorator[0];
-            $arguments = isset($decorator[1]) ? $decorator[1] : [];
             $container = $this->getContainer();
-            $decorator = function ($service) use ($container, $method, $arguments) {
-                $container->run([$service, $method], $arguments);
-            };
+            $arguments = isset($decorator[1]) ? $decorator[1] : [];
+            $decorator = function ($service)
+                use ($container, $method, $arguments)
+                {
+                    $container->run([$service, $method], $arguments);
+                };
         }
 
         // set the rule

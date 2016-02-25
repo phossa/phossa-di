@@ -21,18 +21,18 @@ namespace Phossa\Di\Autowire;
  * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 interface AutowiringInterface
 {
     /**
-     * Set autowiring ON
+     * Set autowiring ON or OFF
      *
-     * @param  bool $status true or false
-     * @return AutowiringInterface this
+     * @param  bool $switchOn
+     * @return static
      * @access public
      * @api
      */
-    public function auto(/*# bool */ $status)/*# : AutowiringInterface */;
+    public function auto(/*# bool */ $switchOn);
 }

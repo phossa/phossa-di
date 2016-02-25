@@ -62,14 +62,14 @@ class DelegatorTest extends \PHPUnit_Framework_TestCase
 	}
 
     /**
-     * @covers Phossa\Di\Extension\Delegate\Delegator::setContainer
+     * @covers Phossa\Di\Extension\Delegate\Delegator::addContainer
      * @covers Phossa\Di\Extension\Delegate\Delegator::getContainers
      */
-    public function testSetContainer()
+    public function testAddContainer()
     {
         // container one
         $ct1 = new Container();
-        $this->object->setContainer($ct1);
+        $this->object->addContainer($ct1);
 
         $all = $this->object->getContainers();
         $this->assertTrue(in_array($ct1, $all));
@@ -77,7 +77,7 @@ class DelegatorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * Resolve dependencies thru delegator
-     * 
+     *
      * @covers Phossa\Di\Extension\Delegate\Delegator::get
      * @covers Phossa\Di\Extension\Delegate\Delegator::has
      */
@@ -90,7 +90,7 @@ class DelegatorTest extends \PHPUnit_Framework_TestCase
         $aa1  = $ct1->get('AA'); // autowiring is ON
 
         // get from delegator
-        $this->object->setContainer($ct1); // one-way
+        $this->object->addContainer($ct1); // one-way
         $aa_1 = $this->object->get('AA');
 
         $this->assertTrue($aa1 === $aa_1);

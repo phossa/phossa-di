@@ -24,7 +24,7 @@ use Interop\Container\Exception\ContainerException;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     \Interop\Container\Exception\ContainerException
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 interface InteropContainerException extends ContainerException

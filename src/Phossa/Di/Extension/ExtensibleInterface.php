@@ -19,7 +19,8 @@ namespace Phossa\Di\Extension;
  * ExtensibleInterface
  *
  * Extension support for the container, including all predefined extension
- * related api methods
+ * related api methods. Extension loaded automatically once user call one
+ * of the api methods in the extensions.
  *
  * @interface
  * @package Phossa\Di
@@ -29,7 +30,7 @@ namespace Phossa\Di\Extension;
  * @see     Provider\ProviderAwareInterface
  * @see     Delegate\DelegateAwareInterface
  * @see     Decorate\DecorateAwareInterface
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 interface ExtensibleInterface extends Loader\LoadableInterface, Taggable\TaggableInterface, Provider\ProviderAwareInterface, Delegate\DelegateAwareInterface, Decorate\DecorateAwareInterface
@@ -38,11 +39,9 @@ interface ExtensibleInterface extends Loader\LoadableInterface, Taggable\Taggabl
      * Add extension to the container
      *
      * @param  ExtensionAbstract $extension
-     * @return ExtensibleInterface this
+     * @return static
      * @access public
      * @api
      */
-    public function addExtension(
-        ExtensionAbstract $extension
-    )/*# : ExtensibleInterface */;
+    public function addExtension(ExtensionAbstract $extension);
 }

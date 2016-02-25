@@ -26,39 +26,36 @@ use Phossa\Di\Container\ContainerAwareInterface;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     ExtensionAbstract
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
-class ProviderExtension extends ExtensionAbstract implements
-    ContainerAwareInterface
+class ProviderExtension extends ExtensionAbstract implements ContainerAwareInterface
 {
     use \Phossa\Di\Container\ContainerAwareTrait;
 
     /**
-     * Extension class, has to be redefined in child classes
-     *
-     * @const
+     * @inheritDoc
      */
-    const EXTENSION_CLASS   = __CLASS__;
+    const EXTENSION_CLASS = __CLASS__;
 
     /**
      * provider registry
      *
-     * @var    ProviderInterface[]
+     * @var    ProviderAbstract[]
      * @access protected
      */
-    protected $providers    = [];
+    protected $providers = [];
 
     /**
      * Add provider to the registry
      *
-     * @param  ProviderInterface $provider provider to add
+     * @param  ProviderAbstract $provider provider to add
      * @return void
      * @throws LogicException if merging goes wrong
      * @access public
-     * @api
+     * @internal
      */
-    public function addProvider(ProviderInterface $provider)
+    public function addProvider(ProviderAbstract $provider)
     {
         // added already
         if ($provider->hasContainer()) {
@@ -92,7 +89,7 @@ class ProviderExtension extends ExtensionAbstract implements
      * @param  string $id service id
      * @return bool
      * @access public
-     * @api
+     * @internal
      */
     public function providerHas(/*# string */ $id)/*# : bool */
     {

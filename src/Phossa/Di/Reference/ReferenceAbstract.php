@@ -21,7 +21,7 @@ namespace Phossa\Di\Reference;
  * @abstract
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 abstract class ReferenceAbstract
@@ -39,7 +39,7 @@ abstract class ReferenceAbstract
      *
      * @param  string $name
      * @access public
-     * @api
+     * @internal
      */
     public function __construct(/*# string */ $name)
     {
@@ -51,7 +51,7 @@ abstract class ReferenceAbstract
      *
      * @return string
      * @access public
-     * @api
+     * @internal
      */
     public function getName()/*# : string */
     {

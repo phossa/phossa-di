@@ -320,17 +320,21 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     {
         include_once __DIR__ . '/testData4.php';
 
+        // set container  default scope to single!!
+        $this->object->share(false);
+
         // mark DD scope follows QQ
         $this->object->add('DD')->setScope('@QQ@');
 
         // DD is shared under same QQ
-        $q1 = $this->object->one('QQ');
+        $q1 = $this->object->get('QQ');
         $this->assertTrue($q1->getD() === $q1->getR()->getD());
 
         // try different QQ
-        $q2 = $this->object->one('QQ');
+        $q2 = $this->object->get('QQ');
+
         $this->assertTrue($q2->getD() === $q2->getR()->getD());
-        $this->assertFalse($q1->getD() !== $q2->getD());
+        $this->assertTrue($q1->getD() !== $q2->getD());
     }
 
     /**
@@ -631,9 +635,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * normal setDecorate
+     * normal addDecorate
      *
-     * @covers Phossa\Di\Container::setDecorate
+     * @covers Phossa\Di\Container::addDecorate
      */
     public function testSetDecorate1()
     {
@@ -641,7 +645,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($aa1->getD());
 
         // set container with decorating rules
-        $this->object->setDecorate('setD', 'AA', ['setD', ['@DD@']]);
+        $this->object->addDecorate('setD', 'AA', ['setD', ['@DD@']]);
 
         // get new decorated aa
         $aa2 = $this->object->one('AA');
@@ -649,9 +653,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * setDecorate using tester callable etc.
+     * addDecorate using tester callable etc.
      *
-     * @covers Phossa\Di\Container::setDecorate
+     * @covers Phossa\Di\Container::addDecorate
      */
     public function testSetDecorate2()
     {
@@ -660,7 +664,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
         // set container with decorating rules
         $container = $this->object;
-        $this->object->setDecorate('setD', function($obj) {
+        $this->object->addDecorate('setD', function($obj) {
             return $obj instanceof \AA;
         }, function ($obj) use ($container) {
             $obj->setD($container->get('DD'));

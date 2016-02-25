@@ -25,7 +25,7 @@ use Phossa\Di\Interop\InteropContainerInterface;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     DelegatorInterface
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 class Delegator implements DelegatorInterface
@@ -39,9 +39,9 @@ class Delegator implements DelegatorInterface
     protected $containers = [];
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    public function setContainer(InteropContainerInterface $container)
+    public function addContainer(InteropContainerInterface $container)
     {
         // remove duplicated $container
         foreach ($this->containers as $idx => $con) {
@@ -55,7 +55,7 @@ class Delegator implements DelegatorInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getContainers()/*# : array */
     {
@@ -63,12 +63,14 @@ class Delegator implements DelegatorInterface
     }
 
     /**
+     * Get from the delegator
+     *
      * {@inheritDoc}
      */
-    public function get(/*# string */ $id)
+    public function get($id)
     {
+        /* @var InteropContainerInterface $container */
         foreach ($this->getContainers() as $container) {
-            /* @var $container InteropContainerInterface */
             if ($container->has($id)) {
                 return $container->get($id);
             }
@@ -82,12 +84,14 @@ class Delegator implements DelegatorInterface
     }
 
     /**
+     * Check each container in the delegator
+     *
      * {@inheritDoc}
      */
-    public function has(/*# string */ $id)/*# : bool */
+    public function has($id)
     {
+        /* @var InteropContainerInterface $container */
         foreach ($this->getContainers() as $container) {
-            /* @var $container InteropContainerInterface */
             if ($container->has($id)) {
                 return true;
             }

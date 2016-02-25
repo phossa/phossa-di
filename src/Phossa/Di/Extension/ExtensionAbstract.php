@@ -26,24 +26,27 @@ use Phossa\Di\Exception\LogicException;
  * @abstract
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 abstract class ExtensionAbstract
 {
     /**
-     * Extension class, has to be redefined in child classes
-     *
-     * @const
+     * @var    string
      */
-    const EXTENSION_CLASS   = __CLASS__;
+    const EXTENSION_CLASS = __CLASS__;
 
     /**
-     * {@inheritDoc}
+     * get classname
+     *
+     * @return string
+     * @throws LogicException if class not set right
+     * @access public
+     * @internal
      */
     public function getName()/*# : string */
     {
-        // has to be redefined in child class also
+        // MUST redefined in child class
         if (get_called_class() !== static::EXTENSION_CLASS) {
             throw new LogicException(
                 Message::get(Message::EXTENION_INVALID_CLASS, get_class($this)),

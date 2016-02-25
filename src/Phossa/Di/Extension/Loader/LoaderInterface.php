@@ -25,7 +25,7 @@ use Phossa\Di\Exception\LogicException;
  * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 interface LoaderInterface

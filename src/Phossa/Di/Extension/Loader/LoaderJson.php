@@ -25,13 +25,13 @@ use Phossa\Di\Exception\LogicException;
  *
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 class LoaderJson implements LoaderInterface
 {
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      *
      * services.s.json,
      * <code>
@@ -71,7 +71,7 @@ class LoaderJson implements LoaderInterface
                 Message::DEFINITION_NOT_FOUND
             );
         }
-        
+
         if (!is_array($definitions = @json_decode($json, true))) {
             throw new LogicException(
                 Message::get(Message::DEFINITION_FORMAT_ERR, $file),

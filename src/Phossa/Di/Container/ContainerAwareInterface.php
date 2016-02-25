@@ -26,7 +26,7 @@ use Phossa\Di\Exception\NotFoundException;
  * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 interface ContainerAwareInterface
@@ -35,7 +35,7 @@ interface ContainerAwareInterface
      * Set the container
      *
      * @param  ContainerInterface $container
-     * @return void
+     * @return static
      * @access public
      * @api
      */

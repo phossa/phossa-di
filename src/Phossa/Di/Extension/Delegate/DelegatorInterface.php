@@ -24,20 +24,20 @@ use Phossa\Di\Interop\InteropContainerInterface;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     InteropContainerInterface
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 interface DelegatorInterface extends InteropContainerInterface
 {
     /**
-     * Set container to delegate to
+     * Add to container pool end
      *
      * @param  InteropContainerInterface $container
      * @return void
      * @access public
      * @api
      */
-    public function setContainer(InteropContainerInterface $container);
+    public function addContainer(InteropContainerInterface $container);
 
     /**
      * Get delegated containers

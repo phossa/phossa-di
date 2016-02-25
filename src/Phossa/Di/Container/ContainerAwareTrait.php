@@ -28,7 +28,7 @@ use Phossa\Di\Exception\NotFoundException;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     ContainerAwareInterface
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 trait ContainerAwareTrait
@@ -42,15 +42,16 @@ trait ContainerAwareTrait
     protected $container;
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function setContainer(ContainerInterface $container)
     {
         $this->container = $container;
+        return $this;
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getContainer()/*# : ContainerInterface */
     {
@@ -67,7 +68,7 @@ trait ContainerAwareTrait
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function hasContainer()/*# : bool */
     {

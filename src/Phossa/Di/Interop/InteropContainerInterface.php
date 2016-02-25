@@ -26,7 +26,7 @@ use Interop\Container\ContainerInterface as CTInterface;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     ContainerInterface
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 interface InteropContainerInterface extends CTInterface

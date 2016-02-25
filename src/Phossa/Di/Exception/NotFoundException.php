@@ -26,7 +26,7 @@ use Phossa\Shared\Exception\NotFoundException as Exception;
  * @see     ExceptionInterface
  * @see     InteropNotFoundException
  * @see     \Phossa\Shared\Exception\NotFoundException
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.0 added
  */
 class NotFoundException extends Exception implements

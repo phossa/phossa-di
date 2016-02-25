@@ -22,7 +22,7 @@ use Phossa\Shared\Message\MessageAbstract;
  *
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.0 added
  */
 class Message extends MessageAbstract
@@ -111,10 +111,24 @@ class Message extends MessageAbstract
      */
     const METHOD_NOT_FOUND      = 1602190645;
 
+    /**
+     * Parameter id expects string, not "%s"
+     */
+    const PARAMETER_ID_INVALID  = 1602190646;
+
+    /**
+     * Service id expects string, not "%s"
+     */
+    const SERVICE_ID_INVALID    = 1602190647;
+
+    /**
+     * Map id expects string, not "%s"
+     */
+    const MAP_ID_INVALID        = 1602190648;
     /**#@-*/
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected static $messages = [
         self::CONTAINER_NOT_FOUND   => 'Container not found for "%s"',
@@ -133,5 +147,8 @@ class Message extends MessageAbstract
         self::PARAMETER_TYPE_WRONG  => 'Expect parameter type "%s" got "%s"',
         self::SERVICE_CIRCULAR      => 'Circular loop found for service "%s"',
         self::METHOD_NOT_FOUND      => 'Method call "%s" not found',
+        self::PARAMETER_ID_INVALID  => 'Parameter id expects string, not "%s"',
+        self::SERVICE_ID_INVALID    => 'Service id expects string, not "%s"',
+        self::MAP_ID_INVALID        => 'Map id expects string, not "%s"',
     ];
 }

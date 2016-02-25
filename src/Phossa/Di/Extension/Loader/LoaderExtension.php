@@ -26,17 +26,15 @@ use Phossa\Di\Exception\NotFoundException;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     ExtensionAbstract
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 class LoaderExtension extends ExtensionAbstract
 {
     /**
-     * Extension class, has to be redefined in child classes
-     *
-     * @const
+     * {@inheritDoc}
      */
-    const EXTENSION_CLASS   = __CLASS__;
+    const EXTENSION_CLASS = __CLASS__;
 
     /**
      * Load definitions from a file
@@ -46,14 +44,14 @@ class LoaderExtension extends ExtensionAbstract
      * @throws NotFoundException if file not found
      * @throws LogicException if something goes wrong
      * @access public
-     * @api
+     * @internal
      */
     public function loadFile(/*# string */ $file)/*# : array */
     {
         // check file
         $this->checkFile($file);
 
-        // get type & loader class
+        // get file type & loader class
         list($type, $class) = $this->getFileType($file);
 
         // get data

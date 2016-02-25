@@ -24,7 +24,7 @@ use Phossa\Shared\Exception\InvalidArgumentException as Exception;
  * @author  Hong Zhang <phossa@126.com>
  * @see     ExceptionInterface
  * @see     \Phossa\Shared\Exception\InvalidArgumentException
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 class InvalidArgumentException extends Exception implements ExceptionInterface

@@ -247,16 +247,16 @@ Features
   or service id as the following,
 
   ```php
-  // map a interface to a classname
+  // map an interface to a classname
   $container->map(
       'Phossa\\Cache\\CachePoolInterface', // MUST NO leading backslash
       'Phossa\\Cache\\CachePool' // leading backslash is optional
   );
 
-  // map a interface to a service id, MUST NO leading backslash
+  // map an interface to a service id, MUST NO leading backslash
   $container->map('Phossa\\Cache\\CachePoolInterface', '@cache@');
 
-  // map a interface to a parameter, no leading backslash
+  // map an interface to a parameter, no leading backslash
   //$container->map('Phossa\\Cache\\CachePoolInterface', '%cache.class%');
   ```
 
@@ -317,13 +317,13 @@ Features
 
   *Object decorating* is to apply decorating changes (call methods etc.) right
   after the instantiation of a service object base on certain criteria such as
-  it implements a interface.
+  it implements an interface.
 
   ```php
-  // any object implementing 'LoggerAware' should be decorated
+  // any object implementing 'LoggerAwareInterface' should be decorated
   $container->addDecorate(
       'setlogger',  // rule name
-      '\\Psr\\Log\\LoggerAwareInterface', // match this interface
+      'Psr\\Log\\LoggerAwareInterface', // NO leading backslash
       ['setLogger', ['@logger@']] // run this method
   );
   ```
@@ -443,25 +443,24 @@ Features
   $cache = $container->get('cache');
   ```
 
-  **NOTE**: if user wants to share a dependent instance only under a specific
-  ancester object tree, user may define the `$scope` equal to the ancester id
+  To make all service objects non-shared, set the container's default scope
+  to `Container::SCOPE_SINGLE` as follows,
 
   ```php
-  $container->add('cache', 'MyCache');
-  $container->add('cacheDriver', 'MyCacheDriver');
+  // make everything non-shareable, set default scope to SCOPE_SINGLE
+  $container->share(false);
 
-  $cache1 = $container->one('cache');
-  $cache2 = $container->one('cache');
+  // this will return a new copy of cache service
+  $cache1 = $container->get('cache');
 
-  // $cache1 !== $cache2, but cacheDriver is shared
-  var_dump($cache1 === $cache2); // false
-  var_dump($cache1->getDriver() === $cache2->getDriver()); // true
+  // this will return a new copy also
+  $cache2 = $container->get('cache');
 
-  // reconfigure cacheDriver scope, it coupled with 'cache' instance now
-  $container->add('cacheDriver', 'MyCacheDriver')->setScope('@cache@');
+  // FALSE
+  var_dump($cache1 === $cache2);
 
-  $cache3 = $container->one('cache');
-  var_dump($cache1->getDriver() === $cache3->getDriver()); // false
+  // to make everything shareable again, set default scope to SCOPE_SHARED
+  $container->share(true);
   ```
 
 Public APIs
@@ -520,11 +519,16 @@ Public APIs
 
   - `map(string|array $interface, string $className): this`
 
-    Map a interface name or a classname to a classname, a service id or a
+    Map an interface name or a classname to a classname, a service id or a
     predefiend parameter. Map array can be inserted into container if
     `$interface` is an array.
 
     **Note** No leading backslash for the `$interface`
+
+  - `share(bool $status = true): this`
+
+    Set container-wide default scope. `true` to set to `Container::SCOPE_SHARED`
+    and `false` set to `Container::SCOPE_SINGLE`
 
   - `addMethod(string $method, array $arguments = []): this`
 
@@ -592,7 +596,7 @@ Public APIs
     $delegator = new Delegator();
 
     // other container register with the delegator
-    $delegator->setContainer($otherContainer);
+    $delegator->addContainer($otherContainer);
 
     // register self with delegator and keep autowiring ON
     $container->setDelegate($delegator, true);

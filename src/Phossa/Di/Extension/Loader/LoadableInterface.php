@@ -26,7 +26,7 @@ use Phossa\Di\Exception\NotFoundException;
  * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 interface LoadableInterface
@@ -35,11 +35,11 @@ interface LoadableInterface
      * Load definitions from a file
      *
      * @param  string|array $fileOrArray definition file or array
-     * @return LoadableInterface this
+     * @return static
      * @throws NotFoundException if file not found
      * @throws LogicException if something goes wrong
      * @access public
      * @api
      */
-    public function load($fileOrArray)/*# : LoadableInterface */;
+    public function load($fileOrArray);
 }

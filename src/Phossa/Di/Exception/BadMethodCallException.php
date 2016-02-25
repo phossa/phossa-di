@@ -24,7 +24,7 @@ use Phossa\Shared\Exception\BadMethodCallException as Exception;
  * @author  Hong Zhang <phossa@126.com>
  * @see     ExceptionInterface
  * @see     \Phossa\Shared\Exception\BadMethodCallException
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 class BadMethodCallException extends Exception implements ExceptionInterface

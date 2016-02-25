@@ -16,8 +16,8 @@
 namespace Phossa\Di\Definition;
 
 use Phossa\Di\Message\Message;
-use Phossa\Di\Exception\LogicException;
 use Phossa\Di\Exception\NotFoundException;
+use Phossa\Di\Exception\InvalidArgumentException;
 
 /**
  * DefinitionAwareTrait
@@ -28,7 +28,7 @@ use Phossa\Di\Exception\NotFoundException;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     DefinitionAwareInterface
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 trait DefinitionAwareTrait
@@ -66,72 +66,92 @@ trait DefinitionAwareTrait
     protected $last_added   = '';
 
     /**
-     * {@inheritDoc}
+     * default scope
+     *
+     * @var    string
+     * @access protected
      */
-    public function set(
-        $name,
-        /*# string */ $value = ''
-    )/*# : DefinitionAwareInterface */ {
+    protected $default_scope= DefinitionAwareInterface::SCOPE_SHARED;
+
+    /**
+     * @inheritDoc
+     */
+    public function set($name, /*# string */ $value = '')
+    {
         if (is_array($name)) {
             $this->fixParameters($name);
             $this->parameters = array_replace_recursive(
                 $this->parameters,
                 $name
             );
+        } elseif (is_string($name)) {
+            $this->set([$name => $value]);
         } else {
-            if (false === strpos($name, '.') && !is_array($value)) {
-                $this->parameters[$name] = $value;
-            } else {
-                $this->set([$name => $value]);
-            }
+            throw new InvalidArgumentException(
+                Message::get(Message::PARAMETER_ID_INVALID, gettype($name)),
+                Message::PARAMETER_ID_INVALID
+            );
         }
+
         return $this;
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    public function add(
-        $id,
-        $class = '',
-        array $arguments = []
-    )/*# : DefinitionAwareInterface */ {
+    public function add($id, $class = '', array $arguments = [])
+    {
         $this->last_added = '';
         if (is_array($id)) {
             $this->fixServices($id);
             $this->services = array_replace($this->services, $id);
-        } else {
-            $this->services[$id] = empty($arguments) ?
-                ['class' => [ $class ?: $id ]] :
-                ['class' => [ $class ?: $id, $arguments ]];
+        } elseif (is_string($id)) {
+            $this->services[$id] = ['class' => [ $class ?: $id, $arguments ]];
             $this->last_added = $id;
+        } else {
+            throw new InvalidArgumentException(
+                Message::get(Message::SERVICE_ID_INVALID, gettype($id)),
+                Message::SERVICE_ID_INVALID
+            );
         }
         return $this;
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    public function map(
-        $interface,
-        /*# string */ $classname = ''
-    )/*# : DefinitionAwareInterface */ {
+    public function map($interface, /*# string */ $classname = '')
+    {
         if (is_array($interface)) {
             $this->mappings = array_replace($this->mappings, $interface);
-        } else {
+        } elseif (is_string($interface)) {
             $this->mappings[$interface] = $classname;
+        } else {
+            throw new InvalidArgumentException(
+                Message::get(Message::MAP_ID_INVALID, gettype($interface)),
+                Message::MAP_ID_INVALID
+            );
         }
 
         return $this;
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    public function addMethod(
-        /*# string */ $method,
-        array $arguments = []
-    )/*# : DefinitionAwareInterface */ {
+    public function share(/*# bool */ $status = true)
+    {
+        $this->default_scope = $status ?
+            DefinitionAwareInterface::SCOPE_SHARED :
+            DefinitionAwareInterface::SCOPE_SINGLE ;
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function addMethod(/*# string */ $method, array $arguments = [])
+    {
         if (empty($this->last_added)) {
             throw new NotFoundException(
                 Message::get(Message::SERVICE_ID_NOT_FOUND, __METHOD__),
@@ -144,15 +164,15 @@ trait DefinitionAwareTrait
             }
             $service['methods'][] = [ $method, $arguments ];
         }
+
         return $this;
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    public function setScope(
-        /*# string */ $scope
-    )/*# : DefinitionAwareInterface */ {
+    public function setScope(/*# string */ $scope)
+    {
         if (empty($this->last_added)) {
             throw new NotFoundException(
                 Message::get(Message::SERVICE_ID_NOT_FOUND, __METHOD__),
@@ -195,7 +215,9 @@ trait DefinitionAwareTrait
     }
 
     /**
-     * Add scope in front of $id
+     * Get the scope for service $id
+     *
+     * If not set, get the default scope
      *
      * @param  string $id service id
      * @return string
@@ -204,9 +226,9 @@ trait DefinitionAwareTrait
     protected function getScope(/*# string */ $id)/*# : string */
     {
         if (isset($this->services[$id]['scope'])) {
-            return $this->services[$id]['scope'];
+            return (string) $this->services[$id]['scope'];
         } else {
-            return DefinitionAwareInterface::SCOPE_SHARED;
+            return $this->default_scope;
         }
     }
 

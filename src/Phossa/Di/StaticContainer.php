@@ -25,30 +25,36 @@ use Phossa\Di\Interop\InteropContainerInterface;
  *
  * Static wrapper for container
  *
+ * @method object get(string $id)
+ * @method bool has(string $id)
+ *
  * @static
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     StaticAbstract
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 class StaticContainer extends StaticAbstract
 {
     /**
+     * Inner container
+     *
      * @var    InteropContainerInterface
-     * @access protected
+     * @access private
      * @static
      */
-    protected static $container;
+    private static $container;
 
     /**
-     * Provides a static interface for all methods
+     * Provides a static interface for container dynamic methods
      *
      * @param  string $name method name
      * @param  array $arguments arguments
      * @return mixed
      * @access public
      * @static
+     * @internal
      */
     public static function __callStatic($name, array $arguments)
     {
@@ -68,7 +74,7 @@ class StaticContainer extends StaticAbstract
     }
 
     /**
-     * Set container if you want
+     * Set container replace the default one
      *
      * @param  InteropContainerInterface $container
      * @return void
@@ -82,7 +88,7 @@ class StaticContainer extends StaticAbstract
     }
 
     /**
-     * Get container, create one if not set yet
+     * Get container, if not set, get the default one
      *
      * @return InteropContainerInterface $container
      * @access public

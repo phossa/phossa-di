@@ -23,17 +23,15 @@ use Phossa\Di\Extension\ExtensionAbstract;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     ExtensionAbstract
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 class TaggableExtension extends ExtensionAbstract
 {
     /**
-     * Extension class, has to be redefined in child classes
-     *
-     * @const
+     * @inheritDoc
      */
-    const EXTENSION_CLASS   = __CLASS__;
+    const EXTENSION_CLASS = __CLASS__;
 
     /**
      * tags registry
@@ -49,6 +47,7 @@ class TaggableExtension extends ExtensionAbstract
      * @param  string[] $tags
      * @return void
      * @access public
+     * @internal
      */
     public function setTags(array $tags)
     {
@@ -65,6 +64,7 @@ class TaggableExtension extends ExtensionAbstract
      * @param  string[] $tags
      * @return bool
      * @access public
+     * @internal
      */
     public function matchTags(array $tags)/*# : bool */
     {

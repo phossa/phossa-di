@@ -25,7 +25,7 @@ use Phossa\Di\Exception\InvalidArgumentException;
  * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 interface TaggableInterface
@@ -34,12 +34,12 @@ interface TaggableInterface
      * Add container tags
      *
      * @param  string|string[] $tags
-     * @return TaggableInterface this
+     * @return static
      * @throws InvalidArgumentException
      * @access public
      * @api
      */
-    public function addTag($tags)/*# : TaggableInterface */;
+    public function addTag($tags);
 
     /**
      * Check container tags

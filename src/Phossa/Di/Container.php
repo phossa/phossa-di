@@ -24,7 +24,8 @@ use Phossa\Di\Exception\NotFoundException;
  *
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.1
+ * @see     ContainerInterface
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 class Container implements ContainerInterface
@@ -44,14 +45,15 @@ class Container implements ContainerInterface
      *
      * Inject definitions and providers
      *
-     * @param  array|string $definitions array or filename
+     * @param  array|string $definitions array or a filename
      * @param  array $providers provider objects or classnames
      * @throws LogicException if something goes wrong
      * @access public
+     * @api
      */
     public function __construct($definitions = '', array $providers = [])
     {
-        // load definitions
+        // load definitions from array or file
         if (!empty($definitions)) {
             $this->load($definitions);
         }
@@ -65,43 +67,26 @@ class Container implements ContainerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function get($id)
     {
+        // found it
         if ($this->has($id)) {
-            $arguments = func_get_args();
+            // prepare arguments, scope, scope-prefixed id
+            list($args, $scope, $sid) = $this->prepareGet($id, func_get_args());
 
-            // parameter 2 is the optional arguments
-            $args = isset($arguments[1]) ? (array) $arguments[1] : [];
-
-            // parameter 3 is the optional scope
-            $scope = isset($arguments[2]) ? (string) $arguments[2] :
-                    $this->getScope($id);
-
-            // generate a local new id
-            $newId = $scope . ':::' . $id;
-
-            // try getting from the pool
-            if (empty($args) && isset($this->pool[$newId])) {
-                return $this->pool[$newId];
+            // get it from pool
+            if (empty($args) && isset($this->pool[$sid])) {
+                return $this->pool[$sid];
             }
 
-            // check circular
-            $this->checkCircular($id, $scope);
+            // create it
+            $service = $this->getService($id, $args);
 
-            // create the service
-            $service = $this->createService($id, $args);
-
-            // decorate the service
-            $this->decorateService($service);
-
-            // remove circular mark
-            $this->removeCircular($id);
-
-            // store it except for the single scope
-            if (self::SCOPE_SINGLE !== $scope) {
-                $this->pool[$newId] = $service;
+            // save it to pool
+            if (static::SCOPE_SINGLE !== $scope) {
+                $this->pool[$sid] = $service;
             }
 
             return $service;
@@ -115,14 +100,14 @@ class Container implements ContainerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function has($id)
     {
-        if (is_string($id) &&
-            (isset($this->services[$id])  ||
-                $this->hasInProvider($id) ||
-                $this->autoWiringId($id)
+        if (is_string($id) &&                   // must be string
+            (isset($this->services[$id])  ||    // in defintion
+                $this->hasInProvider($id) ||    // OR in provider
+                $this->autoWiringId($id)        // OR autowiring
             )
         ) {
             return true;
@@ -132,7 +117,7 @@ class Container implements ContainerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function one(/*# string */ $id, array $arguments = [])
     {
@@ -140,7 +125,7 @@ class Container implements ContainerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function run($callable, array $arguments = [])
     {

@@ -29,13 +29,26 @@ use Phossa\Di\Exception\LogicException;
  * @see     Extension\ExtensibleInterface
  * @see     Interop\InteropContainerInterface
  * @see     Definition\DefinitionAwareInterface
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 interface ContainerInterface extends Interop\InteropContainerInterface, Autowire\AutowiringInterface, Extension\ExtensibleInterface, Definition\DefinitionAwareInterface
 {
     /**
      * Get a new service even if it was defined as shared
+     *
+     * Arguments can have references like following
+     *
+     * ```php
+     * // reference string
+     * $service = $container->one('cache', ['@driver@']);
+     *
+     * // reference object
+     * $service = $container->one('cache', [new ServiceReference('driver')]);
+     *
+     * // parameters are allowed
+     * $service = $container->one('cache', ['@driver@', '%cache.name%']);
+     * ```
      *
      * @param  string $id service id
      * @param  array $arguments (optional) arguments
@@ -49,13 +62,18 @@ interface ContainerInterface extends Interop\InteropContainerInterface, Autowire
     /**
      * Execute a callable, expands its arguments
      *
-     * $callable can be a fake callable like the following
+     * $callable can be a pseudo callable like the following
      *
-     * `[ '@cache@', 'setLogger' ]`
+     * ```php
+     * // pseudo callable using service reference string
+     * $container->run(['@cache@', 'setLogger'], ['@logger@']);
      *
-     * or
+     * // pseduo callable using service reference object
+     * $container->run([new ServiceReference('cache'), 'setLogger'], [$logger]);
      *
-     * `[ new ServiceReference('cache'), 'setLogger' ]`
+     * // method can be a parameter
+     * $container->run([$cache, '%log.setter%'], [$logger]);
+     * ```
      *
      * @param  callable|array $callable
      * @param  array $arguments (optional) arguments

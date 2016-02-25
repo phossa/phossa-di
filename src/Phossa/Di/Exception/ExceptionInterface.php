@@ -26,7 +26,7 @@ use Phossa\Shared\Exception\ExceptionInterface as PhossaException;
  * @author  Hong Zhang <phossa@126.com>
  * @see     InteropContainerException
  * @see     \Phossa\Shared\Exception\ExceptionInterface
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 interface ExceptionInterface extends InteropContainerException, PhossaException

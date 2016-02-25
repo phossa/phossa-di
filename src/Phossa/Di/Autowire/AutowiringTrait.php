@@ -24,7 +24,7 @@ namespace Phossa\Di\Autowire;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     AutowiringInterface
- * @version 1.0.1
+ * @version 1.0.4
  * @since   1.0.1 added
  */
 trait AutowiringTrait
@@ -42,14 +42,16 @@ trait AutowiringTrait
     /**
      * @inheritDoc
      */
-    public function auto(/*# bool */ $status)/*# : AutowiringInterface */
+    public function auto(/*# bool */ $switchOn)
     {
-        $this->autowiring = $status;
+        $this->autowiring = $switchOn;
         return $this;
     }
 
     /**
-     * Autowiring a id if it equals to a known classname
+     * Auto wire the $id
+     *
+     * If not defined AND is a classname, add it to definition automatically
      *
      * @param  string $id
      * @return bool
@@ -57,7 +59,6 @@ trait AutowiringTrait
      */
     protected function autoWiringId(/*# string */ $id)/*# : bool */
     {
-        // if autowiring is TRUE and $is is a class, register/add $id
         if ($this->autowiring && class_exists($id)) {
             $this->add($id);
             return true;
