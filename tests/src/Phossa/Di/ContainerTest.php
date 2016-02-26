@@ -404,7 +404,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testGet7()
     {
         // turn off autowiring
-        $container = (new Container())->auto(false);
+        $container = (new \Phossa\Di\Container())->auto(false);
 
         // config the cache service with classname and constructor arguments
         $container->add('cache', 'MyCache', [ '@cacheDriver@' ]);

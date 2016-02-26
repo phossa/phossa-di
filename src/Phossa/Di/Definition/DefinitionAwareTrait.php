@@ -211,12 +211,11 @@ trait DefinitionAwareTrait
      * Get one paramter, dereference upto 10 levels
      *
      * @param  string $name parameter name
-     * @param  int $level current dereference level
      * @return string|array
      * @throws NotFoundException if not found
      * @access protected
      */
-    protected function getParameter(/*# string */ $name, $level = 0)
+    protected function getParameter(/*# string */ $name)
     {
         $parts = explode('.', $name);
         $found = $this->parameters;
@@ -228,19 +227,6 @@ trait DefinitionAwareTrait
                 );
             }
             $found = $found[$part];
-        }
-
-        // dereference loop
-        if (is_string($found) &&
-            '%s' === substr($found, 0, 1) &&
-            '%s' === substr($found, -1)) {
-            if ($level > 9) {
-                throw new NotFoundException(
-                    Message::get(Message::PARAMETER_LOOP_FOUND, $name),
-                    Message::PARAMETER_LOOP_FOUND
-                );
-            }
-            return $this->getParameter(substr($found, 1, -1), ++$level);
         }
 
         return $found;

@@ -13,7 +13,7 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di\Container;
+namespace Phossa\Di;
 
 use Phossa\Di\ContainerInterface;
 use Phossa\Di\Exception\NotFoundException;

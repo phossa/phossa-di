@@ -19,7 +19,7 @@ use Phossa\Di\Message\Message;
 use Phossa\Di\Exception\LogicException;
 use Phossa\Di\Exception\NotFoundException;
 use Phossa\Di\Interop\InteropContainerInterface;
-use Phossa\Di\Container\ContainerAwareInterface;
+use Phossa\Di\ContainerAwareInterface;
 
 /**
  * ProviderAbstract
@@ -32,7 +32,7 @@ use Phossa\Di\Container\ContainerAwareInterface;
  */
 abstract class ProviderAbstract implements ContainerAwareInterface, InteropContainerInterface
 {
-    use \Phossa\Di\Container\ContainerAwareTrait;
+    use \Phossa\Di\ContainerAwareTrait;
 
     /**
      * class name

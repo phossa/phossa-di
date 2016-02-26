@@ -16,8 +16,8 @@
 namespace Phossa\Di\Extension\Delegate;
 
 use Phossa\Di\DelegatorInterface;
+use Phossa\Di\ContainerAwareInterface;
 use Phossa\Di\Extension\ExtensionAbstract;
-use Phossa\Di\Container\ContainerAwareInterface;
 
 /**
  * DelegateExtension
@@ -30,7 +30,7 @@ use Phossa\Di\Container\ContainerAwareInterface;
  */
 class DelegateExtension extends ExtensionAbstract implements ContainerAwareInterface
 {
-    use \Phossa\Di\Container\ContainerAwareTrait;
+    use \Phossa\Di\ContainerAwareTrait;
 
     /**
      * @inheritDoc

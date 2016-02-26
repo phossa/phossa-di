@@ -13,10 +13,10 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di\Reference;
+namespace Phossa\Di\Definition\Reference;
 
 /**
- * ServiceReference
+ * ParameterReference
  *
  * @abstract
  * @package Phossa\Di
@@ -25,6 +25,6 @@ namespace Phossa\Di\Reference;
  * @version 1.0.4
  * @since   1.0.1 added
  */
-class ServiceReference extends ReferenceAbstract
+class ParameterReference extends ReferenceAbstract
 {
 }

@@ -13,15 +13,15 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di\Container;
+namespace Phossa\Di\Factory;
 
 use Phossa\Di\Message\Message;
 use Phossa\Di\Exception\LogicException;
-use Phossa\Di\Reference\ServiceReference;
 use Phossa\Di\Exception\NotFoundException;
-use Phossa\Di\Reference\ReferenceAbstract;
-use Phossa\Di\Reference\ParameterReference;
 use Phossa\Di\Extension\Delegate\DelegateExtension;
+use Phossa\Di\Definition\Reference\ServiceReference;
+use Phossa\Di\Definition\Reference\ReferenceAbstract;
+use Phossa\Di\Definition\Reference\ParameterReference;
 
 /**
  * MainLogicTrait

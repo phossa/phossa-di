@@ -13,13 +13,15 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di\Container;
+namespace Phossa\Di\Factory;
 
 use Phossa\Di\Message\Message;
 use Phossa\Di\Exception\LogicException;
 
 /**
- * ContainerTrait
+ * GetServiceTrait
+ *
+ * Used mainly for Container::get()
  *
  * @trait
  * @package Phossa\Di
@@ -27,20 +29,20 @@ use Phossa\Di\Exception\LogicException;
  * @version 1.0.4
  * @since   1.0.1 added
  */
-trait ContainerTrait
+trait GetServiceTrait
 {
-    use MainLogicTrait;
+    use CreateServiceTrait;
 
     /**
-     * current service id cache for circular detection
+     * current id cache for circular detection
      *
-     * @var    string[]
+     * @var    array
      * @access protected
      */
     protected $circular = [];
 
     /**
-     * counter
+     * object counter
      *
      * @var    int
      * @access protected
@@ -61,7 +63,7 @@ trait ContainerTrait
         $scope = isset($arguments[2]) ? (string) $arguments[2] :
             $this->getScope($id);
 
-        // scope === '@ancestor_id@' ?
+        // scope === '@serviceId@' ?
         if (isset($this->circular[$scope])) {
             $scope .= '#' . $this->circular[$scope];
         }
@@ -73,17 +75,22 @@ trait ContainerTrait
      * Check circular, create service and decorate it
      *
      * @param  string $id service id
-     * @param  array &$args constructor arguments
+     * @param  array $args constructor arguments
      * @return object
      * @access protected
      */
-    protected function getService($id, &$args)
+    protected function getService($id, $args)
     {
-        // check circular
+        // mark for circular detection
         $this->checkCircular($id);
 
-        // create the service
+        // create the service object
         $service = $this->createService($id, $args);
+
+        // method calls ?
+        if (isset($this->services[$id]['methods'])) {
+            $this->initService($id, $service, $this->services[$id]['methods']);
+        }
 
         // decorate the service
         $this->decorateService($service);

@@ -17,7 +17,7 @@ namespace Phossa\Di\Extension;
 
 use Phossa\Di\DelegatorInterface;
 use Phossa\Di\Exception\LogicException;
-use Phossa\Di\Container\ContainerAwareInterface;
+use Phossa\Di\ContainerAwareInterface;
 use Phossa\Di\Extension\Taggable\TaggableExtension;
 use Phossa\Di\Extension\Provider\ProviderExtension;
 use Phossa\Di\Extension\Delegate\DelegateExtension;

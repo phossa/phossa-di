@@ -30,7 +30,7 @@ use Phossa\Di\Exception\NotFoundException;
  */
 class Container implements ContainerInterface
 {
-    use Container\ContainerTrait;
+    use Factory\GetServiceTrait;
 
     /**
      * services pool
