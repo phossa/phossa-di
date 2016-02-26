@@ -38,7 +38,7 @@ class Container implements ContainerInterface
      * @var    object[]
      * @access protected
      */
-    protected $pool  = [];
+    protected $pool = [];
 
     /**
      * Constructor
@@ -71,32 +71,23 @@ class Container implements ContainerInterface
      */
     public function get($id)
     {
-        // found it
         if ($this->has($id)) {
-            // prepare arguments, scope, scope-prefixed id
             list($args, $scope, $sid) = $this->prepareGet($id, func_get_args());
-
-            // get it from pool
             if (empty($args) && isset($this->pool[$sid])) {
                 return $this->pool[$sid];
+            } else {
+                $service = $this->getService($id, $args);
+                if (static::SCOPE_SINGLE !== $scope) {
+                    $this->pool[$sid] = $service;
+                }
+                return $service;
             }
-
-            // create it
-            $service = $this->getService($id, $args);
-
-            // save it to pool
-            if (static::SCOPE_SINGLE !== $scope) {
-                $this->pool[$sid] = $service;
-            }
-
-            return $service;
+        } else {
+            throw new NotFoundException(
+                Message::get(Message::SERVICE_ID_NOT_FOUND, $id),
+                Message::SERVICE_ID_NOT_FOUND
+            );
         }
-
-        // not found
-        throw new NotFoundException(
-            Message::get(Message::SERVICE_ID_NOT_FOUND, $id),
-            Message::SERVICE_ID_NOT_FOUND
-        );
     }
 
     /**
@@ -104,16 +95,11 @@ class Container implements ContainerInterface
      */
     public function has($id)
     {
-        if (is_string($id) &&                   // must be string
+        return is_string($id) &&               // must be string
             (isset($this->services[$id])  ||    // in defintion
                 $this->hasInProvider($id) ||    // OR in provider
                 $this->autoWiringId($id)        // OR autowiring
-            )
-        ) {
-            return true;
-        } else {
-            return false;
-        }
+            ) ? true : false;
     }
 
     /**

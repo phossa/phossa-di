@@ -56,20 +56,19 @@ class ProviderExtension extends ExtensionAbstract implements ContainerAwareInter
      */
     public function addProvider($provider)
     {
-        $this->getProviderInstance($provider);
-
-        $class = get_class($provider);
+        $prov = $this->getProviderInstance($provider);
+        $class = get_class($prov);
         if (isset($this->providers[$class])) {
             throw new LogicException(
                 Message::get(
                     Message::EXT_PROVIDER_DUPPED,
-                    get_class($provider)
+                    get_class($prov)
                 ),
                 Message::EXT_PROVIDER_DUPPED
             );
         } else {
             $this->providers[$class] =
-                $provider->setContainer($this->getContainer());
+                $prov->setContainer($this->getContainer());
         }
     }
 
@@ -95,16 +94,17 @@ class ProviderExtension extends ExtensionAbstract implements ContainerAwareInter
      * Get the provider object
      *
      * @param  string|ProviderAbstract $provider class or object
-     * @return void
+     * @return ProviderAbstract
      * @throws LogicException
      * @access protected
      */
-    public function getProviderInstance(&$provider)
+    public function getProviderInstance($provider)
     {
         if (is_a($provider, ProviderAbstract::PROVIDER_CLASS, true)) {
             if (!is_object($provider)) {
                 $provider = new $provider;
             }
+            return $provider;
         } else {
             throw new LogicException(
                 Message::get(Message::EXT_PROVIDER_ERROR, $provider),
