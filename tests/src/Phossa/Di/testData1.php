@@ -88,3 +88,7 @@ class KK {
         return $this->j;
     }
 }
+
+function funcTest(CC $c, $str1, JJ $j, array $arr = [], $str2 = '') {
+
+}

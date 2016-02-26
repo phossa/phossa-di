@@ -73,9 +73,6 @@ trait CreateServiceTrait
         } catch (\Exception $e) {
             throw new LogicException($e->getMessage(), $e->getCode(), $e);
         }
-
-        // error
-        throw new LogicException($e->getMessage(), $e->getCode(), $e);
     }
 
     /**

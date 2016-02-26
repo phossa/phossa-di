@@ -66,7 +66,7 @@ class DereferenceTraitTest extends \PHPUnit_Framework_TestCase
 	}
 
     /**
-     * @covers Phossa\Di\Factory\Dereference::isReference
+     * @covers Phossa\Di\Factory\DereferenceTrait::isReference
      */
     public function testIsReference()
     {
@@ -96,7 +96,7 @@ class DereferenceTraitTest extends \PHPUnit_Framework_TestCase
     /**
      * get parameter value, recursively
      *
-     * @covers Phossa\Di\Factory\Dereference::getReferenceValue
+     * @covers Phossa\Di\Factory\DereferenceTrait::getReferenceValue
      */
     public function testGetReferenceValue1()
     {
@@ -128,7 +128,7 @@ class DereferenceTraitTest extends \PHPUnit_Framework_TestCase
     /**
      * detect parameter loop
      *
-     * @covers Phossa\Di\Factory\Dereference::getReferenceValue
+     * @covers Phossa\Di\Factory\DereferenceTrait::getReferenceValue
      * @expectedException Phossa\Di\Exception\NotFoundException
      * @expectedExceptionCode Phossa\Di\Message\Message::PARAMETER_LOOP_FOUND
      */
@@ -147,7 +147,7 @@ class DereferenceTraitTest extends \PHPUnit_Framework_TestCase
     /**
      * get parameter => service refere
      *
-     * @covers Phossa\Di\Factory\Dereference::getReferenceValue
+     * @covers Phossa\Di\Factory\DereferenceTrait::getReferenceValue
      */
     public function testGetReferenceValue3()
     {
@@ -160,15 +160,21 @@ class DereferenceTraitTest extends \PHPUnit_Framework_TestCase
         $this->object->set('cache.test2', '%cache.test1%');
         $ref1 = new ParameterReference('cache.test2');
 
+        // cache.test2 => %cache.test1% => @AA@
         $this->assertEquals($aa,
             $this->invokeMethod('getReferenceValue',[$ref1])
         );
+
+        // @BB@
+        $ref2 = new ServiceReference('BB');
+        $this->assertTrue($aa->getB() ===
+            $this->invokeMethod('getReferenceValue', [$ref2]));
     }
 
     /**
      * Test dereferenceArray
      *
-     * @covers Phossa\Di\Factory\Dereference::dereferenceArray
+     * @covers Phossa\Di\Factory\DereferenceTrait::dereferenceArray
      */
     public function testDereferenceArray()
     {
@@ -184,13 +190,16 @@ class DereferenceTraitTest extends \PHPUnit_Framework_TestCase
         $this->object->set('cache.test1', '@AA@');
         $this->object->set('cache.test2', '%cache.test1%');
 
-        // dereference this array
-        $res = [['%cache.dir%', 'wow', '%cache.test2%', '@BB@']];
+        // dereference array recursively
+        $res = [['%cache.dir%', 'wow', '%cache.test2%', '@BB@', [
+            '@CC@', '%cache.dir%', [ 'bingo ']
+        ]]];
         $this->invokeMethod('dereferenceArray', $res);
 
         $this->assertEquals('/var/tmp', $res[0][0]);
         $this->assertEquals('wow', $res[0][1]);
         $this->assertTrue($aa === $res[0][2]);
         $this->assertTrue($this->object->get('BB') === $res[0][3]);
+        $this->assertTrue($this->object->get('CC') === $res[0][4][0]);
     }
 }

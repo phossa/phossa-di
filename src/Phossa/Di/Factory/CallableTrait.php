@@ -43,7 +43,7 @@ trait CallableTrait
      * @throws LogicException if something goes wrong
      * @access protected
      */
-    protected function executeCallable($callable, array $arguments)
+    protected function executeCallable($callable, array $arguments = [])
     {
         // resolve fake callable
         $call = $this->resolveCallable($callable);
@@ -98,15 +98,17 @@ trait CallableTrait
         callable $callable,
         array $arguments
     )/*# : array */ {
-        // get \ReflectionMethod
+        // object with __invoke defined or \Closure
         if (is_object($callable)) {
             $reflector = new \ReflectionClass($callable);
             $method = $reflector->getMethod('__invoke');
 
+        // array-like callable
         } elseif (is_array($callable)) {
             $reflector = new \ReflectionClass($callable[0]);
             $method = $reflector->getMethod($callable[1]);
 
+        // simple function
         } else {
             $method = new \ReflectionFunction($callable);
         }
@@ -119,7 +121,9 @@ trait CallableTrait
     }
 
     /**
-     * Match arguments base on reflection
+     * Compare provided arguments to a method's parameter list
+     *
+     * Try resolve and expand to get the right arguments
      *
      * @param  \ReflectionParameter[] $params
      * @param  array $arguments
@@ -142,7 +146,7 @@ trait CallableTrait
             // class/interface
             if (($class = $param->getClass())) {
                 $classname = $class->getName();
-                if (!$this->matchType($classname, $argument)) {
+                if (!$this->matchClass($classname, $argument)) {
                     $result[$i] = $this->getObject($classname);
                 } else {
                     $result[$i] = array_shift($arguments);
@@ -150,8 +154,10 @@ trait CallableTrait
 
             // other types
             } else {
-                if (!$optional && is_null($argument)) {
-                    $fail = $i;
+                if (!$optional && is_null($argument) ||
+                    !$this->matchType($param, $argument)
+                ) {
+                    $fail = $param->getName();
                     break;
                 } else {
                     $result[$i] = array_shift($arguments);
@@ -170,6 +176,27 @@ trait CallableTrait
     }
 
     /**
+     * Simple non class match
+     *
+     * @param  \ReflectionParameter $param
+     * @param  mixed $argument
+     * @return bool
+     * @access protected
+     */
+    protected function matchType(
+        \ReflectionParameter $param,
+        $argument
+    )/*# : bool */ {
+        if ($param->isCallable()) {
+            return is_callable($argument) ? true : false;
+        } elseif ($param->isArray()) {
+            return is_array($argument) ? true : false;
+        } else {
+            return is_array($argument) || is_callable($argument) ? false : true;
+        }
+    }
+
+    /**
      * Detailed is_a()
      *
      * @param  string $type
@@ -177,7 +204,7 @@ trait CallableTrait
      * @return bool
      * @access protected
      */
-    protected function matchType(/*# string */ $type, $argument)/*# : bool */
+    protected function matchClass(/*# string */ $type, $argument)/*# : bool */
     {
         if (is_object($argument) && is_a($argument, $type)) {
             return true;
@@ -186,7 +213,7 @@ trait CallableTrait
     }
 
     /**
-     * Get an object baseon provided classname
+     * Get an object base on provided classname
      *
      * @param  string $classname class name
      * @return object
@@ -196,16 +223,22 @@ trait CallableTrait
      */
     protected function getObject(/*# string */ $classname)
     {
-        // check mappings
+        // mapping exists
         if (isset($this->mappings[$classname])) {
             $classname = $this->mappings[$classname];
+
+            // not a normal mapping, map to a reference
             if (($ref = $this->isReference($classname))) {
                 $classname = $this->getReferenceValue($ref);
+
+                // mapped to a service object
                 if (is_object($classname)) {
                     return $classname;
                 }
             }
         }
+
+        // try get this de-mapped classname
         return $this->delegatedAction($classname, 'get');
     }
 }

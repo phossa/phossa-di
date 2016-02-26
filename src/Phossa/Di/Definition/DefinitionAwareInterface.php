@@ -115,16 +115,16 @@ interface DefinitionAwareInterface extends ScopeInterface, AutowiringInterface
      * Map an interface/classname to classname/service id/parameter
      *
      * ```php
-     * // map a interface to a classname
+     * // map a interface => a classname
      * $container->map(
      *     'Phossa\\Cache\\CachePoolInterface', // MUST NO leading backslash
      *     'Phossa\\Cache\\CachePool' // leading backslash is optional
      * );
      *
-     * // map a interface to a service id
+     * // map a interface => service reference
      * $container->map('Phossa\\Cache\\CachePoolInterface', '@cache@');
      *
-     * // map a interface to a parameter
+     * // map a interface => a parameter => classname
      * $container->map('Phossa\\Cache\\CachePoolInterface', '%cache.class%');
      *
      * // batch mapping
