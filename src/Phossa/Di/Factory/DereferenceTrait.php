@@ -77,7 +77,7 @@ trait DereferenceTrait
         $name = $reference->getName();
 
         // loop found
-        if ($level > 5) {
+        if ($level > 2) {
             throw new NotFoundException(
                 Message::get(Message::PARAMETER_LOOP_FOUND, $name),
                 Message::PARAMETER_LOOP_FOUND
