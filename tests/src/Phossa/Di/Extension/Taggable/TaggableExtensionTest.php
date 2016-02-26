@@ -77,12 +77,6 @@ class TaggableExtensionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(
             ['test', 'bingo'], $this->getPrivateProperty('tags')
         );
-
-        // test merge
-        $this->object->setTags(['wow', 'wow2', 'bingo']);
-        $this->assertEquals(
-            ['test', 'bingo', 'wow', 'wow2'], $this->getPrivateProperty('tags')
-        );
     }
 
     /**
@@ -91,7 +85,7 @@ class TaggableExtensionTest extends \PHPUnit_Framework_TestCase
     public function testMatchTags()
     {
         // empty against empty
-        $this->assertTrue($this->object->matchTags([]));
+        $this->assertFalse($this->object->matchTags([]));
 
         // empty against tag
         $this->assertFalse($this->object->matchTags(['w']));
@@ -101,7 +95,7 @@ class TaggableExtensionTest extends \PHPUnit_Framework_TestCase
         $this->object->setTags($tags);
 
         // tags against empty
-        $this->assertTrue($this->object->matchTags([]));
+        $this->assertFalse($this->object->matchTags([]));
 
         // no match
         $this->assertFalse($this->object->matchTags(['w']));

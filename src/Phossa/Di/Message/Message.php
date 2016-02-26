@@ -125,6 +125,11 @@ class Message extends MessageAbstract
      * Map id expects string, not "%s"
      */
     const MAP_ID_INVALID        = 1602190648;
+
+    /**
+     * Parameter loop found for "%s"
+     */
+    const PARAMETER_LOOP_FOUND  = 1602190649;
     /**#@-*/
 
     /**
@@ -150,5 +155,6 @@ class Message extends MessageAbstract
         self::PARAMETER_ID_INVALID  => 'Parameter id expects string, not "%s"',
         self::SERVICE_ID_INVALID    => 'Service id expects string, not "%s"',
         self::MAP_ID_INVALID        => 'Map id expects string, not "%s"',
+        self::PARAMETER_LOOP_FOUND  => 'Parameter loop found for "%s"',
     ];
 }

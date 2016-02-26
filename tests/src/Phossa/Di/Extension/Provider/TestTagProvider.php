@@ -3,6 +3,8 @@ namespace Phossa\Di\Extension\Provider;
 
 class TestTagProvider extends ProviderAbstract
 {
+    const PROVIDER_CLASS = __CLASS__;
+
     /**
      * Services we provide
      *
@@ -25,9 +27,8 @@ class TestTagProvider extends ProviderAbstract
      * @return void
      * @throws LogicException if merging goes wrong
      * @access protected
-     * @abstract
      */
-    protected function mergeDefinition()
+    protected function merge()
     {
         // define service to 'bingoXX' class
         $this->getContainer()->add('bingo', 'bingoXX');

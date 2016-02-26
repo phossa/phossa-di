@@ -15,8 +15,11 @@
 
 namespace Phossa\Di\Definition;
 
+use Phossa\Di\Exception\LogicException;
 use Phossa\Di\Exception\NotFoundException;
+use Phossa\Di\Definition\Scope\ScopeInterface;
 use Phossa\Di\Exception\InvalidArgumentException;
+use Phossa\Di\Definition\Autowire\AutowiringInterface;
 
 /**
  * DefinitionAwareInterface
@@ -29,35 +32,19 @@ use Phossa\Di\Exception\InvalidArgumentException;
  * @version 1.0.4
  * @since   1.0.1 added
  */
-interface DefinitionAwareInterface
+interface DefinitionAwareInterface extends ScopeInterface, AutowiringInterface
 {
     /**
-     * Use shared instance each time
-     *
-     * @var    string
-     * @access public
-     */
-    const SCOPE_SHARED = '__SHARED__';
-
-    /**
-     * Create new instance each time
-     *
-     * @var    string
-     * @access public
-     */
-    const SCOPE_SINGLE = '__SINGLE__';
-
-    /**
-     * Set parameter definition
+     * Set/replace parameter definition(s)
      *
      * ```php
-     * // normal case
+     * // set a parameter
      * $container->set('cache.root', '/var/tmp');
      *
-     * // point to another parameter
+     * // pointing to another parameter
      * $container->set('cache.root', '%tmp.dir%');
      *
-     * // set with full array
+     * // set a parameter with an array
      * $container->set('cache', [
      *     'root' => '/var/tmp',
      *     'name' => 'session_cache',
@@ -83,20 +70,18 @@ interface DefinitionAwareInterface
     public function set($name, /*# string */ $value = '');
 
     /**
-     * Add service definition
-     *
-     * Add or overwrite existing service definition
+     * Add/overwrite service definition(s)
      *
      * ```php
-     * // add a service
+     * // add a service with  classname
      * $container->add('cache', 'Phossa\\Cache\\CachePool');
      *
-     * // add a closue
+     * // add a service with a closue
      * $container->add('cache', function() {
      *     return new \Phossa\Cache\CachePool();
      * });
      *
-     * // with an argument (MUST BE an array)
+     * // with constructor argument (MUST BE an array)
      * $container->add('cache', 'Phossa\\Cache\\CachePool', ['@driver@']);
      *
      * // alias, pointing to another service
@@ -161,14 +146,16 @@ interface DefinitionAwareInterface
     public function map($interface, /*# string */ $classname = '');
 
     /**
-     * Make container default scope to share or non-share
+     * Load definitions from an array or a file
      *
-     * @param  bool $status sharing status
+     * @param  string|array $fileOrArray definition file or array
      * @return static
+     * @throws NotFoundException if file not found
+     * @throws LogicException if something goes wrong
      * @access public
      * @api
      */
-    public function share(/*# bool */ $status = true);
+    public function load($fileOrArray);
 
     /**
      * Add method call to the previous chained service `add()`

@@ -20,7 +20,6 @@ use Phossa\Di\Exception\LogicException;
 use Phossa\Di\Exception\NotFoundException;
 use Phossa\Di\Interop\InteropContainerInterface;
 use Phossa\Di\Container\ContainerAwareInterface;
-use Phossa\Di\Extension\Taggable\TaggableExtension;
 
 /**
  * ProviderAbstract
@@ -59,6 +58,25 @@ abstract class ProviderAbstract implements ContainerAwareInterface, InteropConta
     protected $tags = [];
 
     /**
+     * Constructor, check $this->provides set or not
+     *
+     * @throws LogicException if something goes wrong
+     * @access public
+     * @final
+     * @internal
+     */
+    final public function __construct()
+    {
+        // provides[] should be defined !
+        if (!is_array($this->provides)) {
+            throw new LogicException(
+                Message::get(Message::EXT_PROVIDER_ERROR, get_class($this)),
+                Message::EXT_PROVIDER_ERROR
+            );
+        }
+    }
+
+    /**
      * @inheritDoc
      */
     public function get($id)
@@ -78,59 +96,29 @@ abstract class ProviderAbstract implements ContainerAwareInterface, InteropConta
      */
     public function has($id)
     {
-        if ($this->isProviding() && in_array($id, $this->provides)) {
-            // auto merge definitions
+        if (in_array($id, $this->provides) && $this->isMatching()) {
             $this->merge();
-
-            // indicating found $id
+            $this->provides = [];
             return true;
         }
         return false;
     }
 
     /**
-     * Merge this provider's service definition into container
+     * Check tag matches
      *
-     * @return void
-     * @throws LogicException if merging goes wrong
-     * @access public
-     * @internal
-     */
-    public function merge()
-    {
-        // call user-defined merging method
-        if ($this->isProviding()) {
-            $this->mergeDefinition();
-
-            // empty the provides after merge
-            $this->provides = [];
-        }
-    }
-
-    /**
-     * Is this provider currently providing definitions ?
+     * Empty $this->tags always return TRUE !
      *
      * @return bool
-     * @access public
-     * @internal
+     * @access protected
      */
-    public function isProviding()/*# : bool */
+    protected function isMatching()/*# : bool */
     {
-        // provides[] should be defined !
-        if (!is_array($this->provides)) {
-            throw new LogicException(
-                Message::get(Message::EXT_PROVIDER_ERROR, get_class($this)),
-                Message::EXT_PROVIDER_ERROR
-            );
+        if (empty($this->tags)) {
+            return true;
+        } else {
+            return $this->getContainer()->hasTag($this->tags);
         }
-
-        // empty ?
-        if (empty($this->provides)) {
-            return false;
-        }
-
-        // match tags with container
-        return empty($this->tags) ? true :$this->matchContainerTags();
     }
 
     /**
@@ -141,22 +129,5 @@ abstract class ProviderAbstract implements ContainerAwareInterface, InteropConta
      * @access protected
      * @abstract
      */
-    abstract protected function mergeDefinition();
-
-    /**
-     * Matching provider's tags with container's
-     *
-     * @return bool
-     * @access protected
-     */
-    protected function matchContainerTags()/*# : bool */
-    {
-        /* @var $container Container */
-        $container = $this->getContainer();
-
-        /* @var $ext TaggableExtension */
-        $ext = $container->getExtension(TaggableExtension::EXTENSION_CLASS);
-
-        return $ext->matchTags($this->tags);
-    }
+    abstract protected function merge();
 }

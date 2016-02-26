@@ -51,15 +51,11 @@ class TaggableExtension extends ExtensionAbstract
      */
     public function setTags(array $tags)
     {
-        $this->tags = array_unique(array_merge($this->tags, $tags));
+        $this->tags = array_unique($tags);
     }
 
     /**
      * Match with tags
-     *
-     * TRUE:
-     *   - if $tags is empty
-     *   - $this->tags and $tags has matching tag(s)
      *
      * @param  string[] $tags
      * @return bool
@@ -68,10 +64,6 @@ class TaggableExtension extends ExtensionAbstract
      */
     public function matchTags(array $tags)/*# : bool */
     {
-        if (empty($tags)) {
-            return true;
-        } else {
-            return count(array_intersect($this->tags, $tags)) ? true : false;
-        }
+        return count(array_intersect($this->tags, $tags)) ? true : false;
     }
 }

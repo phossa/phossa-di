@@ -13,7 +13,7 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di\Extension\Loader;
+namespace Phossa\Di\Definition\Loader;
 
 use Phossa\Di\Exception\LogicException;
 

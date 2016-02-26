@@ -16,6 +16,7 @@
 namespace Phossa\Di\Definition;
 
 use Phossa\Di\Message\Message;
+use Phossa\Di\Exception\LogicException;
 use Phossa\Di\Exception\NotFoundException;
 use Phossa\Di\Exception\InvalidArgumentException;
 
@@ -33,6 +34,10 @@ use Phossa\Di\Exception\InvalidArgumentException;
  */
 trait DefinitionAwareTrait
 {
+    use Scope\ScopeTrait,
+        Loader\LoadableTrait,
+        Autowire\AutowiringTrait;
+
     /**
      * parameter definitions
      *
@@ -64,14 +69,6 @@ trait DefinitionAwareTrait
      * @access protected
      */
     protected $last_added   = '';
-
-    /**
-     * default scope
-     *
-     * @var    string
-     * @access protected
-     */
-    protected $default_scope= DefinitionAwareInterface::SCOPE_SHARED;
 
     /**
      * @inheritDoc
@@ -139,11 +136,37 @@ trait DefinitionAwareTrait
     /**
      * @inheritDoc
      */
-    public function share(/*# bool */ $status = true)
+    public function load($fileOrArray)
     {
-        $this->default_scope = $status ?
-            DefinitionAwareInterface::SCOPE_SHARED :
-            DefinitionAwareInterface::SCOPE_SINGLE ;
+        $loaded = false;
+
+        // load from file
+        if (is_string($fileOrArray)) {
+            return $this->load($this->loadFile($fileOrArray));
+
+        // load from array
+        } elseif (is_array($fileOrArray)) {
+            $toload = [
+                'services'      => 'add',
+                'parameters'    => 'set',
+                'mappings'      => 'map'
+            ];
+            foreach($toload as $key => $action) {
+                if (isset($fileOrArray[$key])) {
+                    $this->$action($fileOrArray[$key]);
+                    $loaded = true;
+                }
+            }
+        }
+
+        // not loaded
+        if (!$loaded) {
+            throw new LogicException(
+                Message::get(Message::DEFINITION_FORMAT_ERR),
+                Message::DEFINITION_FORMAT_ERR
+            );
+        }
+
         return $this;
     }
 
@@ -185,30 +208,39 @@ trait DefinitionAwareTrait
     }
 
     /**
-     * Get one paramter
+     * Get one paramter, dereference upto 10 levels
      *
      * @param  string $name parameter name
+     * @param  int $level current dereference level
      * @return string|array
      * @throws NotFoundException if not found
      * @access protected
      */
-    protected function getParameter(/*# string */ $name)
+    protected function getParameter(/*# string */ $name, $level = 0)
     {
         $parts = explode('.', $name);
         $found = $this->parameters;
         while (null !== ($part = array_shift($parts))) {
             if (!isset($found[$part])) {
-                $found = false;
-                break;
+                throw new NotFoundException(
+                    Message::get(Message::PARAMETER_NOT_FOUND, $name),
+                    Message::PARAMETER_NOT_FOUND
+                );
             }
             $found = $found[$part];
         }
 
-        if (false === $found) {
-            throw new NotFoundException(
-                Message::get(Message::PARAMETER_NOT_FOUND, $name),
-                Message::PARAMETER_NOT_FOUND
-            );
+        // dereference loop
+        if (is_string($found) &&
+            '%s' === substr($found, 0, 1) &&
+            '%s' === substr($found, -1)) {
+            if ($level > 9) {
+                throw new NotFoundException(
+                    Message::get(Message::PARAMETER_LOOP_FOUND, $name),
+                    Message::PARAMETER_LOOP_FOUND
+                );
+            }
+            return $this->getParameter(substr($found, 1, -1), ++$level);
         }
 
         return $found;
@@ -281,5 +313,21 @@ trait DefinitionAwareTrait
             }
             $definitions[$id] = $def;
         }
+    }
+
+    /**
+     * With auto wiring is on, add service $id if it is a classname
+     *
+     * @param  string $id
+     * @return bool
+     * @access protected
+     */
+    protected function autoWiringId(/*# string */ $id)/*# : bool */
+    {
+        if ($this->autowiring && class_exists($id)) {
+            $this->add($id);
+            return true;
+        }
+        return false;
     }
 }

@@ -37,6 +37,24 @@ abstract class ExtensionAbstract
     const EXTENSION_CLASS = __CLASS__;
 
     /**
+     * Constructor, check EXTENION_CLASS set or not
+     *
+     * @throws LogicException if something goes wrong
+     * @access public
+     * @final
+     * @internal
+     */
+    final public function __construct()
+    {
+        if (get_called_class() !== static::EXTENSION_CLASS) {
+            throw new LogicException(
+                Message::get(Message::EXTENION_INVALID_CLASS, get_class($this)),
+                Message::EXTENION_INVALID_CLASS
+            );
+        }
+    }
+
+    /**
      * get classname
      *
      * @return string
@@ -46,14 +64,6 @@ abstract class ExtensionAbstract
      */
     public function getName()/*# : string */
     {
-        // MUST redefined in child class
-        if (get_called_class() !== static::EXTENSION_CLASS) {
-            throw new LogicException(
-                Message::get(Message::EXTENION_INVALID_CLASS, get_class($this)),
-                Message::EXTENION_INVALID_CLASS
-            );
-        }
-
         return static::EXTENSION_CLASS;
     }
 }

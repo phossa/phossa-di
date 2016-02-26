@@ -15,8 +15,9 @@
 
 namespace Phossa\Di\Extension\Delegate;
 
-use Phossa\Di\ContainerInterface;
+use Phossa\Di\DelegatorInterface;
 use Phossa\Di\Extension\ExtensionAbstract;
+use Phossa\Di\Container\ContainerAwareInterface;
 
 /**
  * DelegateExtension
@@ -27,8 +28,10 @@ use Phossa\Di\Extension\ExtensionAbstract;
  * @version 1.0.4
  * @since   1.0.1 added
  */
-class DelegateExtension extends ExtensionAbstract
+class DelegateExtension extends ExtensionAbstract implements ContainerAwareInterface
 {
+    use \Phossa\Di\Container\ContainerAwareTrait;
+
     /**
      * @inheritDoc
      */
@@ -46,16 +49,14 @@ class DelegateExtension extends ExtensionAbstract
      * Set delegator
      *
      * @param  DelegatorInterface $delegator
-     * @return void
+     * @return static
      * @access public
      * @api
      */
-    public function setDelegator(
-        DelegatorInterface $delegator,
-        ContainerInterface $container
-    ) {
-        $this->delegator = $delegator;
-        $delegator->addContainer($container);
+    public function setDelegator(DelegatorInterface $delegator)
+    {
+        $this->delegator = $delegator->addContainer($this->getContainer());
+        return $this;
     }
 
     /**

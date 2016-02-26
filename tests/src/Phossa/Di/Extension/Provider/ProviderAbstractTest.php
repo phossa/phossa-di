@@ -98,7 +98,7 @@ class ProviderAbstractTest extends \PHPUnit_Framework_TestCase
         }
 
         // reset container tags
-        $c->addTag(['TEST']);
+        $c->setTag('TEST');
 
         // now get() is good
         $this->assertTrue($this->object_one->get('bingo') instanceof \bingoXX);
@@ -115,84 +115,22 @@ class ProviderAbstractTest extends \PHPUnit_Framework_TestCase
         // switch off autowiring
         $c->auto(false);
 
-        // not merged yet, has XX in provider
+        // has XX in provider, merge automatically
         $this->assertTrue($this->object_two->has('XX'));
-
-        // merge
-        $this->object_two->merge();
 
         // has NO 'XX' in provider now
         $this->assertFalse($this->object_two->has('XX'));
 
-        // ALWAYS has NO 'bingo' in provider one because tag mismatch
-        $this->assertFalse($this->object_one->has('bingo'));
-
-        // merge failed because tag mismatch
-        $this->object_one->merge();
-
-        // ALWAYS has NO 'bingo' in provider one because tag mismatch
+        // NO 'bingo' in provider one because tag mismatch
         $this->assertFalse($this->object_one->has('bingo'));
 
         // reset container tags
-        $c->addTag(['TEST']);
+        $c->setTag('TEST');
 
         // has 'bingo' in provider one because tags match
         $this->assertTrue($this->object_one->has('bingo'));
 
-        // merged
-        $this->object_one->merge();
-
         // has NO 'bingo' in provider one after merge
         $this->assertFalse($this->object_one->has('bingo'));
-    }
-
-    /**
-     * @covers Phossa\Di\Extension\Provider\ProviderAbstract::merge
-     */
-    public function testMerge()
-    {
-        // container
-        $c = $this->object_one->getContainer();
-
-        // switch off autowiring
-        $c->auto(false);
-
-        // has no 'XX' in container initially
-        $this->assertFalse($c->has('XX'));
-
-        // merge
-        $this->object_two->merge();
-
-        // has 'XX' in container now
-        $this->assertTrue($c->has('XX'));
-
-        // has no 'bingo' in container initially
-        $this->assertFalse($c->has('bingo'));
-
-        // merge failed because tag mismatch
-        $this->object_one->merge();
-
-        // still has no 'bingo' because tags mismatch
-        $this->assertFalse($c->has('bingo'));
-    }
-
-    /**
-     * @covers Phossa\Di\Extension\Provider\ProviderAbstract::isProviding
-     */
-    public function testIsProviding1()
-    {
-        //container has no tags
-        $this->assertFalse($this->object_one->isProviding());
-        $this->assertTrue($this->object_two->isProviding());
-
-        // container with miss match tags
-        $this->object_one->getContainer()->addTag(['WOW']);
-        $this->assertFalse($this->object_one->isProviding());
-        $this->assertTrue($this->object_two->isProviding());
-
-        // container with matched tags
-        $this->object_one->getContainer()->addTag(['TEST']);
-        $this->assertTrue($this->object_one->isProviding());
-        $this->assertTrue($this->object_two->isProviding());
     }
 }

@@ -25,7 +25,6 @@ namespace Phossa\Di\Extension;
  * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @see     Loader\LoadableInterface
  * @see     Taggable\TaggableInterface
  * @see     Provider\ProviderAwareInterface
  * @see     Delegate\DelegateAwareInterface
@@ -33,7 +32,7 @@ namespace Phossa\Di\Extension;
  * @version 1.0.4
  * @since   1.0.1 added
  */
-interface ExtensibleInterface extends Loader\LoadableInterface, Taggable\TaggableInterface, Provider\ProviderAwareInterface, Delegate\DelegateAwareInterface, Decorate\DecorateAwareInterface
+interface ExtensibleInterface extends Taggable\TaggableInterface, Provider\ProviderAwareInterface, Delegate\DelegateAwareInterface, Decorate\DecorateAwareInterface
 {
     /**
      * Add extension to the container

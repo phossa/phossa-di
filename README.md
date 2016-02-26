@@ -299,7 +299,7 @@ Features
   phossa-di fully supports the delegate feature.
 
   ```php
-  use Phossa\Di\Extension\Delegate\Delegator;
+  use Phossa\Di\Delegator;
 
   // create delegator
   $delegator = new Delegator();
@@ -351,7 +351,7 @@ Features
 
   ```php
   // SYSTEM_CONST can be 'PRODUCTION' or 'DEVELOPMENT'
-  $container->addTag([SYSTEM_CONST, OTHER_TAGS]);
+  $container->setTag([SYSTEM_CONST, OTHER_TAGS]);
 
   // load different defintion base on container tags
   if ($container->hasTag('PRODUCTION')) {
@@ -400,7 +400,7 @@ Features
 
   ```php
   // SYSTEM_CONST is now 'PRODUCTION'
-  $container->addTag(SYSTEM_CONST);
+  $container->setTag(SYSTEM_CONST);
 
   // the provider will be loaded only if SYSTEM_CONST is PRODUCTION
   $container->addProvider(new ProductionDbProvider());
@@ -560,7 +560,7 @@ Public APIs
 
     File suffixes '.php|.json|.xml' are known to this library.
 
-  - `addTag(string|array $tag): this`
+  - `setTag(string|array $tag): this`
 
     **TaggableExtension**  set container tags. Tags can be used to selectly
     load definition files or definition providers.
@@ -578,16 +578,15 @@ Public APIs
     }
     ```
 
-  - `setDelegate(DelegatorInterface $delegator, bool $keepAutowiring = false): this`
+  - `setDelegate(DelegatorInterface $delegator): this`
 
     **DelegateExtension**  set the [delegator](https://github.com/container-interop/fig-standards/blob/master/proposed/container.md#13-additional-feature-delegate-lookup).
     Dependency will be looked up in the delegator instead of in the container.
     The container itself will be injected into delegator's container pool.
 
     Since [auto wiring](#auto) is conflict with the delegation design, auto
-    wiring will be turned off automatically when setting the delegator. But
-    user may choose to keep auto wiring ON if the container is the last on in
-    the delegator's container pool.
+    wiring will be turned off automatically for containers in the pool except
+    for the last one.
 
     ```php
     use Phossa\Di\Extension\Delegate\Delegator;
@@ -598,8 +597,11 @@ Public APIs
     // other container register with the delegator
     $delegator->addContainer($otherContainer);
 
-    // register self with delegator and keep autowiring ON
-    $container->setDelegate($delegator, true);
+    /*
+     * register $container with its auotwiring status unchanged (last container)
+     * but $otherContainer's autowiring will be forced off
+     */
+    $container->setDelegate($delegator);
 
     // dependency will be resolved in the order of $otherContainer, $container
     // ...

@@ -13,15 +13,10 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di\Extension\Loader;
-
-use Phossa\Di\Exception\LogicException;
-use Phossa\Di\Exception\NotFoundException;
+namespace Phossa\Di\Definition\Autowire;
 
 /**
- * LoadableInterface
- *
- * Load definition from files for the container using LoaderExtension
+ * AutowiringInterface
  *
  * @interface
  * @package Phossa\Di
@@ -29,17 +24,15 @@ use Phossa\Di\Exception\NotFoundException;
  * @version 1.0.4
  * @since   1.0.1 added
  */
-interface LoadableInterface
+interface AutowiringInterface
 {
     /**
-     * Load definitions from a file
+     * Set autowiring ON or OFF
      *
-     * @param  string|array $fileOrArray definition file or array
+     * @param  bool $switchOn
      * @return static
-     * @throws NotFoundException if file not found
-     * @throws LogicException if something goes wrong
      * @access public
      * @api
      */
-    public function load($fileOrArray);
+    public function auto(/*# bool */ $switchOn);
 }

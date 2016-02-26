@@ -36,7 +36,8 @@ use Phossa\Di\Extension\Delegate\DelegateExtension;
  */
 trait MainLogicTrait
 {
-    use \Phossa\Di\Extension\ExtensibleTrait;
+    use \Phossa\Di\Extension\ExtensibleTrait,
+        \Phossa\Di\Definition\DefinitionAwareTrait;
 
     /**
      * Resolve a fake callable to a real one

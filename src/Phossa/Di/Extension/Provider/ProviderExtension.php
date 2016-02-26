@@ -49,16 +49,17 @@ class ProviderExtension extends ExtensionAbstract implements ContainerAwareInter
     /**
      * Add provider to the registry
      *
-     * @param  ProviderAbstract $provider provider to add
+     * @param  ProviderAbstract|string $provider provider or classname
      * @return void
-     * @throws LogicException if merging goes wrong
      * @access public
      * @internal
      */
-    public function addProvider(ProviderAbstract $provider)
+    public function addProvider($provider)
     {
-        // added already
-        if ($provider->hasContainer()) {
+        $this->getProviderInstance($provider);
+
+        $class = get_class($provider);
+        if (isset($this->providers[$class])) {
             throw new LogicException(
                 Message::get(
                     Message::EXT_PROVIDER_DUPPED,
@@ -66,20 +67,9 @@ class ProviderExtension extends ExtensionAbstract implements ContainerAwareInter
                 ),
                 Message::EXT_PROVIDER_DUPPED
             );
-        }
-
-        // set container
-        $provider->setContainer($this->getContainer());
-
-        // provider works ?
-        if ($provider->isProviding()) {
-            if ($provider instanceof EagerProviderInterface) {
-                // eager provider
-                $provider->merge();
-            } else {
-                // lazy provider
-                $this->providers[] = $provider;
-            }
+        } else {
+            $this->providers[$class] =
+                $provider->setContainer($this->getContainer());
         }
     }
 
@@ -99,5 +89,27 @@ class ProviderExtension extends ExtensionAbstract implements ContainerAwareInter
             }
         }
         return false;
+    }
+
+    /**
+     * Get the provider object
+     *
+     * @param  string|ProviderAbstract $provider class or object
+     * @return void
+     * @throws LogicException
+     * @access protected
+     */
+    public function getProviderInstance(&$provider)
+    {
+        if (is_a($provider, ProviderAbstract::PROVIDER_CLASS, true)) {
+            if (!is_object($provider)) {
+                $provider = new $provider;
+            }
+        } else {
+            throw new LogicException(
+                Message::get(Message::EXT_PROVIDER_ERROR, $provider),
+                Message::EXT_PROVIDER_ERROR
+            );
+        }
     }
 }

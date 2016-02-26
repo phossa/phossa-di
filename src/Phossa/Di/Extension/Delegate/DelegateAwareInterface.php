@@ -15,6 +15,8 @@
 
 namespace Phossa\Di\Extension\Delegate;
 
+use Phossa\Di\DelegatorInterface;
+
 /**
  * DelegateAwareInterface
  *
@@ -44,21 +46,17 @@ interface DelegateAwareInterface
      * // other container register with the delegator
      * $delegator->addContainer($otherContainer);
      *
-     * // register self with delegator and keep autowiring ON
-     * $container->setDelegate($delegator, true);
-     * 
+     * // register self with delegator
+     * $container->setDelegate($delegator);
+     *
      * // will be resolved in the order of $otherContainer, $container
      * // ...
      * ```
      *
      * @param  DelegatorInterface $delegator
-     * @param  bool keepAutowiring keep auto wiring of current container
      * @return static
      * @access public
      * @api
      */
-    public function setDelegate(
-        DelegatorInterface $delegator,
-        /*# bool */ $keepAutowiring = false
-    );
+    public function setDelegate(DelegatorInterface $delegator);
 }

@@ -13,26 +13,36 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di\Autowire;
+namespace Phossa\Di\Definition\Autowire;
 
 /**
- * AutowiringInterface
+ * AutowiringTrait
  *
- * @interface
+ * Impelementation of AutowiringInterface
+ *
+ * @trait
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
+ * @see     AutowiringInterface
  * @version 1.0.4
  * @since   1.0.1 added
  */
-interface AutowiringInterface
+trait AutowiringTrait
 {
     /**
-     * Set autowiring ON or OFF
+     * Autowiring ON or OFF
      *
-     * @param  bool $switchOn
-     * @return static
-     * @access public
-     * @api
+     * @var    bool
+     * @access protected
      */
-    public function auto(/*# bool */ $switchOn);
+    protected $autowiring = true;
+
+    /**
+     * @inheritDoc
+     */
+    public function auto(/*# bool */ $switchOn)
+    {
+        $this->autowiring = $switchOn;
+        return $this;
+    }
 }

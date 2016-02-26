@@ -19,7 +19,7 @@ use Phossa\Di\Message\Message;
 use Phossa\Di\Exception\LogicException;
 
 /**
- * CircularTrait
+ * ContainerTrait
  *
  * @trait
  * @package Phossa\Di

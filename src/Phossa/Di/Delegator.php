@@ -13,11 +13,12 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di\Extension\Delegate;
+namespace Phossa\Di;
 
 use Phossa\Di\Message\Message;
 use Phossa\Di\Exception\NotFoundException;
 use Phossa\Di\Interop\InteropContainerInterface;
+use Phossa\Di\Definition\Autowire\AutowiringInterface;
 
 /**
  * Implementation of DelegatorInterface
@@ -43,15 +44,21 @@ class Delegator implements DelegatorInterface
      */
     public function addContainer(InteropContainerInterface $container)
     {
-        // remove duplicated $container
         foreach ($this->containers as $idx => $con) {
+            // remove if added before
             if ($con === $container) {
                 unset($this->containers[$idx]);
+
+            // turnoff autowiring
+            } elseif ($con instanceof AutowiringInterface) {
+                $con->auto(false);
             }
         }
 
         // append to the end
         $this->containers[] = $container;
+
+        return $this;
     }
 
     /**
@@ -69,7 +76,7 @@ class Delegator implements DelegatorInterface
      */
     public function get($id)
     {
-        /* @var InteropContainerInterface $container */
+        /* @var $container InteropContainerInterface */
         foreach ($this->getContainers() as $container) {
             if ($container->has($id)) {
                 return $container->get($id);
@@ -90,7 +97,7 @@ class Delegator implements DelegatorInterface
      */
     public function has($id)
     {
-        /* @var InteropContainerInterface $container */
+        /* @var $container InteropContainerInterface */
         foreach ($this->getContainers() as $container) {
             if ($container->has($id)) {
                 return true;

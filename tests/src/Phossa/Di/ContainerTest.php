@@ -103,7 +103,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testLoad3()
     {
         // load file
-        $this->object->load(__DIR__.'/Extension/Loader/def1.param.php');
+        $this->object->load(__DIR__.'/Definition/Loader/def1.param.php');
         $this->assertEquals(
             ['cache' => ['bingo']],
             $this->getPrivateProperty('parameters')
@@ -571,9 +571,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Phossa\Di\Container::addTag
+     * @covers Phossa\Di\Container::setTag
      */
-    public function testAddTag()
+    public function testSetTag()
     {
         $tags = ['WOW'];
         $ext = $this->invokeMethod(
@@ -582,7 +582,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertFalse($ext->matchTags($tags));
-        $this->object->addTag($tags);
+        $this->object->setTag($tags);
         $this->assertTrue($ext->matchTags($tags));
     }
 
@@ -593,7 +593,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     {
         $tag = 'WOW';
         $this->assertFalse($this->object->hasTag($tag));
-        $this->object->addTag($tag);
+        $this->object->setTag($tag);
         $this->assertTrue($this->object->hasTag($tag));
 
         // emptyt tag return false
@@ -607,7 +607,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetDelegate1()
     {
-        $delegator = new \Phossa\Di\Extension\Delegate\Delegator();
+        $delegator = new \Phossa\Di\Delegator();
         $this->object->setDelegate($delegator);
         $this->assertTrue($this->object === $delegator->getContainers()[0]);
     }
@@ -619,7 +619,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetDelegate2()
     {
-        $delegator = new \Phossa\Di\Extension\Delegate\Delegator();
+        $delegator = new \Phossa\Di\Delegator();
         $container1 = new Container();
         $container2 = new Container();
 
@@ -710,7 +710,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         // not 'bingo' found
         $this->assertFalse($this->object->has('bingo'));
 
-        $this->object->addTag('TEST');
+        $this->object->setTag('TEST');
 
         // provider with tag 'TEST'
         $this->object->addProvider('Phossa\\Di\\Extension\\Provider\\TestTagProvider');

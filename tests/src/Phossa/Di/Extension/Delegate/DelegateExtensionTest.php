@@ -64,9 +64,10 @@ class DelegateExtensionTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetDelegator()
     {
-        $delegator = new Delegator;
+        $delegator = new \Phossa\Di\Delegator;
         $container = new \Phossa\Di\Container;
-        $this->object->setDelegator($delegator, $container);
+        $this->object->setContainer($container);
+        $this->object->setDelegator($delegator);
 
         $this->assertTrue($delegator === $this->getPrivateProperty('delegator'));
     }
@@ -79,9 +80,10 @@ class DelegateExtensionTest extends \PHPUnit_Framework_TestCase
         include_once dirname(dirname(__DIR__)) . '/testData1.php';
         $container = new \Phossa\Di\Container;
         $aa = $container->get('AA');
-
-        $delegator = new Delegator;
-        $this->object->setDelegator($delegator, $container);
+        $this->object->setContainer($container);
+        
+        $delegator = new \Phossa\Di\Delegator;
+        $this->object->setDelegator($delegator);
 
         $this->assertTrue($this->object->getDelegator()->get('AA') === $aa);
     }

@@ -15,16 +15,13 @@
 
 namespace Phossa\Di\Extension;
 
-use Phossa\Di\Message\Message;
+use Phossa\Di\DelegatorInterface;
 use Phossa\Di\Exception\LogicException;
-use Phossa\Di\Extension\Loader\LoaderExtension;
 use Phossa\Di\Container\ContainerAwareInterface;
-use Phossa\Di\Extension\Provider\ProviderAbstract;
 use Phossa\Di\Extension\Taggable\TaggableExtension;
 use Phossa\Di\Extension\Provider\ProviderExtension;
 use Phossa\Di\Extension\Delegate\DelegateExtension;
 use Phossa\Di\Extension\Decorate\DecorateExtension;
-use Phossa\Di\Extension\Delegate\DelegatorInterface;
 
 /**
  * ExtensibleTrait
@@ -40,8 +37,6 @@ use Phossa\Di\Extension\Delegate\DelegatorInterface;
  */
 trait ExtensibleTrait
 {
-    use \Phossa\Di\Autowire\AutowiringTrait;
-
     /**
      * cached extensions
      *
@@ -66,50 +61,7 @@ trait ExtensibleTrait
     /**
      * @inheritDoc
      */
-    public function load($fileOrArray)
-    {
-        $loaded = false;
-
-        // load from file
-        if (is_string($fileOrArray)) {
-            /* @var $ext LoaderExtension */
-            $ext  = $this->getExtension(LoaderExtension::EXTENSION_CLASS);
-            $data = (array) $ext->loadFile($fileOrArray);
-            return $this->load($data);
-
-        // load from array
-        } elseif (is_array($fileOrArray)) {
-            $toload = [
-                'services'      => 'add',
-                'parameters'    => 'set',
-                'mappings'      => 'map'
-            ];
-            foreach($toload as $key => $action) {
-                if (isset($fileOrArray[$key])) {
-                    $this->$action($fileOrArray[$key]);
-                    $loaded = true;
-                }
-            }
-        }
-
-        // not loaded
-        if (!$loaded) {
-            throw new LogicException(
-                Message::get(
-                    Message::DEFINITION_FORMAT_ERR,
-                    gettype($fileOrArray)
-                ),
-                Message::DEFINITION_FORMAT_ERR
-            );
-        }
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function addTag($tags)
+    public function setTag($tags)
     {
         /* @var $ext TaggableExtension */
         $ext = $this->getExtension(TaggableExtension::EXTENSION_CLASS);
@@ -122,9 +74,6 @@ trait ExtensibleTrait
      */
     public function hasTag($tags)/*# : bool */
     {
-        // no tags found
-        if (empty($tags)) return false;
-
         /* @var $ext TaggableExtension */
         $ext = $this->getExtension(TaggableExtension::EXTENSION_CLASS);
         return $ext->matchTags(is_array($tags) ? $tags : [ (string) $tags ]);
@@ -133,13 +82,11 @@ trait ExtensibleTrait
     /**
      * @inheritDoc
      */
-    public function setDelegate(
-        DelegatorInterface $delegator,
-        /*# bool */ $keepAutowiring = false
-    ) {
+    public function setDelegate(DelegatorInterface $delegator)
+    {
         /* @var $ext DelegateExtension */
         $ext = $this->getExtension(DelegateExtension::EXTENSION_CLASS);
-        $ext->setDelegator($delegator, $this->auto($keepAutowiring));
+        $ext->setDelegator($delegator);
         return $this;
     }
 
@@ -161,20 +108,7 @@ trait ExtensibleTrait
     {
         /* @var $ext ProviderExtension */
         $ext = $this->getExtension(ProviderExtension::EXTENSION_CLASS);
-
-        if (is_a($provider, ProviderAbstract::PROVIDER_CLASS, true)) {
-            if (is_object($provider)) {
-                $ext->addProvider($provider);
-            } else {
-                $ext->addProvider(new $provider);
-            }
-        } else {
-            throw new LogicException(
-                Message::get(Message::EXT_PROVIDER_ERROR, $provider),
-                Message::EXT_PROVIDER_ERROR
-            );
-        }
-
+        $ext->addProvider($provider);
         return $this;
     }
 

@@ -31,7 +31,7 @@ use Phossa\Di\Exception\InvalidArgumentException;
 interface TaggableInterface
 {
     /**
-     * Add container tags
+     * Set container tags
      *
      * @param  string|string[] $tags
      * @return static
@@ -39,7 +39,7 @@ interface TaggableInterface
      * @access public
      * @api
      */
-    public function addTag($tags);
+    public function setTag($tags);
 
     /**
      * Check container tags

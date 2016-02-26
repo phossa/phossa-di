@@ -13,7 +13,7 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di\Extension\Delegate;
+namespace Phossa\Di;
 
 use Phossa\Di\Interop\InteropContainerInterface;
 
@@ -33,7 +33,7 @@ interface DelegatorInterface extends InteropContainerInterface
      * Add to container pool end
      *
      * @param  InteropContainerInterface $container
-     * @return void
+     * @return static
      * @access public
      * @api
      */

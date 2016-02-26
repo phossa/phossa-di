@@ -1,5 +1,5 @@
 <?php
-namespace Phossa\Di\Extension\Delegate;
+namespace Phossa\Di;
 
 use Phossa\Di\Container;
 
@@ -83,7 +83,7 @@ class DelegatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testGet1()
     {
-        include_once dirname(dirname(__DIR__)) . '/testData1.php';
+        include_once __DIR__ . '/testData1.php';
 
         // container one
         $ct1 = new Container();
@@ -122,9 +122,9 @@ class DelegatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testGet2()
     {
-        include_once dirname(dirname(__DIR__)) . '/testData1.php';
-        include_once dirname(dirname(__DIR__)) . '/testData2.php';
-        include_once dirname(dirname(__DIR__)) . '/testData3.php';
+        include_once __DIR__ . '/testData1.php';
+        include_once __DIR__ . '/testData2.php';
+        include_once __DIR__ . '/testData3.php';
 
         $ct1 = new Container();
         $aa  = $ct1->get('AA'); // autowiring
@@ -153,17 +153,21 @@ class DelegatorTest extends \PHPUnit_Framework_TestCase
     /**
      * After set delegator, autowiring is turned off in container
      *
-     * @covers Phossa\Di\Extension\Delegate\Delegator::get
-     * @covers Phossa\Di\Extension\Delegate\Delegator::has
-     * @expectedException Phossa\Di\Exception\NotFoundException
-     * @expectedExceptionCode Phossa\Di\Message\Message::SERVICE_ID_NOT_FOUND
+     * @covers Phossa\DiDelegator::get
+     * @covers Phossa\DiDelegator::has
      */
     public function testGet3()
     {
-        include_once dirname(dirname(__DIR__)) . '/testData1.php';
+        include_once __DIR__ . '/testData1.php';
 
-        $ct1 = new Container();
-        $ct1->setDelegate($this->object);
-        $this->object->get('AA'); // autowiring if OFF
+        // ct1
+        $ct1 = (new Container())->setDelegate($this->object);
+
+        // ct1 auto is off now
+        $ct2 = (new Container())->setDelegate($this->object);
+
+        // from ct2
+        $this->assertFalse($ct1->has('AA'));
+        $this->assertTrue($this->object->get('AA') === $ct2->get('AA'));
     }
 }
