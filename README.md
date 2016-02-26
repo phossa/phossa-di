@@ -7,7 +7,7 @@
 Introduction
 ---
 
-**Phossa-di** is a *FAST*, *FEATURE-RICH* and *FULL-FLEDGED* dependency
+**Phossa-di** is a *fast*, *feature-rich* and *full-fledged* dependency
 injection library forPHP. It supports [auto wiring](#auto),
 [container delegation](#delegate), [object decorating](#decorate),
 [definition provider](#provider), [definition tagging](#tag),
@@ -619,7 +619,7 @@ Public APIs
 Version
 ---
 
-1.0.4
+1.0.5
 
 Dependencies
 ---
