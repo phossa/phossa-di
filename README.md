@@ -112,8 +112,53 @@ Getting started
   $cache = $container->get('cache');
   ```
 
-  In the definition, another service can be referenced as '@cacheDriver@' and
-  parameter can be referenced as '%cache.root%'.
+  - *Service definitions*
+
+    Service is defined using API `add($id, $classOrClosure, array $arguments)`
+    and later can be refered in other definition with `@service_id@`
+
+    ```php
+    $container = new Container();
+
+    // add the 'cache' service definition
+    $container->add('cache', \Phossa\Cache\CachePool::class, ['@cacheDriver@']);
+
+    // add the 'cacheDriver' service definition
+    $container->add('cacheDriver', \Phossa\Cache\Driver\FilesystemDriver);
+
+    // get cache service
+    $cache = $container->get('cache');
+    ```
+
+    Service reference in the format of `@service_id@` can be used anywhere where
+    an object is appropriate, such as in the argument array or construct a pseudo
+    callable,
+
+    ```php
+    // will resolve this ['@cache@', 'setLogger'] to a real callable
+    $container->run(['@cache@', 'setLogger'], ['@logger@']);
+    ```
+
+  - *Parameter definitions*
+
+    Parameter can be set with API `set($name, $value)`. Parameter reference is
+    '%parameter.name%'. Parameter reference can point to a string, another
+    parameter or even a service reference.
+
+    ```php
+    // set system temp directory
+    $container->set('system.tmpdir', '/var/tmp');
+
+    // point cache dir to system temp
+    $container->set('cache.dir', '%system.tmpdir%');
+
+    // use parameter
+    $container->add(
+        'cacheDir',
+        Phossa\Cache\Driver\Filesystem::class,
+        [ '%cache.dir%' ]
+    );
+    ```
 
 - **Callable instead of class name**
 
