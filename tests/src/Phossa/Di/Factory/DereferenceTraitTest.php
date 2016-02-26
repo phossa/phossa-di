@@ -176,6 +176,7 @@ class DereferenceTraitTest extends \PHPUnit_Framework_TestCase
      *
      * @covers Phossa\Di\Factory\DereferenceTrait::dereferenceArray
      */
+    /*
     public function testDereferenceArray()
     {
         include_once dirname(__DIR__) . '/testData1.php';
@@ -202,4 +203,6 @@ class DereferenceTraitTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->object->get('BB') === $res[0][3]);
         $this->assertTrue($this->object->get('CC') === $res[0][4][0]);
     }
+     *
+     */
 }
