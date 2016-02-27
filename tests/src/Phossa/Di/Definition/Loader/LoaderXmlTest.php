@@ -51,7 +51,7 @@ class LoaderXmlTest extends \PHPUnit_Framework_TestCase
     public function testLoadFromFile2()
     {
         $this->assertEquals(
-            ['cache' => 'bingo'], LoaderXml::loadFromFile(__DIR__ . '/def5.xml')
+            ['cache' => 'bingo'], @LoaderXml::loadFromFile(__DIR__ . '/def5.xml')
         );
     }
 
@@ -65,7 +65,7 @@ class LoaderXmlTest extends \PHPUnit_Framework_TestCase
     public function testLoadFromFile3()
     {
         $this->assertEquals(
-            ['cache' => 'bingo'], LoaderXml::loadFromFile(__DIR__ . '/def6.xml')
+            ['cache' => 'bingo'], @LoaderXml::loadFromFile(__DIR__ . '/def6.xml')
         );
     }
 

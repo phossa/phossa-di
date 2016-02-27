@@ -41,7 +41,7 @@ class LoaderJsonTest extends \PHPUnit_Framework_TestCase
     public function testLoadFromFile1()
     {
         $this->assertEquals(
-            ['cache' => ['bingo']], LoaderJson::loadFromFile(__DIR__ . '/def2.php')
+            ['cache' => ['bingo']], @LoaderJson::loadFromFile(__DIR__ . '/def2.php')
         );
     }
 

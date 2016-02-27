@@ -21,11 +21,11 @@ use Phossa\Di\Exception\LogicException;
 /**
  * LoaderPhp
  *
- * Load service/parameter definitions from files in XML format
+ * Load definitions from files in XML format
  *
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 class LoaderXml implements LoaderInterface
@@ -35,7 +35,7 @@ class LoaderXml implements LoaderInterface
      */
     public static function loadFromFile(/*# string */ $file)/*# : array */
     {
-        if (false === ($xml = @simplexml_load_file($file))) {
+        if (false === ($xml = simplexml_load_file($file))) {
             throw new LogicException(
                 Message::get(Message::DEFINITION_FORMAT_ERR, $file),
                 Message::DEFINITION_FORMAT_ERR

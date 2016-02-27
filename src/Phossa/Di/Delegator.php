@@ -23,10 +23,13 @@ use Phossa\Di\Definition\Autowire\AutowiringInterface;
 /**
  * Implementation of DelegatorInterface
  *
+ * Auto wiring will be turned off for containers in the pool, except for the
+ * last container which will be kept as it is
+ *
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     DelegatorInterface
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 class Delegator implements DelegatorInterface
@@ -45,17 +48,17 @@ class Delegator implements DelegatorInterface
     public function addContainer(InteropContainerInterface $container)
     {
         foreach ($this->containers as $idx => $con) {
-            // remove if added before
+            // remove container if added before (adjust location)
             if ($con === $container) {
                 unset($this->containers[$idx]);
 
-            // turnoff autowiring
+            // turnoff autowiring for other containers
             } elseif ($con instanceof AutowiringInterface) {
                 $con->auto(false);
             }
         }
 
-        // append to the end
+        // append container to the pool end
         $this->containers[] = $container;
 
         return $this;
@@ -91,8 +94,6 @@ class Delegator implements DelegatorInterface
     }
 
     /**
-     * Check each container in the delegator
-     *
      * {@inheritDoc}
      */
     public function has($id)

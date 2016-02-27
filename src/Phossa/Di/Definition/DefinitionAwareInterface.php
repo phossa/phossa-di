@@ -29,7 +29,7 @@ use Phossa\Di\Definition\Autowire\AutowiringInterface;
  * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 interface DefinitionAwareInterface extends ScopeInterface, AutowiringInterface
@@ -60,14 +60,14 @@ interface DefinitionAwareInterface extends ScopeInterface, AutowiringInterface
      * ]);
      * ```
      *
-     * @param  string|array $name parameter name or parameter array
-     * @param  string|array $value parameter value or values(array)
+     * @param  string|array $nameOrArray parameter name or array
+     * @param  string|array $valueStringOrArray value or associate array
      * @return static
      * @throws InvalidArgumentException
      * @access public
      * @api
      */
-    public function set($name, /*# string */ $value = '');
+    public function set($nameOrArray, $valueStringOrArray = '');
 
     /**
      * Add/overwrite service definition(s)
@@ -90,10 +90,10 @@ interface DefinitionAwareInterface extends ScopeInterface, AutowiringInterface
      * // set service to a callable
      * $container->add('logger', [$event, 'getLogger']);
      *
-     * // or a pseudo callable
+     * // set to a pseudo callable
      * $container->add('logger', ['@event@', 'getLogger']);
      *
-     * // add batch services
+     * // add service definitions in batch
      * $container->add([
      *     'cache'  => 'Phossa\Cache\CachePool',
      *     'driver' => 'Phossa\Cache\Driver\FilesystemDriver',
@@ -102,17 +102,25 @@ interface DefinitionAwareInterface extends ScopeInterface, AutowiringInterface
      * ```
      *
      * @param  string|array $id service id/classname or definition array
-     * @param  string|callable $class (optional) classname or closure
-     * @param  array $arguments (optional) constructor or callable arguments
+     * @param  string|callable $classOrClosure classname/closure/callable
+     * @param  array $constructorArguments constructor/callable arguments
      * @return static
      * @throws InvalidArgumentException
      * @access public
      * @api
      */
-    public function add($id, $class = '', array $arguments = []);
+    public function add(
+        $id,
+        $classOrClosure = '',
+        array $constructorArguments = []
+    );
 
     /**
-     * Map an interface/classname to classname/service id/parameter
+     * Map an interface to a classname
+     *
+     * You may also map classname to (child?)classname, map interface or
+     * classname to a service id reference '@service_id@' or a parameter
+     * reference '%parameter.name%
      *
      * ```php
      * // map a interface => a classname
@@ -124,7 +132,7 @@ interface DefinitionAwareInterface extends ScopeInterface, AutowiringInterface
      * // map a interface => service reference
      * $container->map('Phossa\\Cache\\CachePoolInterface', '@cache@');
      *
-     * // map a interface => a parameter => classname
+     * // map a interface => a parameter reference which is a classname
      * $container->map('Phossa\\Cache\\CachePoolInterface', '%cache.class%');
      *
      * // batch mapping
@@ -136,14 +144,14 @@ interface DefinitionAwareInterface extends ScopeInterface, AutowiringInterface
      * ]);
      * ```
      *
-     * @param  string|array $interface interface/classname or array
-     * @param  string $classname classname/service id/parameter etc.
+     * @param  string|array $nameOrArray interface/classname or array
+     * @param  string $toName classname/service id/parameter etc.
      * @return static
      * @throws InvalidArgumentException
      * @access public
      * @api
      */
-    public function map($interface, /*# string */ $classname = '');
+    public function map($nameOrArray, /*# string */ $toName = '');
 
     /**
      * Load definitions from an array or a file
@@ -158,24 +166,45 @@ interface DefinitionAwareInterface extends ScopeInterface, AutowiringInterface
     public function load($fileOrArray);
 
     /**
+     * Dump all the definitions and mappings
+     *
+     * @param  bool $toScreen print out (true) or return string (false)
+     * @return true|string
+     * @access public
+     * @api
+     */
+    public function dump(/*# bool */ $toScreen = true);
+
+    /**
      * Add method call to the previous chained service `add()`
+     *
+     * This method has to follow `add()` or another `addMethod()` or after
+     * `setScope()`. Multiple `addMethod()`s can be chained together.
+     *
+     * Method name can be a parameter reference. arguments can have parameter
+     * or service references.
      *
      * ```php
      * $container->add('cache', 'Phossa\\Cache\\CachePool')
      *           ->addMethod('setLogger', [ '@logger@' ]);
      * ```
      *
-     * @param  string $method method name
-     * @param  array $arguments arguments for the method
+     * @param  string $methodName method name
+     * @param  array $methodArguments arguments for the method
      * @return static
      * @throws NotFoundException if no service id found
      * @access public
      * @api
      */
-    public function addMethod(/*# string */ $method, array $arguments = []);
+    public function addMethod(
+        /*# string */ $methodName,
+        array $methodArguments = []
+    );
 
     /**
-     * Set scope for the previous service
+     * Set scope for the previous service defintion
+     *
+     * This method has to follow `add()` or another `addMethod()`
      *
      * ```php
      * // predefined scope
@@ -187,7 +216,7 @@ interface DefinitionAwareInterface extends ScopeInterface, AutowiringInterface
      *           ->setScope('anotherScope');
      * ```
      *
-     * @param  string $scope scope value
+     * @param  string $scope scope string value
      * @return static
      * @throws NotFoundException if no service id found
      * @access public

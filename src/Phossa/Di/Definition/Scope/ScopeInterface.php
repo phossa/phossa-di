@@ -16,12 +16,14 @@
 namespace Phossa\Di\Definition\Scope;
 
 /**
- * Scope constants
+ * Scope related constants and methods
+ *
+ * Two predefined scope: '__SHARED__' and '__SINGLE__'
  *
  * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.4 added
  */
 interface ScopeInterface
@@ -43,7 +45,7 @@ interface ScopeInterface
     const SCOPE_SINGLE = '__SINGLE__';
 
     /**
-     * Make container default scope to share or non-share
+     * Make container default scope to __SHARED__ or __SINGLE__
      *
      * @param  bool $status sharing status
      * @return static

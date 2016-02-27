@@ -23,7 +23,7 @@ use Phossa\Di\Extension\ExtensionAbstract;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     ExtensionAbstract
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 class TaggableExtension extends ExtensionAbstract
@@ -42,7 +42,7 @@ class TaggableExtension extends ExtensionAbstract
     protected $tags = [];
 
     /**
-     * Set tags
+     * Set own tags
      *
      * @param  string[] $tags
      * @return void

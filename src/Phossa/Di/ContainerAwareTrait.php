@@ -16,7 +16,6 @@
 namespace Phossa\Di;
 
 use Phossa\Di\Message\Message;
-use Phossa\Di\ContainerInterface;
 use Phossa\Di\Exception\NotFoundException;
 
 /**
@@ -28,13 +27,13 @@ use Phossa\Di\Exception\NotFoundException;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     ContainerAwareInterface
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 trait ContainerAwareTrait
 {
     /**
-     * the container
+     * the container object
      *
      * @var    ContainerInterface
      * @access protected

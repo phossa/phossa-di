@@ -24,13 +24,13 @@ namespace Phossa\Di\Definition\Autowire;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     AutowiringInterface
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 trait AutowiringTrait
 {
     /**
-     * Autowiring ON or OFF
+     * Autowiring ON or OFF. Default is on
      *
      * @var    bool
      * @access protected
@@ -42,7 +42,7 @@ trait AutowiringTrait
      */
     public function auto(/*# bool */ $switchOn)
     {
-        $this->autowiring = $switchOn;
+        $this->autowiring = (bool) $switchOn;
         return $this;
     }
 }

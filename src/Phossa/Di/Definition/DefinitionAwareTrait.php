@@ -29,14 +29,15 @@ use Phossa\Di\Exception\InvalidArgumentException;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     DefinitionAwareInterface
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 trait DefinitionAwareTrait
 {
     use Scope\ScopeTrait,
         Loader\LoadableTrait,
-        Autowire\AutowiringTrait;
+        Autowire\AutowiringTrait,
+        Reference\ReferenceActionTrait;
 
     /**
      * parameter definitions
@@ -55,7 +56,7 @@ trait DefinitionAwareTrait
     protected $services     = [];
 
     /**
-     * interface to class OR interface/class to id mapping!
+     * interface to class OR interface/class to id mapping
      *
      * @var    array
      * @access protected
@@ -63,7 +64,7 @@ trait DefinitionAwareTrait
     protected $mappings     = [];
 
     /**
-     * service id after add() called
+     * last added service id after add() called
      *
      * @var    string
      * @access protected
@@ -73,19 +74,30 @@ trait DefinitionAwareTrait
     /**
      * @inheritDoc
      */
-    public function set($name, /*# string */ $value = '')
+    public function set($nameOrArray, $valueStringOrArray = '')
     {
-        if (is_array($name)) {
-            $this->fixParameters($name);
+        // input is associate array, batch mode
+        if (is_array($nameOrArray)) {
+            // fix parameters
+            $this->fixParameters($nameOrArray);
+
+            // merge/replace with existing ones
             $this->parameters = array_replace_recursive(
                 $this->parameters,
-                $name
+                $nameOrArray
             );
-        } elseif (is_string($name)) {
-            $this->set([$name => $value]);
+
+        // name is string
+        } elseif (is_string($nameOrArray)) {
+            // value can be string or associate array
+            $this->set([$nameOrArray => $valueStringOrArray]);
+
+        // unknown type
         } else {
             throw new InvalidArgumentException(
-                Message::get(Message::PARAMETER_ID_INVALID, gettype($name)),
+                Message::get(
+                    Message::PARAMETER_ID_INVALID,
+                    gettype($nameOrArray)),
                 Message::PARAMETER_ID_INVALID
             );
         }
@@ -96,15 +108,39 @@ trait DefinitionAwareTrait
     /**
      * @inheritDoc
      */
-    public function add($id, $class = '', array $arguments = [])
-    {
+    public function add(
+        $id,
+        $classOrClosure = '',
+        array $constructorArguments = []
+    ) {
+        // flush last added service id
         $this->last_added = '';
+
+        // add service definitions in batch mode
         if (is_array($id)) {
+            // fix service definitions
             $this->fixServices($id);
+
+            // add/overwrite existing ones
             $this->services = array_replace($this->services, $id);
+
+        // add one service definiton
         } elseif (is_string($id)) {
-            $this->services[$id] = ['class' => [ $class ?: $id, $arguments ]];
+            // missing classname, set to same as $id
+            if ('' === $classOrClosure) {
+                $classOrClosure = $id;
+            }
+
+            // register this service
+            $this->services[$id] = ['class' => [
+                $classOrClosure,
+                $constructorArguments
+            ]];
+
+            // remember last added sevice id
             $this->last_added = $id;
+
+        // unknown $id type
         } else {
             throw new InvalidArgumentException(
                 Message::get(Message::SERVICE_ID_INVALID, gettype($id)),
@@ -117,15 +153,20 @@ trait DefinitionAwareTrait
     /**
      * @inheritDoc
      */
-    public function map($interface, /*# string */ $classname = '')
+    public function map($nameOrArray, /*# string */ $toName = '')
     {
-        if (is_array($interface)) {
-            $this->mappings = array_replace($this->mappings, $interface);
-        } elseif (is_string($interface)) {
-            $this->mappings[$interface] = $classname;
+        // batch mode
+        if (is_array($nameOrArray)) {
+            $this->mappings = array_replace($this->mappings, $nameOrArray);
+
+        // add one mapping
+        } elseif (is_string($nameOrArray)) {
+            $this->mappings[$nameOrArray] = (string) $toName;
+
+        // unknown input
         } else {
             throw new InvalidArgumentException(
-                Message::get(Message::MAP_ID_INVALID, gettype($interface)),
+                Message::get(Message::MAP_ID_INVALID, gettype($nameOrArray)),
                 Message::MAP_ID_INVALID
             );
         }
@@ -142,7 +183,7 @@ trait DefinitionAwareTrait
 
         // load from file
         if (is_string($fileOrArray)) {
-            return $this->load($this->loadFile($fileOrArray));
+            return $this->load($this->loadDefinitionFromFile($fileOrArray));
 
         // load from array
         } elseif (is_array($fileOrArray)) {
@@ -159,7 +200,7 @@ trait DefinitionAwareTrait
             }
         }
 
-        // not loaded
+        // failure
         if (!$loaded) {
             throw new LogicException(
                 Message::get(Message::DEFINITION_FORMAT_ERR),
@@ -173,19 +214,41 @@ trait DefinitionAwareTrait
     /**
      * @inheritDoc
      */
-    public function addMethod(/*# string */ $method, array $arguments = [])
+    public function dump(/*# bool */ $toScreen = true)
     {
+        $todo = [ 'services', 'parameters', 'mappings' ];
+        $out  = $toScreen ? true : '';
+        foreach($todo as $section) {
+            if ($toScreen) {
+                print_r($this->$section, false);
+            } else {
+                $out .= print_r($this->$section, true) . "\n";
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function addMethod(
+        /*# string */ $methodName,
+        array $methodArguments = []
+    ) {
+        // check last added service id
         if (empty($this->last_added)) {
             throw new NotFoundException(
                 Message::get(Message::SERVICE_ID_NOT_FOUND, __METHOD__),
                 Message::SERVICE_ID_NOT_FOUND
             );
+
+        // add the specific service definition
         } else {
             $service = &$this->services[$this->last_added];
             if (!isset($service['methods'])) {
                 $service['methods'] = [];
             }
-            $service['methods'][] = [ $method, $arguments ];
+            $service['methods'][] = [ $methodName, $methodArguments ];
         }
 
         return $this;
@@ -196,19 +259,32 @@ trait DefinitionAwareTrait
      */
     public function setScope(/*# string */ $scope)
     {
+        // check last added service id
         if (empty($this->last_added)) {
             throw new NotFoundException(
                 Message::get(Message::SERVICE_ID_NOT_FOUND, __METHOD__),
                 Message::SERVICE_ID_NOT_FOUND
             );
+
+        // set scope for this service explicitly
         } else {
-            $this->services[$this->last_added]['scope'] = $scope;
+            $this->services[$this->last_added]['scope'] = (string) $scope;
         }
         return $this;
     }
 
     /**
-     * Get one paramter, dereference upto 10 levels
+     * Get this paramter's value either a string or an associate array
+     *
+     * ```php
+     * $this->set('cache.dir', '/var/tmp');
+     *
+     * // will return an array ['dir' => '/var/tmp'];
+     * $result = $this->getParameter('cache');
+     *
+     * // will return a string, 'var/tmp'
+     * $result = $this->getParameter('cache.dir');
+     * ```
      *
      * @param  string $name parameter name
      * @return string|array
@@ -217,6 +293,7 @@ trait DefinitionAwareTrait
      */
     protected function getParameter(/*# string */ $name)
     {
+        // break into parts by '.'
         $parts = explode('.', $name);
         $found = $this->parameters;
         while (null !== ($part = array_shift($parts))) {
@@ -228,12 +305,11 @@ trait DefinitionAwareTrait
             }
             $found = $found[$part];
         }
-
         return $found;
     }
 
     /**
-     * Get the scope for service $id
+     * Get the scope value for service $id
      *
      * If not set, get the default scope
      *
@@ -244,7 +320,7 @@ trait DefinitionAwareTrait
     protected function getScope(/*# string */ $id)/*# : string */
     {
         if (isset($this->services[$id]['scope'])) {
-            return (string) $this->services[$id]['scope'];
+            return $this->services[$id]['scope'];
         } else {
             return $this->default_scope;
         }
@@ -302,15 +378,18 @@ trait DefinitionAwareTrait
     }
 
     /**
-     * With auto wiring is on, add service $id if it is a classname
+     * Add service $id if $withAutowiring is true and $id is a existing class
      *
      * @param  string $id
+     * @param  bool $withAutowiring
      * @return bool
      * @access protected
      */
-    protected function autoWiringId(/*# string */ $id)/*# : bool */
-    {
-        if ($this->autowiring && class_exists($id)) {
+    protected function autoWiringId(
+        /*# string */ $id,
+        /*# bool */ $withAutowiring
+    )/*# : bool */ {
+        if ($withAutowiring && class_exists($id)) {
             $this->add($id);
             return true;
         }

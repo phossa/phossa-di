@@ -22,7 +22,7 @@ use Phossa\Shared\Message\MessageAbstract;
  *
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.0 added
  */
 class Message extends MessageAbstract

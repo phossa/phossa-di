@@ -21,13 +21,13 @@ namespace Phossa\Di\Definition\Reference;
  * @abstract
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 abstract class ReferenceAbstract
 {
     /**
-     * the name
+     * the reference name
      *
      * @var    string
      * @access protected
@@ -43,11 +43,11 @@ abstract class ReferenceAbstract
      */
     public function __construct(/*# string */ $name)
     {
-        $this->name = $name;
+        $this->name = (string) $name;
     }
 
     /**
-     * Get the name
+     * Get the reference name
      *
      * @return string
      * @access public

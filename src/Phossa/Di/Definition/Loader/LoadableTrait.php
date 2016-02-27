@@ -25,7 +25,7 @@ use Phossa\Di\Exception\NotFoundException;
  * @trait
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 trait LoadableTrait
@@ -39,25 +39,35 @@ trait LoadableTrait
      * @throws LogicException if something goes wrong
      * @access protected
      */
-    protected function loadFile(/*# string */ $file)/*# : array */
+    protected function loadDefinitionFromFile(/*# string */ $file)/*# : array */
     {
-        $this->checkFile($file);
-        list($type, $class) = $this->getFileType($file);
+        // check first
+        $this->checkFileExistence($file);
+
+        // get definition type and loader class base on suffix
+        list($type, $class) = $this->getFileTypeClass($file);
+
+        // load into an array
         $data = $class::loadFromFile($file);
+
+        // associate with definition type
         return $type ? [$type => $data] : $data;
     }
 
     /**
-     * Get file type and loader class
+     * Get definition type and loader class
      *
-     * Filename is in the format of XXX.(s|p|m).(php|xml|json);
+     * *.[php|json|xml]    : all definitions
+     * *.s*.[php|json|xml] : service definitions
+     * *.p*.[php|json|xml] : parameter definitions
+     * *.m*.[php|json|xml] : mappings definitions
      *
      * @param  string $filename definition file name
      * @return string[]
      * @throws LogicException if something goes wrong
      * @access protected
      */
-    protected function getFileType(/*# string */ $filename)
+    protected function getFileTypeClass(/*# string */ $filename)
     {
         $parts  = explode('.', strtolower(basename($filename)));
         $count  = count($parts);
@@ -81,9 +91,9 @@ trait LoadableTrait
      * @throws NotFoundException if not exist or readable
      * @access protected
      */
-    protected function checkFile(/*# string */ $file)
+    protected function checkFileExistence(/*# string */ $file)
     {
-        if (!is_readable($file)) {
+        if (!file_exists($file) || !is_readable($file)) {
             throw new NotFoundException(
                 Message::get(Message::DEFINITION_NOT_FOUND, $file),
                 Message::DEFINITION_NOT_FOUND
@@ -92,12 +102,12 @@ trait LoadableTrait
     }
 
     /**
-     * Get load class base on suffix
+     * Get loader class name base on suffix
      *
      * @param  string $suffix
      * @param  string $filename
      * @return string classname
-     * @throws NotFoundException if not class not found
+     * @throws LogicException if not class not found
      * @access protected
      */
     protected function getLoaderClass(

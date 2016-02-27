@@ -24,10 +24,12 @@ use Phossa\Di\ContainerAwareInterface;
 /**
  * ProviderAbstract
  *
+ * Base for all providers
+ *
  * @abstract
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 abstract class ProviderAbstract implements ContainerAwareInterface, InteropContainerInterface
@@ -81,7 +83,9 @@ abstract class ProviderAbstract implements ContainerAwareInterface, InteropConta
      */
     public function get($id)
     {
+        // has() will insert definitions into $container
         if ($this->has($id)) {
+            // get service from container then
             return $this->getContainer()->get($id);
         } else {
             throw new NotFoundException(
@@ -96,8 +100,12 @@ abstract class ProviderAbstract implements ContainerAwareInterface, InteropConta
      */
     public function has($id)
     {
+        // if in $provides and tag matching
         if (in_array($id, $this->provides) && $this->isMatching()) {
+            // merge definitions into $container
             $this->merge();
+
+            // empty own $provides
             $this->provides = [];
             return true;
         }
@@ -105,9 +113,10 @@ abstract class ProviderAbstract implements ContainerAwareInterface, InteropConta
     }
 
     /**
-     * Check tag matches
+     * Check tags match with $container's
      *
-     * Empty $this->tags always return TRUE !
+     * Empty $this->tags means this provider is not conflict with $container.
+     * Thus always TRUE if $this->tags is empty.
      *
      * @return bool
      * @access protected
@@ -122,7 +131,9 @@ abstract class ProviderAbstract implements ContainerAwareInterface, InteropConta
     }
 
     /**
-     * Child class implements this method to merge defintions with container
+     * Child class MUST implement this method.
+     *
+     * This method merges defintions with container.
      *
      * @return void
      * @throws LogicException if merging goes wrong

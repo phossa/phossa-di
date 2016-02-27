@@ -25,29 +25,29 @@ use Phossa\Di\Exception\InvalidArgumentException;
  * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 interface TaggableInterface
 {
     /**
-     * Set container tags
+     * Set(replace all) tag or tags
      *
-     * @param  string|string[] $tags
+     * @param  string|string[] $tagOrTagArray
      * @return static
      * @throws InvalidArgumentException
      * @access public
      * @api
      */
-    public function setTag($tags);
+    public function setTag($tagOrTagArray);
 
     /**
      * Check container tags
      *
-     * @param  string|string[] $tags
+     * @param  string|string[] $tagOrTagArray
      * @return bool
      * @access public
      * @api
      */
-    public function hasTag($tags)/*# : bool */;
+    public function hasTag($tagOrTagArray)/*# : bool */;
 }

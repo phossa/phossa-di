@@ -13,48 +13,44 @@
  */
 /*# declare(strict_types=1); */
 
-namespace Phossa\Di\Factory;
+namespace Phossa\Di\Definition\Reference;
 
 use Phossa\Di\Message\Message;
 use Phossa\Di\Exception\LogicException;
 use Phossa\Di\Exception\NotFoundException;
-use Phossa\Di\Extension\Delegate\DelegateExtension;
-use Phossa\Di\Definition\Reference\ServiceReference;
-use Phossa\Di\Definition\Reference\ReferenceAbstract;
-use Phossa\Di\Definition\Reference\ParameterReference;
 
 /**
- * DereferenceTrait
+ * ReferenceActionTrait
  *
- * All dereference related method.
+ * All de-reference related method.
  *
  * @trait
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.4 added
  */
-trait DereferenceTrait
+trait ReferenceActionTrait
 {
-    use \Phossa\Di\Extension\ExtensibleTrait,
-        \Phossa\Di\Definition\DefinitionAwareTrait;
-
     /**
-     * Replace all the reference string in the array with values
+     * Replace all the references in the array with values
      *
-     * @param  array &$args
+     * @param  array &$arrayData
      * @return void
      * @throws LogicException if something goes wrong
      * @access protected
      */
-    protected function dereferenceArray(array &$args)
+    protected function dereferenceArray(array &$arrayData)
     {
         try {
-            foreach ($args as $idx => $arg) {
-                if (is_array($arg)) {
-                    $this->dereferenceArray($args[$idx]);
-                } elseif (($ref = $this->isReference($arg))) {
-                    $args[$idx] = $this->getReferenceValue($ref);
+            foreach ($arrayData as $idx => $data) {
+                // go deeper if is array
+                if (is_array($data)) {
+                    $this->dereferenceArray($arrayData[$idx]);
+
+                // dereference if it is a reference
+                } elseif (($ref = $this->isReference($data))) {
+                    $arrayData[$idx] = $this->getReferenceValue($ref);
                 }
             }
         } catch (\Exception $e) {
@@ -63,7 +59,7 @@ trait DereferenceTrait
     }
 
     /**
-     * Get reference value
+     * Get the reference value
      *
      * @param  ReferenceAbstract $reference
      * @param  int $level current recursive level
@@ -84,8 +80,11 @@ trait DereferenceTrait
             );
         }
 
+        // get service reference value
         if ($reference instanceof ServiceReference) {
-            return $this->delegatedAction($name, 'get');
+            return $this->delegatedGet($name);
+
+        // get parameter value, if value is another reference, go deeper
         } else {
             $val = $this->getParameter($name);
             if (is_string($val) && ($ref = $this->isReference($val))) {
@@ -96,46 +95,48 @@ trait DereferenceTrait
     }
 
     /**
-     * Is a reference string or object, convert to object
+     * Is a reference string or reference object. convert to object
      *
-     * @param  mixed $argument the argument to check
+     * @param  mixed $data data to check
      * @return ReferenceAbstract|false
      * @access protected
      */
-    protected function isReference($argument)
+    protected function isReference($data)
     {
+        // reference string pattern
         $pat = '/^(%|@)([^\s]+)\1$/';
         $mat = []; // placeholders
-        if (is_object($argument) && $argument instanceof ReferenceAbstract) {
-            return $argument;
-        } elseif (is_string($argument) && preg_match($pat, $argument, $mat)) {
+
+        // is a reference object
+        if (is_object($data) && $data instanceof ReferenceAbstract) {
+            return $data;
+
+        // is string and matches reference pattern
+        } elseif (is_string($data) && preg_match($pat, $data, $mat)) {
             return $mat[1] === '%' ?
                 new ParameterReference($mat[2]) :
                 new ServiceReference($mat[2]);
+
+        // not a match
         } else {
             return false;
         }
     }
 
     /**
-     * Try has()/get() from delegator if DelegateExtension loaded
+     * Return '@serviceId@'
      *
-     * @param  string $id
-     * @param  string $action 'get' or 'has'
-     * @return bool|object
-     * @throws NotFoundException
+     * @param  string $id service id
+     * @return string
      * @access protected
      */
-    protected function delegatedAction(
-        /*# string */ $id, /*# string */ $action
-    ) {
-        $extName = DelegateExtension::EXTENSION_CLASS;
-        if ($this->hasExtension($extName)) {
-            /* @var $ext DelegateExtension */
-            $ext = $this->getExtension($extName);
-            return $ext->getDelegator()->$action($id);
-        } else {
-            return $this->$action($id);
-        }
+    protected function getServiceReferenceId(/*# string */ $id)/*# : string */
+    {
+        return '@' . $id . '@';
     }
+    
+    /*
+     * Get value method used in this trait
+     */
+    abstract protected function delegatedGet($name);
 }

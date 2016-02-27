@@ -29,7 +29,7 @@ namespace Phossa\Di\Extension;
  * @see     Provider\ProviderAwareInterface
  * @see     Delegate\DelegateAwareInterface
  * @see     Decorate\DecorateAwareInterface
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 interface ExtensibleInterface extends Taggable\TaggableInterface, Provider\ProviderAwareInterface, Delegate\DelegateAwareInterface, Decorate\DecorateAwareInterface

@@ -25,7 +25,7 @@ use Phossa\Di\Extension\ExtensionAbstract;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     ExtensionAbstract
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 class DelegateExtension extends ExtensionAbstract implements ContainerAwareInterface
@@ -51,7 +51,7 @@ class DelegateExtension extends ExtensionAbstract implements ContainerAwareInter
      * @param  DelegatorInterface $delegator
      * @return static
      * @access public
-     * @api
+     * @internal
      */
     public function setDelegator(DelegatorInterface $delegator)
     {
@@ -64,7 +64,7 @@ class DelegateExtension extends ExtensionAbstract implements ContainerAwareInter
      *
      * @return DelegatorInterface
      * @access public
-     * @api
+     * @internal
      */
     public function getDelegator()/*# : DelegatorInterface */
     {

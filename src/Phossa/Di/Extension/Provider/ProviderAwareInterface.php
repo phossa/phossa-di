@@ -25,7 +25,7 @@ use Phossa\Di\Exception\LogicException;
  * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 interface ProviderAwareInterface
@@ -33,11 +33,11 @@ interface ProviderAwareInterface
     /**
      * Add providers to container
      *
-     * @param  string|ProviderAbstract $provider
+     * @param  string|ProviderAbstract $providerOrClass
      * @return static
      * @throws LogicException if not a valide provider
      * @access public
      * @api
      */
-    public function addProvider($provider);
+    public function addProvider($providerOrClass);
 }

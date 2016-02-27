@@ -26,7 +26,7 @@ use Phossa\Di\Extension\ExtensionAbstract;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     ExtensionAbstract
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 class ProviderExtension extends ExtensionAbstract implements ContainerAwareInterface
@@ -49,14 +49,17 @@ class ProviderExtension extends ExtensionAbstract implements ContainerAwareInter
     /**
      * Add provider to the registry
      *
-     * @param  ProviderAbstract|string $provider provider or classname
+     * @param  ProviderAbstract|string $providerOrClass provider or classname
      * @return void
      * @access public
      * @internal
      */
-    public function addProvider($provider)
+    public function addProvider($providerOrClass)
     {
-        $prov = $this->getProviderInstance($provider);
+        // get the provider object
+        $prov  = $this->getProviderInstance($providerOrClass);
+
+        // check added or not
         $class = get_class($prov);
         if (isset($this->providers[$class])) {
             throw new LogicException(
@@ -67,6 +70,7 @@ class ProviderExtension extends ExtensionAbstract implements ContainerAwareInter
                 Message::EXT_PROVIDER_DUPPED
             );
         } else {
+            // add to the pool
             $this->providers[$class] =
                 $prov->setContainer($this->getContainer());
         }
@@ -93,21 +97,21 @@ class ProviderExtension extends ExtensionAbstract implements ContainerAwareInter
     /**
      * Get the provider object
      *
-     * @param  string|ProviderAbstract $provider class or object
+     * @param  string|ProviderAbstract $providerOrClass class or object
      * @return ProviderAbstract
      * @throws LogicException
      * @access protected
      */
-    public function getProviderInstance($provider)
+    public function getProviderInstance($providerOrClass)
     {
-        if (is_a($provider, ProviderAbstract::PROVIDER_CLASS, true)) {
-            if (!is_object($provider)) {
-                $provider = new $provider;
+        if (is_a($providerOrClass, ProviderAbstract::PROVIDER_CLASS, true)) {
+            if (!is_object($providerOrClass)) {
+                $providerOrClass = new $providerOrClass;
             }
-            return $provider;
+            return $providerOrClass;
         } else {
             throw new LogicException(
-                Message::get(Message::EXT_PROVIDER_ERROR, $provider),
+                Message::get(Message::EXT_PROVIDER_ERROR, $providerOrClass),
                 Message::EXT_PROVIDER_ERROR
             );
         }

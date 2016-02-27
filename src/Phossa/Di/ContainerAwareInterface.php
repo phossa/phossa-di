@@ -15,18 +15,17 @@
 
 namespace Phossa\Di;
 
-use Phossa\Di\ContainerInterface;
 use Phossa\Di\Exception\NotFoundException;
 
 /**
  * ContainerAwareInterface
  *
- * Inject container into implementing class
+ * Inject Phossa\Di\ContainerInterface $container into implementing class
  *
  * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 interface ContainerAwareInterface

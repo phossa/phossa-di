@@ -8,7 +8,7 @@ Introduction
 ---
 
 **Phossa-di** is a *fast*, *feature-rich* and *full-fledged* dependency
-injection library forPHP. It supports [auto wiring](#auto),
+injection library for PHP. It supports [auto wiring](#auto),
 [container delegation](#delegate), [object decorating](#decorate),
 [definition provider](#provider), [definition tagging](#tag),
 [object scope](#scope) and more.
@@ -39,7 +39,7 @@ Getting started
   ```json
   {
       "require": {
-        "phossa/phossa-di": "^1.0.1"
+        "phossa/phossa-di": "^1.0.6"
       }
   }
   ```
@@ -61,16 +61,14 @@ Getting started
 
       // ...
   }
-  ```
 
-  ```php
   class MyCacheDriver
   {
       // ...
   }
   ```
 
-  You may just do the following,
+  Now do the following,
 
   ```php
   use Phossa\Di\Container;
@@ -90,7 +88,8 @@ Getting started
 - **Use with definitions**
 
   Complex situations may need extra configurations. Definition related methods
-  can be used to configure services.
+  `add()`, `set()`, `map()`, `addMethod()` and `setScope()` etc. can be used to
+  configure services.
 
   ```php
   use Phossa\Di\Container;
@@ -98,14 +97,14 @@ Getting started
   // turn off auto wiring
   $container = (new Container())->auto(false);
 
-  // config the cache service with classname and constructor arguments
+  // config service with id, classname and constructor arguments
   $container->add('cache', 'MyCache', [ '@cacheDriver@' ]);
 
-  // add initialization methods after instantiation
+  // add initialization methods
   $container->add('cacheDriver', 'MyCacheDriver')
             ->addMethod('setRoot', [ '%cache.root%' ]);
 
-  // set a parameter which was used in 'cacheDriver'
+  // set a parameter which is referenced before
   $container->set('cache.root', '/var/local/tmp');
 
   // get cache service by its id
@@ -114,8 +113,9 @@ Getting started
 
   - *Service definitions*
 
-    Service is defined using API `add($id, $classOrClosure, array $arguments)`
-    and later can be refered in other definition with `@service_id@`
+    `Service` is defined using API `add($id, $classOrClosure, array $arguments)`
+    and later can be refered in other definition with service reference
+    `@service_id@`
 
     ```php
     $container = new Container();
@@ -152,6 +152,12 @@ Getting started
     // point cache dir to system temp
     $container->set('cache.dir', '%system.tmpdir%');
 
+    // set with array of vales
+    $container->set('logger', [
+        'driver' => 'Phossa\Logger\Driver\StreamDriver',
+        'level'  => 'warning'
+    ]);
+
     // use parameter
     $container->add(
         'cacheDir',
@@ -162,7 +168,7 @@ Getting started
 
 - **Callable instead of class name**
 
-  Callable can be used to instantiate a service.
+  Callable can be used instead of class name to instantiate a service.
 
   ```php
   // ...
@@ -176,12 +182,12 @@ Getting started
   Instead of configuring `$container` in the code, you may put your service and
   parameter definitions into one definition file or several seperated files
   *(seperating parameter definitions from service definitions will give you the
-  benefit of loading different parameters base on different requirement etc.)*.
+  benefit of loading different parameters base on different situations.)*.
 
   PHP, JSON, XML file formats are supported, and will be detected automatically
   base on the filename suffixes.
 
-  The service definition file `definition.serv.php`
+  A service definition file `definition.serv.php`
 
   ```php
   <?php
@@ -199,6 +205,7 @@ Getting started
               // ...
           ]
       ],
+      'theDriver'  => '@cacheDriver@', // an alias
       // ...
   ];
 
@@ -210,7 +217,8 @@ Getting started
   <?php
   /* file name '*.p*.php' indicating PARAMETER definitions in PHP format */
   return [
-      'cache.root' => '/var/local/tmp',
+      'tmp.dir' => '/var/local/tmp',
+      'cache.root' => '%tmp.dir%',
       // ...
   ];
 
@@ -288,8 +296,8 @@ Features
   service id) and right class for the dependencies (type-hinted with the right
   classnames).
 
-  To fully explore the auto wiring feature, users may map interface to classname
-  or service id as the following,
+  To fully explore the auto wiring feature, users may map interfaces to
+  classnames or service ids as the following,
 
   ```php
   // map an interface to a classname
@@ -360,7 +368,7 @@ Features
   ```
 - <a name="delegate"></a>**Object decorating**
 
-  *Object decorating* is to apply decorating changes (call methods etc.) right
+  *Object decorating* is to apply decorating changes (run methods etc.) right
   after the instantiation of a service object base on certain criteria such as
   it implements an interface.
 
@@ -394,9 +402,11 @@ Features
   or production environment. This is achieved by put definitions in different
   files and load these files base on the container tags.
 
+  Tag is also used in [definition provider](#provider).
+
   ```php
   // SYSTEM_CONST can be 'PRODUCTION' or 'DEVELOPMENT'
-  $container->setTag([SYSTEM_CONST, OTHER_TAGS]);
+  $container->setTag(SYSTEM_CONST);
 
   // load different defintion base on container tags
   if ($container->hasTag('PRODUCTION')) {
@@ -424,11 +434,11 @@ Features
       // list of service ids we provide
       protected $provides = [ 'DbServer' ];
 
-      // tags
+      // tags this provide has
       protected $tags = [ 'PRODUCTION' ];
 
       // the only method we need to implement
-      protected function mergeDefinition()
+      protected function merge()
       {
           $container = $this->getContainer();
           $container->add('DbServer', '\\DbClass', [
@@ -439,9 +449,8 @@ Features
 
   ```
 
-  The previous provider `ProductionDbProvider` should be added into container
-  before any calls to `has()` or `get()` and after setting the container tags
-  (if tag feature used).
+  The provider `ProductionDbProvider` should be added into container before
+  any calls to `has()` or `get()`.
 
   ```php
   // SYSTEM_CONST is now 'PRODUCTION'
@@ -457,24 +466,33 @@ Features
   $db = $container->get('DbServer');
   ```
 
+  Or during the container instantiation
+
+  ```php
+  $container = new Container('./defintions.php', [
+      ProductionDbProvider::class,
+      TestDbProvider::class
+  ]);
+  ```
+
 - <a name="scope"></a>**Object scope**
 
   By default, service objects in the container is shared inside the container,
-  namely their has the scope of `Container::SCOPE_SHARED`. If users want
-  different object each time, they may either use the method `one()` or define
-  the service with `Container::SCOPE_SINGLE` scope.
+  namely they have the scope of `Container::SCOPE_SHARED`. If users want
+  different instance each time, they may either use the method `one()` or
+  define the service with `Container::SCOPE_SINGLE` scope.
 
   ```php
-  // this will return the shared copy of cache service
+  // a shared copy of cache service
   $cache1 = $container->get('cache');
 
-  // this will always return a new copy of cache service
+  // a new cache instance
   $cache2 = $container->one('cache');
 
-  // FALSE
+  // different instances
   var_dump($cache1 === $cache2);
 
-  // but both share the same cacheDriver since it is default to SCOPE_SHARED
+  // but both share the same cacheDriver
   var_dump($cache1->getDriver() === $cache2->getDriver()); // true
   ```
 
@@ -485,7 +503,14 @@ Features
             ->setScope(Container::SCOPE_SINGLE);
 
   // each get() will return a new cache
-  $cache = $container->get('cache');
+  $cache1 = $container->get('cache');
+  $cache2 = $container->get('cache');
+
+  // different instances
+  var_dump($cache1 === $cache2); // false
+
+  // dependencies are shared
+  var_dump($cache1->getDriver() === $cache->getDriver()); // true
   ```
 
   To make all service objects non-shared, set the container's default scope
@@ -504,8 +529,8 @@ Features
   // FALSE
   var_dump($cache1 === $cache2);
 
-  // to make everything shareable again, set default scope to SCOPE_SHARED
-  $container->share(true);
+  // dependencies are different
+  var_dump($cache1->getDriver() === $cache->getDriver()); // false
   ```
 
 Public APIs
@@ -523,62 +548,93 @@ Public APIs
 
 - Extended APIs by phossa-di
 
-  - `__construct(string|array $definitions = '', array $providers = [])`
+  - `__construct(string|array $definitionArrayOrFile = '', array $definitionProviders = [])`
 
-    `$defintions` can be a defintion filename or definition array.
+    `$defintionArrayOrFile` can be a defintion file or definition array.
 
-    `$providers` can be array of `ProviderAbstract` objects or provider
-    classnames.
+    `$definitionProviders` can be array of `ProviderAbstract` objects or
+    provider classnames.
 
-  - `get(string $id, array $arguments = [], string $scope = ''): object`
+  - `get(string $id, array $constructorArguments = [], string $inThisScope = ''): object`
 
     If extra arguments are provided, new instance will be generated even if
     it was configured with a `Container::SCOPE_SHARED` scope.
 
+    If `$inThisScope` is not empty, new instance will be specificly shared in
+    the provided scope.
+
     *Arguments may contain references like `@service_id@` or `%parameter%`*.
 
-  - `one(string $id, array $arguments = []): object`
+  - `has(string $id, bool $withAutowiring = CONTAINER_DEFAULT_VALUE)`
+
+    If `$withAutowiring` is explicitly set to `true` or `false`, auto
+    registering of this service $id if classname matches will be turned ON or
+    OFF for this specific checking. Otherwise, use the container's auto
+    wiring setting.
+
+  - `one(string $id, array $constructorArguments = []): object`
 
     Get a new instance even if it is configured as a shared service with or
     without new arguments.
 
-  - `run(callable|array $callable, array $arguments = []): mixed`
+  - `run(callable|array $callable, array $callableArguments = []): mixed`
 
     Execute a callable with the provided arguments. Pseudo callable like
     `['@cacheDriver@', '%cache.setroot.method%']` is supported.
 
 - Definition related APIs
 
-  - `add(string|array $id, string|callable $className, array $arguments = []): this`
+  - `add(string|array $id, string|callable $classOrClosure, array $constructorArguments = []): this`
 
     Add a service definition or definitions(array) into the container. Callable
-    can be used instead of classname to create an instance. `$arguments` is
-    for the constructor.
+    can be used instead of classname to create an instance.
 
-    Aliasing can be achieved by define `$className` as a service reference,
+    `$constructorArguments` is for the constructor.
+
+    Aliasing can be achieved by define `$classOrClosure` as a service reference,
     namely `@serviceId@`.
 
-  - `set(string|array $name, string $value = ''): this`
+  - `set(string|array $nameOrArray, string|array $valueStringOrArray = ''): this`
 
-    Set a parameter or parameters(array) into the container.
+    Set a parameter or parameters(array) into the container. Parameter name can
+    be the format of 'parameter.name.string', it will be converted into
+    multi-dimention array.
 
-  - `map(string|array $interface, string $className): this`
+  - `map(string|array $nameOrArray, string $toName = ''): this`
 
-    Map an interface name or a classname to a classname, a service id or a
-    predefiend parameter. Map array can be inserted into container if
-    `$interface` is an array.
+    Map an interface name to a classname. Also mapping of a classname to another
+    classname (child class), map to a service reference or to a parameter
+    reference is ok. Batch mode if `$nameOrArray` is an array.
 
-    **Note** No leading backslash for the `$interface`
+    **Note** No leading backslash for the `$nameOrArray`, if it is a classname
+    or interface name.
+
+  - `load(string|array $fileOrArray): this`
+
+    Load a definition array or definition file into the container. Definition
+    filename with the format of `*.s*.php` will be considered as a service
+    definition file in PHP format. `*.p*.php` is a parameter file in PHP
+    format. `*.m*.php` is a mapping file.
+
+    File suffixes '.php|.json|.xml' are known to this library.
 
   - `share(bool $status = true): this`
 
     Set container-wide default scope. `true` to set to `Container::SCOPE_SHARED`
     and `false` set to `Container::SCOPE_SINGLE`
 
-  - `addMethod(string $method, array $arguments = []): this`
+  - `auto(bool $switchOn): this`
 
-    Add a method call to the previous added service in the chain of `add()` or
-    `addMethod()`.
+    Turn on (true) or turn off (false) [auto wiring](#auto).
+
+  - `addMethod(string $methodName, array $methodArguments = []): this`
+
+    Execute this `$methodName` right after the service instantiation. This
+    `addMethod()` has to follow a `add()` or another `addMethod()` or
+    `setScope()` call. Multiple `addMethod()`s can be chained together.
+
+    `$methodName` can be a parameter reference. `$methodArguments` can have
+    parameter or service references.
 
   - `setScope(string $scope): this`
 
@@ -586,9 +642,9 @@ Public APIs
     `addMethod()`. There are two predefined scope contants, shared scope
     `Container::SCOPE_SHARED` and single scope `Container::SCOPE_SINGLE`.
 
-  - `auto(bool $status): this`
+  - `dump(bool $toScreen = true): true|string`
 
-    Turn on (true) or turn off (false) [auto wiring](#auto).
+    Will print out all the definitions and mappings or return the output.
 
 - Extension related APIs
 
@@ -596,24 +652,18 @@ Public APIs
 
     Explicitly load an extension into the container.
 
-  - `load(string|array $fileOrArray): this`
+    **Note** Calling extension related methods will automatically load
+    corresponding extensions.
 
-    **LoaderExtension**  load a definition array or definition file into the
-    container. Definition filename with the format of `*.s*.php` will be
-    considered as a service definition file in PHP format. `*.p*.php` is a
-    parameter file in PHP format. `*.m*.php` is a mapping file.
+  - `setTag(string|array $tagOrTagArray): this`
 
-    File suffixes '.php|.json|.xml' are known to this library.
+    **TaggableExtension**  set/replace container tag(s). Tags can be used to
+    selectly load definition files or definition providers.
 
-  - `setTag(string|array $tag): this`
+  - `hasTag(string|array $tagOrTagArray): bool`
 
-    **TaggableExtension**  set container tags. Tags can be used to selectly
-    load definition files or definition providers.
-
-  - `hasTag(string|array $tag): bool`
-
-    **TaggableExtension** check the existence of tags in the container. One tag
-    match will return `true`, otherwise return `false`
+    **TaggableExtension** check the existence of tag(s) in the container. One
+    tag match will return `true`, otherwise return `false`
 
     ```php
     if ($container->hasTag('PRODUCTION')) {
@@ -634,7 +684,7 @@ Public APIs
     for the last one.
 
     ```php
-    use Phossa\Di\Extension\Delegate\Delegator;
+    use Phossa\Di\Delegator;
 
     // create the delegator
     $delegator = new Delegator();
@@ -652,11 +702,11 @@ Public APIs
     // ...
     ```
 
-  - `addDecorate(string $name, string|callable $tester, array|callable $decorator): this`
+  - `addDecorate(string $ruleName, string|callable $interfaceOrClosure, array|callable $decorateCallable): this`
 
     **DecorateExtension** adding object decorating rules to the container.
 
-  - `addProvider(string|ProviderInterface $provider): this`
+  - `addProvider(string|ProviderAbstract $providerOrClass): this`
 
     **ProviderExtension** add definition provider to the container either by
     provider classname or a provider object.
@@ -664,7 +714,7 @@ Public APIs
 Version
 ---
 
-1.0.5
+1.0.6
 
 Dependencies
 ---

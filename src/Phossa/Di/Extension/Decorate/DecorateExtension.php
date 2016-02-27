@@ -25,7 +25,7 @@ use Phossa\Di\Extension\ExtensionAbstract;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     ExtensionAbstract
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 class DecorateExtension extends ExtensionAbstract implements ContainerAwareInterface
@@ -46,7 +46,7 @@ class DecorateExtension extends ExtensionAbstract implements ContainerAwareInter
     protected $rules = [];
 
     /**
-     * Decorate a service object
+     * Apply decorating rules to a service object if matches
      *
      * @param  object $service
      * @return void
@@ -56,41 +56,49 @@ class DecorateExtension extends ExtensionAbstract implements ContainerAwareInter
      */
     public function decorateService($service)
     {
-        foreach ($this->rules as $rule) {
-            // tester
-            if ($rule[0]($service)) {
-                // decorator
-                $rule[1]($service);
+        try {
+            foreach ($this->rules as $rule) {
+                // if closure returns true
+                if ($rule[0]($service)) {
+                    // execute the decorate callable
+                    $rule[1]($service);
+                }
             }
+        } catch (\Exception $e) {
+            throw new LogicException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
     /**
-     * Set docorate rules
+     * Set up docorating rules
      *
-     * @param  string $name decorate rule name
-     * @param  string|callable callable or interface/class name
-     * @param  array|callable callable or [ method, arguments ]
+     * @param  string $ruleName decorate rule name
+     * @param  string|callable $interfaceOrClosure callable or interface/class
+     * @param  array|callable $decorateCallable callable or [method, arguments]
      * @return void
      * @throws LogicException if something goes wrong
      * @access public
      * @internal
      */
-    public function setDecorate(/*# string */ $name, $tester, $decorator)
-    {
-        // tester
-        if (!is_callable($tester)) {
-            $tester = function ($service) use ($tester) {
-                return $service instanceof $tester;
-            };
+    public function setDecorate(
+        /*# string */ $ruleName,
+        $interfaceOrClosure,
+        $decorateCallable
+    ) {
+        // create closure it it is a interface name
+        if (!is_callable($interfaceOrClosure)) {
+            $interfaceOrClosure = function ($service) use ($interfaceOrClosure)
+                {
+                    return $service instanceof $interfaceOrClosure;
+                };
         }
 
-        // decorator
-        if (!is_callable($decorator)) {
-            $method    = $decorator[0];
+        // create closure if array [method, arguments] provided
+        if (!is_callable($decorateCallable)) {
+            $method    = $decorateCallable[0];
             $container = $this->getContainer();
-            $arguments = isset($decorator[1]) ? $decorator[1] : [];
-            $decorator = function ($service)
+            $arguments = isset($decorateCallable[1]) ? $decorateCallable[1] : [];
+            $decorateCallable = function ($service)
                 use ($container, $method, $arguments)
                 {
                     $container->run([$service, $method], $arguments);
@@ -98,6 +106,6 @@ class DecorateExtension extends ExtensionAbstract implements ContainerAwareInter
         }
 
         // set the rule
-        $this->rules[$name] = [ $tester, $decorator ];
+        $this->rules[$ruleName] = [ $interfaceOrClosure, $decorateCallable ];
     }
 }

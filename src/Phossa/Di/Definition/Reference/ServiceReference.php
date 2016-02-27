@@ -22,7 +22,7 @@ namespace Phossa\Di\Definition\Reference;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     ReferenceAbstract
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 class ServiceReference extends ReferenceAbstract

@@ -26,7 +26,7 @@ use Phossa\Di\Exception\LogicException;
  * @abstract
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 abstract class ExtensionAbstract
@@ -41,10 +41,9 @@ abstract class ExtensionAbstract
      *
      * @throws LogicException if something goes wrong
      * @access public
-     * @final
      * @internal
      */
-    final public function __construct()
+    public function __construct()
     {
         if (get_called_class() !== static::EXTENSION_CLASS) {
             throw new LogicException(

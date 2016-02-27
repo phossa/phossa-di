@@ -52,89 +52,89 @@ class LoadableTraitTest extends \PHPUnit_Framework_TestCase
     /**
      * normal case
      *
-     * @covers Phossa\Di\Definition\Loader\LoadableTrait::checkFile
+     * @covers Phossa\Di\Definition\Loader\LoadableTrait::checkFileExistence
      */
-    public function testCheckFile1()
+    public function testCheckFileExistence1()
     {
-        $this->invokeMethod('checkFile', [ __DIR__ . '/def1.php']);
+        $this->invokeMethod('checkFileExistence', [ __DIR__ . '/def1.php']);
     }
 
     /**
      * missing file
      *
-     * @covers Phossa\Di\Definition\Loader\LoadableTrait::checkFile
+     * @covers Phossa\Di\Definition\Loader\LoadableTrait::checkFileExistence
      * @expectedException Phossa\Di\Exception\NotFoundException
      * @expectedExceptionCode Phossa\Di\Message\Message::DEFINITION_NOT_FOUND
      */
-    public function testCheckFile2()
+    public function testCheckFileExistence2()
     {
-        $this->invokeMethod('checkFile', [ __DIR__ . '/def2.php']);
+        $this->invokeMethod('checkFileExistence', [ __DIR__ . '/def2.php']);
     }
 
     /**
      * normal case
      *
-     * @covers Phossa\Di\Definition\Loader\LoadableTrait::getFileType
+     * @covers Phossa\Di\Definition\Loader\LoadableTrait::getFileTypeClass
      */
-    public function testGetFileType1()
+    public function testGetFileTypeClass1()
     {
         $this->assertEquals(
             [ 'parameters', 'Phossa\\Di\\Definition\\Loader\\LoaderPhp'],
-            $this->invokeMethod('getFileType', [ __DIR__ . '/def1.param.php'])
+            $this->invokeMethod('getFileTypeClass', [ __DIR__ . '/def1.param.php'])
         );
     }
 
     /**
      * filename case
      *
-     * @covers Phossa\Di\Definition\Loader\LoadableTrait::getFileType
+     * @covers Phossa\Di\Definition\Loader\LoadableTrait::getFileTypeClass
      */
-    public function testGetFileType2()
+    public function testGetFileTypeClass2()
     {
         $this->assertEquals(
             [ 'parameters', 'Phossa\\Di\\Definition\\Loader\\LoaderPhp'],
-            $this->invokeMethod('getFileType', [ __DIR__ . '/def.PA.php'])
+            $this->invokeMethod('getFileTypeClass', [ __DIR__ . '/def.PA.php'])
         );
     }
 
     /**
      * unknown data type, convert to all
      *
-     * @covers Phossa\Di\Definition\Loader\LoadableTrait::getFileType
+     * @covers Phossa\Di\Definition\Loader\LoadableTrait::getFileTypeClass
      */
-    public function testGetFileType3()
+    public function testGetFileTypeClass3()
     {
         $this->assertEquals(
             [ false, 'Phossa\\Di\\Definition\\Loader\\LoaderPhp'],
-            $this->invokeMethod('getFileType', [ __DIR__ . '/def1.php'])
+            $this->invokeMethod('getFileTypeClass', [ __DIR__ . '/def1.php'])
         );
     }
 
     /**
      * unknown file suffix
      *
-     * @covers Phossa\Di\Definition\Loader\LoadableTrait::getFileType
+     * @covers Phossa\Di\Definition\Loader\LoadableTrait::getFileTypeClass
      * @expectedException Phossa\Di\Exception\LogicException
      * @expectedExceptionCode Phossa\Di\Message\Message::FILE_SUFFIX_UNKNOWN
      */
-    public function testGetFileType4()
+    public function testGetFileTypeClass4()
     {
         $this->assertEquals(
             [ false, 'Phossa\\Di\\Definition\\Loader\\LoaderPhp'],
-            $this->invokeMethod('getFileType', [ __DIR__ . '/def6.md'])
+            $this->invokeMethod('getFileTypeClass', [ __DIR__ . '/def6.md'])
         );
     }
 
     /**
      * load parameters
      *
-     * @covers Phossa\Di\Definition\Loader\LoadableTrait::loadFile
+     * @covers Phossa\Di\Definition\Loader\LoadableTrait::loadDefinitionFromFile
      */
-    public function testLoadFile1()
+    public function testLoadDefinitionFromFile1()
     {
         $this->assertEquals(
             ['parameters' => ['cache' => ['bingo']]],
-            $this->invokeMethod('loadFile', [ __DIR__ . '/def1.param.php'])
+            $this->invokeMethod('loadDefinitionFromFile', [ __DIR__ . '/def1.param.php'])
         );
     }
 }

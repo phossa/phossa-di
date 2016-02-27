@@ -32,7 +32,7 @@ use Phossa\Di\Extension\Decorate\DecorateExtension;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     ExtensibleInterface
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 trait ExtensibleTrait
@@ -52,6 +52,7 @@ trait ExtensibleTrait
     {
         $this->extensions[$extension->getName()] = $extension;
 
+        // set container if ...
         if ($extension instanceof ContainerAwareInterface) {
             $extension->setContainer($this);
         }
@@ -61,22 +62,26 @@ trait ExtensibleTrait
     /**
      * @inheritDoc
      */
-    public function setTag($tags)
+    public function setTag($tagOrTagArray)
     {
         /* @var $ext TaggableExtension */
         $ext = $this->getExtension(TaggableExtension::EXTENSION_CLASS);
-        $ext->setTags(is_array($tags) ? $tags : [ (string) $tags ]);
+        $ext->setTags(is_array($tagOrTagArray) ?
+            $tagOrTagArray : [ (string) $tagOrTagArray ]
+        );
         return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function hasTag($tags)/*# : bool */
+    public function hasTag($tagOrTagArray)/*# : bool */
     {
         /* @var $ext TaggableExtension */
         $ext = $this->getExtension(TaggableExtension::EXTENSION_CLASS);
-        return $ext->matchTags(is_array($tags) ? $tags : [ (string) $tags ]);
+        return $ext->matchTags(is_array($tagOrTagArray) ?
+            $tagOrTagArray : [ (string) $tagOrTagArray ]
+        );
     }
 
     /**
@@ -93,27 +98,30 @@ trait ExtensibleTrait
     /**
      * @inheritDoc
      */
-    public function addDecorate(/*# string */ $name, $tester, $decorator)
-    {
+    public function addDecorate(
+        /*# string */ $ruleName,
+        $interfaceOrClosure,
+        $decorateCallable
+    ) {
         /* @var $ext DecorateExtension */
         $ext = $this->getExtension(DecorateExtension::EXTENSION_CLASS);
-        $ext->setDecorate($name, $tester, $decorator);
+        $ext->setDecorate($ruleName, $interfaceOrClosure, $decorateCallable);
         return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function addProvider($provider)
+    public function addProvider($providerOrClass)
     {
         /* @var $ext ProviderExtension */
         $ext = $this->getExtension(ProviderExtension::EXTENSION_CLASS);
-        $ext->addProvider($provider);
+        $ext->addProvider($providerOrClass);
         return $this;
     }
 
     /**
-     * Get the named extension, create one if injected yet
+     * Get the named extension, create one if not injected yet
      *
      * @param  string $extensionName
      * @return ExtensionAbstract
@@ -151,29 +159,62 @@ trait ExtensibleTrait
     protected function hasInProvider(/*# string */ $id)/*# : bool */
     {
         $extName = ProviderExtension::EXTENSION_CLASS;
+
+        // provider extension loaded
         if ($this->hasExtension($extName)) {
             /* @var $ext ProviderExtension */
             $ext = $this->getExtension($extName);
             return $ext->providerHas($id);
         }
+
+        // extension not loaded yet
         return false;
     }
 
     /**
-     * Decorate the service if DecorateExtension loaded
+     * Decorate the service object if DecorateExtension loaded
      *
      * @param  object $service
-     * @return void
+     * @return static
      * @throws LogicException if something goes wrong
      * @access protected
      */
     protected function decorateService($service)
     {
         $extName = DecorateExtension::EXTENSION_CLASS;
+
+        // decorate extension loaded
         if ($this->hasExtension($extName)) {
             /* @var $ext DecorateExtension */
             $ext = $this->getExtension($extName);
             $ext->decorateService($service);
         }
+
+        return $this;
     }
+
+    /**
+     * Try get() from delegator if DelegateExtension loaded
+     *
+     * @param  string $id
+     * @return bool|object
+     * @throws NotFoundException
+     * @access protected
+     */
+    protected function delegatedGet(/*# string */ $id)
+    {
+        $extName = DelegateExtension::EXTENSION_CLASS;
+        if ($this->hasExtension($extName)) {
+            /* @var $ext DelegateExtension */
+            $ext = $this->getExtension($extName);
+            return $ext->getDelegator()->get($id);
+        } else {
+            return $this->get($id);
+        }
+    }
+
+    /*
+     * for get() used in this trait
+     */
+    abstract public function get($id);
 }

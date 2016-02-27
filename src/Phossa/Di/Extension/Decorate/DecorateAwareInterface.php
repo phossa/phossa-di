@@ -24,7 +24,7 @@ namespace Phossa\Di\Extension\Decorate;
  * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 interface DecorateAwareInterface
@@ -32,8 +32,6 @@ interface DecorateAwareInterface
     /**
      * Set decorating rule
      *
-     * $tester: string (interface or classname) or callable
-     * $decorator: ['method', [ args...]] or callable
      *
      * ```php
      * // any object implementing 'LoggerAwareInterface' should be decorated
@@ -57,12 +55,16 @@ interface DecorateAwareInterface
      * );
      * ```
      *
-     * @param  string $name decorate rule name
-     * @param  string|callable $tester interface/classname or callable
-     * @param  array|callable [ method, arguments ] or callable
+     * @param  string $ruleName decorate rule name
+     * @param  string|callable $interfaceOrClosure interface/classname or callable
+     * @param  array|callable $decorateCallable
      * @return static
      * @access public
      * @api
      */
-    public function addDecorate(/*# string */ $name, $tester, $decorator);
+    public function addDecorate(
+        /*# string */ $ruleName,
+        $interfaceOrClosure,
+        $decorateCallable
+    );
 }

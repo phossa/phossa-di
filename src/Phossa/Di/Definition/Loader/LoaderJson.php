@@ -21,11 +21,11 @@ use Phossa\Di\Exception\LogicException;
 /**
  * LoaderJson
  *
- * Load service/parameter definitions from files in JSON format
+ * Load definitions from files in JSON format
  *
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 class LoaderJson implements LoaderInterface
@@ -41,7 +41,7 @@ class LoaderJson implements LoaderInterface
      *               '\Phossa\Logger\Handler\StreamHandler',
      *               [ '%logger.file%', 'debug' ]
      *         ],
-     *         'scope' : 'instance'
+     *         'scope' : '__SINGLE__'
      *     },
      *     ...
      * }
@@ -51,7 +51,7 @@ class LoaderJson implements LoaderInterface
      * <code>
      * {
      *     'logger': {
-     *         'file':  '../app.log',
+     *         'file':  '/var/local/app.log',
      *         'mail': {
      *             'to_address'   : 'webmaster@example.com',
      *             'from_address' : 'alerts@example.com',
@@ -64,7 +64,7 @@ class LoaderJson implements LoaderInterface
     public static function loadFromFile(/*# string */ $file)/*# : array */
     {
         // readin json content
-        $json = @file_get_contents($file);
+        $json = file_get_contents($file);
         if (false === $json) {
             throw new LogicException(
                 Message::get(Message::DEFINITION_NOT_FOUND, $file),

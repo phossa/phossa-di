@@ -25,7 +25,7 @@ use Phossa\Di\DelegatorInterface;
  * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 interface DelegateAwareInterface
@@ -33,12 +33,8 @@ interface DelegateAwareInterface
     /**
      * Set the delegator
      *
-     * Usually autowiring (auto registering known class into service) WILL
-     * break delegator model. User MAY set the **LAST CONTAINER** in the
-     * delegator autowiring.
-     *
      * ```php
-     * use Phossa\Di\Extension\Delegate\Delegator;
+     * use Phossa\Di\Delegator;
      *
      * // create the delegator
      * $delegator = new Delegator();

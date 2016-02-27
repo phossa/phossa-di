@@ -23,7 +23,7 @@ use Phossa\Di\Interop\InteropContainerInterface;
 /**
  * StaticContainer
  *
- * Static wrapper for container
+ * Static wrapper for all interop compatible containers
  *
  * @method object get(string $id)
  * @method bool has(string $id)
@@ -32,7 +32,7 @@ use Phossa\Di\Interop\InteropContainerInterface;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     StaticAbstract
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 class StaticContainer extends StaticAbstract
@@ -74,7 +74,7 @@ class StaticContainer extends StaticAbstract
     }
 
     /**
-     * Set container replace the default one
+     * Set container, replacing the default one
      *
      * @param  InteropContainerInterface $container
      * @return void

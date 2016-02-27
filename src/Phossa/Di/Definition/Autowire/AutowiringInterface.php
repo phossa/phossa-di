@@ -18,10 +18,14 @@ namespace Phossa\Di\Definition\Autowire;
 /**
  * AutowiringInterface
  *
+ * Auto wiring is the ability of container instantiating objects and resolving
+ * its dependencies automatically. System will look into $this->mappings for
+ * interface to classname mappings.
+ *
  * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 interface AutowiringInterface

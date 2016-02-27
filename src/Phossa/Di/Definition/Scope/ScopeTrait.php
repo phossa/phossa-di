@@ -24,7 +24,7 @@ namespace Phossa\Di\Definition\Scope;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     ScopeInterface
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.4 added
  */
 trait ScopeTrait
@@ -42,7 +42,7 @@ trait ScopeTrait
      */
     public function share(/*# bool */ $status = true)
     {
-        $this->default_scope = $status ?
+        $this->default_scope = (bool) $status ?
             ScopeInterface::SCOPE_SHARED :
             ScopeInterface::SCOPE_SINGLE ;
         return $this;

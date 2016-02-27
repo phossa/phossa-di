@@ -21,11 +21,11 @@ use Phossa\Di\Exception\LogicException;
 /**
  * LoaderPhp
  *
- * Load service/parameter definitions from files in PHP format
+ * Load definitions from files in PHP format
  *
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.4
+ * @version 1.0.6
  * @since   1.0.1 added
  */
 class LoaderPhp implements LoaderInterface
@@ -52,8 +52,8 @@ class LoaderPhp implements LoaderInterface
      *
      *     'logger' => [
      *         'class' => [
-     *             Logger\Logger::class,
-     *             [ '%logger.channel%' ]
+     *             Logger\Logger::class,    // class
+     *             [ '%logger.channel%' ]   // constructor arguments
      *         ],
      *         'methods' => [
      *             [ 'addHandler', [ '@streamhandler@' ] ],
@@ -66,7 +66,7 @@ class LoaderPhp implements LoaderInterface
      *         'class' => function() {
      *              return new Logger\Formatter\AnsiFormatter();
      *         },
-     *         'scope' => 'instance'
+     *         'scope' => Container::SCOPE_SINGLE
      *     ],
      *
      *     // use closure directly
@@ -92,7 +92,7 @@ class LoaderPhp implements LoaderInterface
      *         'mail'    => [
      *             'to_address'   => 'webmaster@example.com',
      *             'from_address' => 'alerts@example.com',
-     *             'subject' => 'App Logs'
+     *             'subject'      => 'App Logs'
      *         ]
      *     ]
      * ];
