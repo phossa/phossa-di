@@ -95,41 +95,6 @@ trait ReferenceActionTrait
     }
 
     /**
-     * Get this paramter's value either a string or an associate array
-     *
-     * ```php
-     * $this->set('cache.dir', '/var/tmp');
-     *
-     * // will return an array ['dir' => '/var/tmp'];
-     * $result = $this->getParameter('cache');
-     *
-     * // will return a string, 'var/tmp'
-     * $result = $this->getParameter('cache.dir');
-     * ```
-     *
-     * @param  string $name parameter name
-     * @return string|array
-     * @throws NotFoundException if not found
-     * @access protected
-     */
-    protected function getParameter(/*# string */ $name)
-    {
-        // break into parts by '.'
-        $parts = explode('.', $name);
-        $found = $this->parameters;
-        while (null !== ($part = array_shift($parts))) {
-            if (!isset($found[$part])) {
-                throw new NotFoundException(
-                    Message::get(Message::PARAMETER_NOT_FOUND, $name),
-                    Message::PARAMETER_NOT_FOUND
-                );
-            }
-            $found = $found[$part];
-        }
-        return $found;
-    }
-    
-    /**
      * Is a reference string or reference object. convert to object
      *
      * @param  mixed $data data to check
@@ -173,5 +138,6 @@ trait ReferenceActionTrait
     /*
      * Get value method used in this trait
      */
-    abstract protected function delegatedGet($name);
+    abstract protected function delegatedGet(/*# string */ $name);
+    abstract protected function getParameter(/*# string */ $name);
 }
