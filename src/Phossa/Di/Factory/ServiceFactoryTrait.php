@@ -124,7 +124,7 @@ trait ServiceFactoryTrait
     /**
      * Match provided arguments with a method/function's reflection parameters
      *
-     * @param  \ReflectionParameter[] $ReflectionParameters
+     * @param  \ReflectionParameter[] $reflectionParameters
      * @param  array $providedArguments
      * @return array the resolved arguments
      * @throws LogicException
@@ -132,14 +132,14 @@ trait ServiceFactoryTrait
      * @access protected
      */
     protected function matchMethodArguments(
-        array $ReflectionParameters,
+        array $reflectionParameters,
         array $providedArguments
     )/*# : array */ {
         $resolvedArguments = [];
         $fail   = false;
 
         // go thru each parameter defined
-        foreach ($ReflectionParameters as $i => $param) {
+        foreach ($reflectionParameters as $i => $param) {
             $optional = $param->isOptional();
             $argument = isset($providedArguments[0]) ?
                 $providedArguments[0] : null;
@@ -189,18 +189,18 @@ trait ServiceFactoryTrait
     /**
      * Simple match of callable & array if defined in $ReflectionParameter
      *
-     * @param  \ReflectionParameter $ReflectionParameter
+     * @param  \ReflectionParameter $reflectionParameter
      * @param  mixed $argumentToMatch
      * @return bool
      * @access protected
      */
     protected function matchArgumentType(
-        \ReflectionParameter $ReflectionParameter,
+        \ReflectionParameter $reflectionParameter,
         $argumentToMatch
     )/*# : bool */ {
-        if ($ReflectionParameter->isCallable()) {
+        if ($reflectionParameter->isCallable()) {
             return is_callable($argumentToMatch) ? true : false;
-        } elseif ($ReflectionParameter->isArray()) {
+        } elseif ($reflectionParameter->isArray()) {
             return is_array($argumentToMatch) ? true : false;
         } else {
             return true;
@@ -220,8 +220,7 @@ trait ServiceFactoryTrait
         $objectToMatch
     )/*# : bool */ {
         if (is_object($objectToMatch) &&
-            is_a($objectToMatch, $classOrInterface))
-        {
+            is_a($objectToMatch, $classOrInterface)) {
             return true;
         }
         return false;
@@ -368,7 +367,7 @@ trait ServiceFactoryTrait
         try {
             if (isset($this->services[$id]['methods'])) {
                 $methods = $this->services[$id]['methods'];
-                
+
                 foreach ($methods as $method) {
                     if (!is_array($method) ||
                         !isset($method[0]) ||

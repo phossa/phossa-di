@@ -87,8 +87,7 @@ class DecorateExtension extends ExtensionAbstract implements ContainerAwareInter
     ) {
         // create closure it it is a interface name
         if (!is_callable($interfaceOrClosure)) {
-            $interfaceOrClosure = function ($service) use ($interfaceOrClosure)
-                {
+            $interfaceOrClosure = function ($service) use ($interfaceOrClosure) {
                     return $service instanceof $interfaceOrClosure;
                 };
         }
@@ -98,9 +97,7 @@ class DecorateExtension extends ExtensionAbstract implements ContainerAwareInter
             $method    = $decorateCallable[0];
             $container = $this->getContainer();
             $arguments = isset($decorateCallable[1]) ? $decorateCallable[1] : [];
-            $decorateCallable = function ($service)
-                use ($container, $method, $arguments)
-                {
+            $decorateCallable = function ($service) use ($container, $method, $arguments) {
                     $container->run([$service, $method], $arguments);
                 };
         }

@@ -192,7 +192,7 @@ trait DefinitionAwareTrait
                 'parameters'    => 'set',
                 'mappings'      => 'map'
             ];
-            foreach($toload as $key => $action) {
+            foreach ($toload as $key => $action) {
                 if (isset($fileOrArray[$key])) {
                     $this->$action($fileOrArray[$key]);
                     $loaded = true;
@@ -218,7 +218,7 @@ trait DefinitionAwareTrait
     {
         $todo = [ 'services', 'parameters', 'mappings' ];
         $out  = $toScreen ? true : '';
-        foreach($todo as $section) {
+        foreach ($todo as $section) {
             if ($toScreen) {
                 print_r($this->$section, false);
             } else {

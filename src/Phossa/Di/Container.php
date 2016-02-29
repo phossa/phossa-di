@@ -78,7 +78,7 @@ class Container implements ContainerInterface
 
         // add definition providers
         if (count($definitionProviders)) {
-            foreach($definitionProviders as $provider) {
+            foreach ($definitionProviders as $provider) {
                 $this->addProvider($provider);
             }
         }
@@ -96,7 +96,8 @@ class Container implements ContainerInterface
 
             // prepare constructor arguments and scope
             list($args, $scope, $sid) = $this->prepareArguments(
-                $id, func_get_args()
+                $id,
+                func_get_args()
             );
 
             // try get from pool first
@@ -184,7 +185,7 @@ class Container implements ContainerInterface
      */
     protected function prepareArguments(/*# string */ $id, array $arguments)
     {
-        $args  = isset($arguments[1]) ? (array)  $arguments[1] : [];
+        $args  = isset($arguments[1]) ? (array) $arguments[1] : [];
         $scope = isset($arguments[2]) ? (string) $arguments[2] :
             $this->getScope($id);
 
