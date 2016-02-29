@@ -72,7 +72,7 @@ class LoaderJson implements LoaderInterface
             );
         }
 
-        if (!is_array($definitions = @json_decode($json, true))) {
+        if (!is_array($definitions = json_decode($json, true))) {
             throw new LogicException(
                 Message::get(Message::DEFINITION_FORMAT_ERR, $file),
                 Message::DEFINITION_FORMAT_ERR
