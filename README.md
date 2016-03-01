@@ -711,11 +711,6 @@ Public APIs
     **ProviderExtension** add definition provider to the container either by
     provider classname or a provider object.
 
-Version
----
-
-1.0.6
-
 Dependencies
 ---
 
