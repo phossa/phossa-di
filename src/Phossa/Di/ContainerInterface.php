@@ -36,7 +36,7 @@ interface ContainerInterface extends Interop\InteropContainerInterface, Extensio
     /**
      * Get a new service even if it was defined as shared
      *
-     * Arguments can have references like following
+     * Arguments can have references as follows
      *
      * ```php
      * // reference string
@@ -61,7 +61,7 @@ interface ContainerInterface extends Interop\InteropContainerInterface, Extensio
     /**
      * Execute a callable, expands its arguments
      *
-     * $callable can be a pseudo callable like the following
+     * $callable can be a pseudo callable as follows,
      *
      * ```php
      * // pseudo callable using service reference string

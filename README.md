@@ -81,7 +81,7 @@ Getting started
   }
   ```
 
-  With [auto wiring]((#auto)) is turned on by default, the container will look
+  With [auto wiring](#auto) is turned on by default, the container will look
   for the `MyCache` class and resolves its dependency injection automatically
   when creating the `$cache` instance.
 
@@ -297,7 +297,7 @@ Features
   classnames).
 
   To fully explore the auto wiring feature, users may map interfaces to
-  classnames or service ids as the following,
+  classnames or service ids as follows,
 
   ```php
   // map an interface to a classname
