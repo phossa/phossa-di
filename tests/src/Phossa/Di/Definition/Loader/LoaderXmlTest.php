@@ -42,11 +42,11 @@ class LoaderXmlTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * format error, DISABLED THIS TEST
+     * format error
      *
      * @covers Phossa\Di\Definition\Loader\LoaderXml::loadFromFile
-     * expectedException Phossa\Di\Exception\LogicException
-     * expectedExceptionCode Phossa\Di\Message\Message::DEFINITION_FORMAT_ERR
+     * @expectedException Phossa\Di\Exception\LogicException
+     * @expectedExceptionCode Phossa\Di\Message\Message::DEFINITION_FORMAT_ERR
      */
     public function testLoadFromFile2()
     {
