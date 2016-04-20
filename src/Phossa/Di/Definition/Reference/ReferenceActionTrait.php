@@ -48,8 +48,8 @@ trait ReferenceActionTrait
                 if (is_array($data)) {
                     $this->dereferenceArray($arrayData[$idx]);
 
-                // dereference if it is a reference
-                } elseif (($ref = $this->isReference($data))) {
+                // dereference if it is a reference #changed
+                } elseif (false !== ($ref = $this->isReference($data))) {
                     $arrayData[$idx] = $this->getReferenceValue($ref);
                 }
             }

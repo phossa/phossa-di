@@ -149,8 +149,8 @@ trait ServiceFactoryTrait
                 break;
             }
 
-            // parameter is a class or interface
-            if (($class = $param->getClass())) {
+            // parameter is a class or interface #changed
+            if (null !== ($class = $param->getClass())) {
                 $classname = $class->getName();
 
                 // $argument is a instance of $classname
@@ -241,8 +241,8 @@ trait ServiceFactoryTrait
         if (isset($this->mappings[$classname])) {
             $classname = $this->mappings[$classname];
 
-            // is it a reference ?
-            if (($ref = $this->isReference($classname))) {
+            // is it a reference ? #changed
+            if (false !== ($ref = $this->isReference($classname))) {
                 $classname = $this->getReferenceValue($ref);
 
                 // got a service object
@@ -286,8 +286,8 @@ trait ServiceFactoryTrait
 
             // instantiation with arguments
             } else {
-                // reference value
-                if (($ref = $this->isReference($class))) {
+                // reference value #changed
+                if (false !== ($ref = $this->isReference($class))) {
                     $class = $this->getReferenceValue($ref);
                     if (is_object($class)) {
                         return $class;
