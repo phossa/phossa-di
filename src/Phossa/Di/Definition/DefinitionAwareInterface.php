@@ -62,7 +62,7 @@ interface DefinitionAwareInterface extends ScopeInterface, AutowiringInterface
      *
      * @param  string|array $nameOrArray parameter name or array
      * @param  string|array $valueStringOrArray value or associate array
-     * @return static
+     * @return self
      * @throws InvalidArgumentException
      * @access public
      * @api
@@ -104,7 +104,7 @@ interface DefinitionAwareInterface extends ScopeInterface, AutowiringInterface
      * @param  string|array $id service id/classname or definition array
      * @param  string|callable $classOrClosure classname/closure/callable
      * @param  array $constructorArguments constructor/callable arguments
-     * @return static
+     * @return self
      * @throws InvalidArgumentException
      * @access public
      * @api
@@ -146,7 +146,7 @@ interface DefinitionAwareInterface extends ScopeInterface, AutowiringInterface
      *
      * @param  string|array $nameOrArray interface/classname or array
      * @param  string $toName classname/service id/parameter etc.
-     * @return static
+     * @return self
      * @throws InvalidArgumentException
      * @access public
      * @api
@@ -157,7 +157,7 @@ interface DefinitionAwareInterface extends ScopeInterface, AutowiringInterface
      * Load definitions from an array or a file
      *
      * @param  string|array $fileOrArray definition file or array
-     * @return static
+     * @return self
      * @throws NotFoundException if file not found
      * @throws LogicException if something goes wrong
      * @access public
@@ -191,7 +191,7 @@ interface DefinitionAwareInterface extends ScopeInterface, AutowiringInterface
      *
      * @param  string $methodName method name
      * @param  array $methodArguments arguments for the method
-     * @return static
+     * @return self
      * @throws NotFoundException if no service id found
      * @access public
      * @api
@@ -217,7 +217,7 @@ interface DefinitionAwareInterface extends ScopeInterface, AutowiringInterface
      * ```
      *
      * @param  string $scope scope string value
-     * @return static
+     * @return self
      * @throws NotFoundException if no service id found
      * @access public
      * @api

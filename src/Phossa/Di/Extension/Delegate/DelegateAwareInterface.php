@@ -50,7 +50,7 @@ interface DelegateAwareInterface
      * ```
      *
      * @param  DelegatorInterface $delegator
-     * @return static
+     * @return self
      * @access public
      * @api
      */

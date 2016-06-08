@@ -175,7 +175,7 @@ trait ExtensibleTrait
      * Decorate the service object if DecorateExtension loaded
      *
      * @param  object $service
-     * @return static
+     * @return self
      * @throws LogicException if something goes wrong
      * @access protected
      */

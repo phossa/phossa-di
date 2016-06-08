@@ -49,7 +49,7 @@ class DelegateExtension extends ExtensionAbstract implements ContainerAwareInter
      * Set delegator
      *
      * @param  DelegatorInterface $delegator
-     * @return static
+     * @return self
      * @access public
      * @internal
      */

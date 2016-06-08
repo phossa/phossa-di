@@ -34,7 +34,7 @@ interface ContainerAwareInterface
      * Set the container
      *
      * @param  ContainerInterface $container
-     * @return static
+     * @return self
      * @access public
      * @api
      */

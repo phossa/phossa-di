@@ -34,7 +34,7 @@ interface ProviderAwareInterface
      * Add providers to container
      *
      * @param  string|ProviderAbstract $providerOrClass
-     * @return static
+     * @return self
      * @throws LogicException if not a valide provider
      * @access public
      * @api

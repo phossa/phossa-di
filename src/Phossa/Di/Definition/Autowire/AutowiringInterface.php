@@ -34,7 +34,7 @@ interface AutowiringInterface
      * Set autowiring ON or OFF
      *
      * @param  bool $switchOn
-     * @return static
+     * @return self
      * @access public
      * @api
      */

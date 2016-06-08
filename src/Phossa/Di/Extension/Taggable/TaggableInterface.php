@@ -34,7 +34,7 @@ interface TaggableInterface
      * Set(replace all) tag or tags
      *
      * @param  string|string[] $tagOrTagArray
-     * @return static
+     * @return self
      * @throws InvalidArgumentException
      * @access public
      * @api

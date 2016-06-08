@@ -48,7 +48,7 @@ interface ScopeInterface
      * Make container default scope to __SHARED__ or __SINGLE__
      *
      * @param  bool $status sharing status
-     * @return static
+     * @return self
      * @access public
      * @api
      */

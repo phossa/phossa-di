@@ -38,7 +38,7 @@ interface ExtensibleInterface extends Taggable\TaggableInterface, Provider\Provi
      * Add extension to the container
      *
      * @param  ExtensionAbstract $extension
-     * @return static
+     * @return self
      * @access public
      * @api
      */

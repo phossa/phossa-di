@@ -58,7 +58,7 @@ interface DecorateAwareInterface
      * @param  string $ruleName decorate rule name
      * @param  string|callable $interfaceOrClosure interface/classname or callable
      * @param  array|callable $decorateCallable
-     * @return static
+     * @return self
      * @access public
      * @api
      */

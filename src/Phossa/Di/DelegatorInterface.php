@@ -36,7 +36,7 @@ interface DelegatorInterface extends InteropContainerInterface
      * Append container to the pool end
      *
      * @param  InteropContainerInterface $container
-     * @return static
+     * @return self
      * @access public
      * @api
      */
