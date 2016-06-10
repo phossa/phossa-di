@@ -29,8 +29,9 @@ use Phossa\Di\Exception\InvalidArgumentException;
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
  * @see     DefinitionAwareInterface
- * @version 1.0.6
+ * @version 1.0.7
  * @since   1.0.1 added
+ * @since   1.0.7 added resolver support
  */
 trait DefinitionAwareTrait
 {
@@ -82,10 +83,14 @@ trait DefinitionAwareTrait
             $this->fixParameters($nameOrArray);
 
             // merge/replace with existing ones
-            $this->parameters = array_replace_recursive(
-                $this->parameters,
-                $nameOrArray
-            );
+            if ($this->hasResolver()) {
+                $this->getResolver()->set($nameOrArray);
+            } else {
+                $this->parameters = array_replace_recursive(
+                    $this->parameters,
+                    $nameOrArray
+                );
+            }
 
         // name is string
         } elseif (is_string($nameOrArray)) {
@@ -219,10 +224,15 @@ trait DefinitionAwareTrait
         $todo = [ 'services', 'parameters', 'mappings' ];
         $out  = $toScreen ? true : '';
         foreach ($todo as $section) {
-            if ($toScreen) {
-                print_r($this->$section, false);
+            if ('parameters' === $section && $this->hasResolver()) {
+                $data = $this->getResolver()->get(null);
             } else {
-                $out .= print_r($this->$section, true) . "\n";
+                $data = $this->$section;
+            }
+            if ($toScreen) {
+                print_r($data, false);
+            } else {
+                $out .= print_r($data, true) . "\n";
             }
         }
         return $out;
@@ -339,18 +349,28 @@ trait DefinitionAwareTrait
      */
     protected function getParameter(/*# string */ $name)
     {
-        // break into parts by '.'
-        $parts = explode('.', $name);
-        $found = $this->parameters;
-        while (null !== ($part = array_shift($parts))) {
-            if (!isset($found[$part])) {
-                throw new NotFoundException(
-                    Message::get(Message::PARAMETER_NOT_FOUND, $name),
-                    Message::PARAMETER_NOT_FOUND
-                );
+        if ($this->hasResolver()) {
+            $found = $this->getResolver()->get($name);
+        } else {
+            // break into parts by '.'
+            $parts = explode('.', $name);
+            $found = $this->parameters;
+            while (null !== ($part = array_shift($parts))) {
+                if (!isset($found[$part])) {
+                    $found = null;
+                    break;
+                }
+                $found = $found[$part];
             }
-            $found = $found[$part];
         }
+
+        if (null === $found) {
+            throw new NotFoundException(
+                Message::get(Message::PARAMETER_NOT_FOUND, $name),
+                Message::PARAMETER_NOT_FOUND
+                );
+        }
+
         return $found;
     }
 

@@ -130,6 +130,12 @@ class Message extends MessageAbstract
      * Parameter loop found for "%s"
      */
     const PARAMETER_LOOP_FOUND  = 1602190649;
+
+    /**
+     * Parameter resolver not found
+     */
+    const PARAM_RESOLVER_MISS   = 1602190650;
+
     /**#@-*/
 
     /**
@@ -156,5 +162,6 @@ class Message extends MessageAbstract
         self::SERVICE_ID_INVALID    => 'Service id expects string, not "%s"',
         self::MAP_ID_INVALID        => 'Map id expects string, not "%s"',
         self::PARAMETER_LOOP_FOUND  => 'Parameter loop found for "%s"',
+        self::PARAM_RESOLVER_MISS   => 'Parameter resolver not found',
     ];
 }

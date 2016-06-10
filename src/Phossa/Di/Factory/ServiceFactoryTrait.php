@@ -97,7 +97,7 @@ trait ServiceFactoryTrait
         array $providedArguments
     )/*# : array */ {
         // object with __invoke defined or \Closure
-        if (is_object($callable)) {
+        if (is_object($callable) && !$callable instanceof \Closure) {
             $reflector = new \ReflectionClass($callable);
             $method = $reflector->getMethod('__invoke');
 
@@ -136,7 +136,12 @@ trait ServiceFactoryTrait
         array $providedArguments
     )/*# : array */ {
         $resolvedArguments = [];
-        $fail   = false;
+        $fail = false;
+
+        // empty reflection
+        if (empty($reflectionParameters)) {
+            return $providedArguments;
+        }
 
         // go thru each parameter defined
         foreach ($reflectionParameters as $i => $param) {
@@ -276,9 +281,16 @@ trait ServiceFactoryTrait
             (isset($def[1]) ? $def[1] : []) : $arguments;
 
         try {
-            // closure with arguments
-            if (is_object($class) && $class instanceof \Closure) {
-                return $this->executeCallable($class, $args);
+            // objects
+            if (is_object($class)) {
+                // closure with arguments
+                if ($class instanceof \Closure) {
+                    return $this->executeCallable($class, $args);
+
+                // other object
+                } else {
+                    return $class;
+                }
 
             // (pseudo) callable with arguments
             } elseif (is_array($class[0])) {

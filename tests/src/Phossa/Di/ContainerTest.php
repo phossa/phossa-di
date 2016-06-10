@@ -55,18 +55,17 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
- 	 * getPrivateProperty
- 	 *
- 	 * @param 	string $propertyName
- 	 * @return	the property
- 	 */
-	public function getPrivateProperty($propertyName) {
-		$reflector = new \ReflectionClass($this->object);
-		$property  = $reflector->getProperty($propertyName);
-		$property->setAccessible(true);
-
-		return $property->getValue($this->object);
-	}
+     * getPrivateProperty
+     *
+     * @param 	string $propertyName
+     * @return	the property
+     */
+    public function getPrivateProperty($propertyName) {
+        $reflector = new \ReflectionClass($this->object);
+        $property  = $reflector->getProperty($propertyName);
+        $property->setAccessible(true);
+        return $property->getValue($this->object);
+    }
 
     /**
      * definition array format error

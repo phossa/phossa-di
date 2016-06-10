@@ -20,6 +20,7 @@ use Phossa\Di\Exception\NotFoundException;
 use Phossa\Di\Definition\Scope\ScopeInterface;
 use Phossa\Di\Exception\InvalidArgumentException;
 use Phossa\Di\Definition\Autowire\AutowiringInterface;
+use Phossa\Di\Definition\Resolver\ResolverAwareInterface;
 
 /**
  * DefinitionAwareInterface
@@ -29,10 +30,11 @@ use Phossa\Di\Definition\Autowire\AutowiringInterface;
  * @interface
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.6
+ * @version 1.0.7
  * @since   1.0.1 added
+ * @since   1.0.7 added ResolverAwareInterface
  */
-interface DefinitionAwareInterface extends ScopeInterface, AutowiringInterface
+interface DefinitionAwareInterface extends ScopeInterface, AutowiringInterface, ResolverAwareInterface
 {
     /**
      * Set/replace parameter definition(s)
@@ -102,7 +104,7 @@ interface DefinitionAwareInterface extends ScopeInterface, AutowiringInterface
      * ```
      *
      * @param  string|array $id service id/classname or definition array
-     * @param  string|callable $classOrClosure classname/closure/callable
+     * @param  string|callable|object $classOrClosure class/closure/object
      * @param  array $constructorArguments constructor/callable arguments
      * @return self
      * @throws InvalidArgumentException

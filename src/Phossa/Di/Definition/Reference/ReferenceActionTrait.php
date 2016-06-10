@@ -18,6 +18,7 @@ namespace Phossa\Di\Definition\Reference;
 use Phossa\Di\Message\Message;
 use Phossa\Di\Exception\LogicException;
 use Phossa\Di\Exception\NotFoundException;
+use Phossa\Di\Definition\Resolver\ResolverAwareTrait;
 
 /**
  * ReferenceActionTrait
@@ -27,11 +28,14 @@ use Phossa\Di\Exception\NotFoundException;
  * @trait
  * @package Phossa\Di
  * @author  Hong Zhang <phossa@126.com>
- * @version 1.0.6
+ * @version 1.0.7
  * @since   1.0.4 added
+ * @since   1.0.7 added support for resolver
  */
 trait ReferenceActionTrait
 {
+    use ResolverAwareTrait;
+
     /**
      * Replace all the references in the array with values
      *
@@ -103,19 +107,33 @@ trait ReferenceActionTrait
      */
     protected function isReference($data)
     {
-        // reference string pattern
-        $pat = '/^(%|@)([^\s]+)\1$/';
-        $mat = []; // placeholders
-
         // is a reference object
         if (is_object($data) && $data instanceof ReferenceAbstract) {
             return $data;
 
         // is string and matches reference pattern
-        } elseif (is_string($data) && preg_match($pat, $data, $mat)) {
-            return $mat[1] === '%' ?
-                new ParameterReference($mat[2]) :
-                new ServiceReference($mat[2]);
+        } elseif (is_string($data)) {
+            $pat = '/^(@|%)([^\s]+)\1$/';
+            $mat = []; // placeholders
+
+            if (preg_match($pat, $data, $mat)) {
+                return $mat[1] === '@' ?
+                    new ServiceReference($mat[2]) :
+                    new ParameterReference($mat[2]);
+            }
+
+            // parameter resolver support
+            if ($this->hasResolver() &&
+                $this->getResolver()->hasReference($data)) {
+
+                list($s, $e) = $this->paramter_pattern;
+                $pat = '/^' . preg_quote($s) . '([^\s]+)' . preg_quote($e). '$/';
+                if (preg_match($pat, $data, $mat)) {
+                    return new ParameterReference($mat[1]);
+                }
+            }
+
+            return false;
 
         // not a match
         } else {
